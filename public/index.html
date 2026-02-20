@@ -1,1 +1,903 @@
-PLACEHOLDER
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>C-Serv.AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#04060d;--base:#080e1a;--l1:#0d1526;--l2:#111d33;--l3:#172340;--l4:#1e2e50;
+  --rim:#1e2d45;--rim2:#263549;
+  --ink0:#f2f8ff;--ink1:#bccde0;--ink2:#7a9bbf;--ink3:#4a6080;--ink4:#2d3f5a;
+  --cyan:#00d4ff;--cyan2:#0099cc;--cdim:rgba(0,212,255,.06);--cglow:rgba(0,212,255,.15);
+  --em:#00e5a0;--amber:#ffb830;--rose:#ff3d5a;--violet:#a78bfa;
+  --wo:#ff3d5a;--wo-bg:rgba(255,61,90,.12);--roi:#00e5a0;--roi-bg:rgba(0,229,160,.08);
+  --sun-c:#ffb830;--sun-bg:rgba(255,184,48,.1);--sat-c:#a78bfa;--sat-bg:rgba(167,139,250,.1);
+  --nav-w:250px;--top:58px;--r:8px;--r2:12px;--r3:16px;
+  --f:'Outfit',sans-serif;--m:'IBM Plex Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{font-family:var(--f);background:var(--bg);color:var(--ink1);font-size:14px;line-height:1.5;min-height:100vh;overflow:hidden}
+::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-thumb{background:var(--rim2);border-radius:99px}
+input,select,button,textarea{font-family:var(--f)}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse2{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
+@keyframes glow{0%,100%{box-shadow:0 0 20px rgba(0,212,255,.3)}50%{box-shadow:0 0 40px rgba(0,212,255,.6)}}
+.fu{animation:fadeUp .32s ease forwards}
+
+/* ═══ LOGIN ═══ */
+#LS{position:fixed;inset:0;z-index:1000;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px}
+.lb{position:absolute;inset:0;overflow:hidden}
+.lb::before{content:'';position:absolute;top:-30%;left:-20%;width:80%;height:80%;background:radial-gradient(ellipse,rgba(0,212,255,.07) 0%,transparent 65%)}
+.lb::after{content:'';position:absolute;bottom:-20%;right:-10%;width:60%;height:60%;background:radial-gradient(ellipse,rgba(0,229,160,.05) 0%,transparent 65%)}
+.lb-g{position:absolute;inset:0;background-image:linear-gradient(rgba(0,212,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.025) 1px,transparent 1px);background-size:48px 48px}
+.lc{position:relative;z-index:1;width:100%;max-width:420px;background:var(--l1);border:1px solid var(--rim2);border-radius:20px;padding:38px 34px;box-shadow:0 24px 80px rgba(0,0,0,.6),0 0 0 1px rgba(0,212,255,.06);animation:fadeUp .5s ease}
+.l-brand{text-align:center;margin-bottom:28px}
+.l-logo{width:54px;height:54px;background:linear-gradient(135deg,var(--cyan),var(--cyan2));border-radius:14px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 0 28px rgba(0,212,255,.4);animation:glow 3s ease infinite}
+.l-name{font-size:24px;font-weight:800;letter-spacing:-.5px;color:var(--ink0)}
+.l-name em{color:var(--cyan);font-style:normal}
+.l-sub{font-family:var(--m);font-size:9.5px;letter-spacing:2px;text-transform:uppercase;color:var(--ink3);margin-top:4px}
+.l-tabs{display:flex;gap:4px;background:var(--l2);border:1px solid var(--rim);border-radius:10px;padding:3px;margin-bottom:24px}
+.l-tab{flex:1;padding:8px;border:none;background:none;color:var(--ink3);font-family:var(--f);font-size:13px;font-weight:500;border-radius:8px;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px}
+.l-tab.on{background:var(--l3);color:var(--ink0);box-shadow:0 1px 6px rgba(0,0,0,.4)}
+.fg{margin-bottom:14px}
+.fl{display:block;font-size:11.5px;color:var(--ink2);margin-bottom:5px;font-weight:500}
+.fi{width:100%;padding:10px 12px;background:var(--l2);border:1px solid var(--rim2);border-radius:8px;color:var(--ink0);font-size:14px;outline:none;transition:all .15s}
+.fi:focus{border-color:var(--cyan);box-shadow:0 0 0 3px var(--cdim);background:var(--l3)}
+.fi::placeholder{color:var(--ink4)}
+.lerr{background:rgba(255,61,90,.07);border:1px solid rgba(255,61,90,.2);border-radius:8px;padding:9px 12px;color:#ff8099;font-size:12.5px;margin-bottom:12px;display:none}
+.lerr.show{display:block}
+.btn-login{width:100%;padding:12px;background:linear-gradient(135deg,var(--cyan),var(--cyan2));color:var(--bg);border:none;border-radius:10px;font-family:var(--f);font-size:15px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;box-shadow:0 4px 20px rgba(0,212,255,.3)}
+.btn-login:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,212,255,.4)}
+.btn-login:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.l-hint{text-align:center;margin-top:16px;font-size:11px;font-family:var(--m);color:var(--ink4)}
+.l-hint span{color:var(--ink3)}
+
+/* ═══ APP SHELL ═══ */
+#APP{display:none;flex-direction:column;height:100vh}
+#APP.show{display:flex}
+
+/* TOPBAR */
+.topbar{height:var(--top);background:rgba(4,6,13,.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--rim);display:flex;align-items:center;flex-shrink:0;position:relative;z-index:200}
+.brand{width:var(--nav-w);display:flex;align-items:center;gap:10px;padding:0 18px;height:100%;border-right:1px solid var(--rim);flex-shrink:0;cursor:pointer;transition:background .15s}
+.brand:hover{background:var(--cdim)}
+.brand-ico{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--cyan),var(--cyan2));display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 0 16px rgba(0,212,255,.35);flex-shrink:0}
+.bn{font-size:17px;font-weight:800;letter-spacing:-.5px;color:var(--ink0);line-height:1}
+.bn em{color:var(--cyan);font-style:normal}
+.bs{font-family:var(--m);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink3)}
+.tb-mid{flex:1;display:flex;align-items:center;padding:0 20px;gap:12px}
+.live-pill{display:flex;align-items:center;gap:7px;font-family:var(--m);font-size:10.5px;color:var(--em);background:rgba(0,229,160,.06);border:1px solid rgba(0,229,160,.18);border-radius:99px;padding:4px 12px}
+.ld{width:6px;height:6px;border-radius:50%;background:var(--em);box-shadow:0 0 8px var(--em);animation:pulse2 2.4s ease infinite}
+.tb-r{display:flex;align-items:center;gap:8px;padding-right:18px;margin-left:auto}
+.ib{width:34px;height:34px;border-radius:var(--r);background:var(--l1);border:1px solid var(--rim);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;color:var(--ink2);transition:all .15s}
+.ib:hover{border-color:var(--cyan);color:var(--cyan);background:var(--cdim)}
+.u-pill{display:flex;align-items:center;gap:8px;padding:4px 10px 4px 6px;background:var(--l1);border:1px solid var(--rim);border-radius:var(--r);cursor:pointer;transition:all .15s}
+.uav{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,#1a5cb8,var(--cyan2));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0}
+.un{font-size:12px;font-weight:600;color:var(--ink0);line-height:1}
+.ur{font-size:10px;color:var(--ink3);font-family:var(--m)}
+.rb{font-size:9px;font-family:var(--m);font-weight:600;padding:2px 7px;border-radius:99px}
+.rb-a{background:rgba(0,212,255,.1);color:var(--cyan);border:1px solid rgba(0,212,255,.2)}
+.rb-o{background:rgba(0,229,160,.08);color:var(--em);border:1px solid rgba(0,229,160,.18)}
+
+/* SHELL */
+.shell{display:flex;flex:1;overflow:hidden}
+
+/* SIDENAV */
+.sidenav{width:var(--nav-w);min-width:var(--nav-w);background:var(--base);border-right:1px solid var(--rim);display:flex;flex-direction:column;overflow-y:auto;height:calc(100vh - var(--top))}
+.ng{padding:14px 10px 4px}
+.ngl{font-size:9px;font-family:var(--m);letter-spacing:2px;text-transform:uppercase;color:var(--ink4);padding:0 8px;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.ngl::after{content:'';flex:1;height:1px;background:var(--rim)}
+.nl{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--r);cursor:pointer;transition:all .15s;color:var(--ink3);font-size:13px;font-weight:500;margin-bottom:1px;position:relative;user-select:none}
+.nl:hover{background:var(--l1);color:var(--ink1)}
+.nl.on{background:var(--cdim);color:var(--cyan);border:1px solid rgba(0,212,255,.1)}
+.nl.on::before{content:'';position:absolute;left:-10px;top:50%;transform:translateY(-50%);width:3px;height:22px;background:linear-gradient(180deg,var(--cyan),var(--cyan2));border-radius:0 3px 3px 0;box-shadow:0 0 10px rgba(0,212,255,.5)}
+.nl.locked{opacity:.35;cursor:not-allowed}
+.nl.locked:hover{background:none;color:var(--ink3)}
+.ni{font-size:16px;width:20px;text-align:center;flex-shrink:0}
+.nt{flex:1}
+.nbadge{font-size:9px;font-family:var(--m);font-weight:600;padding:2px 7px;border-radius:99px}
+.nb-live{background:rgba(0,229,160,.1);color:var(--em);border:1px solid rgba(0,229,160,.2)}
+.nb-soon{background:var(--l2);color:var(--ink3);border:1px solid var(--rim)}
+.nd{height:1px;background:var(--rim);margin:8px 12px}
+.nav-footer{margin-top:auto;padding:14px 18px;border-top:1px solid var(--rim)}
+.nav-ver{font-family:var(--m);font-size:10px;color:var(--ink4)}
+
+/* CONTENT */
+.content{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.pg{display:none;flex:1;flex-direction:column;overflow:hidden}
+.pg.on{display:flex}
+
+/* ═══ HOME ═══ */
+.hs{flex:1;overflow-y:auto}
+.hero{padding:38px 38px 30px;background:linear-gradient(180deg,rgba(0,212,255,.04) 0%,transparent 100%);border-bottom:1px solid var(--rim);position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(0,212,255,.022) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.022) 1px,transparent 1px);background-size:44px 44px;pointer-events:none}
+.hero::after{content:'';position:absolute;top:-60px;right:-40px;width:320px;height:320px;background:radial-gradient(circle,rgba(0,212,255,.07) 0%,transparent 65%);pointer-events:none}
+.h-eye{display:flex;align-items:center;gap:8px;font-family:var(--m);font-size:10px;color:var(--cyan);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px}
+.h-eye::before{content:'';width:22px;height:2px;background:linear-gradient(90deg,var(--cyan),transparent)}
+.h-h{font-size:32px;font-weight:800;color:var(--ink0);letter-spacing:-1.5px;line-height:1.1;margin-bottom:12px}
+.h-h .hl{color:transparent;background:linear-gradient(90deg,var(--cyan),var(--em));-webkit-background-clip:text;background-clip:text}
+.h-p{color:var(--ink2);font-size:14px;max-width:520px;line-height:1.7;margin-bottom:26px}
+.h-kpis{display:flex;gap:34px;flex-wrap:wrap}
+.kv{font-size:26px;font-weight:800;font-family:var(--m);color:var(--ink0);letter-spacing:-1px}
+.kl{font-size:11px;color:var(--ink3);margin-top:2px}
+
+.msec{padding:28px 38px}
+.mhd{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.mt{font-size:15px;font-weight:700;color:var(--ink0);display:flex;align-items:center;gap:8px}
+.mt::before{content:'';width:3px;height:18px;background:var(--cyan);border-radius:2px;box-shadow:0 0 8px var(--cyan)}
+.mc2{font-family:var(--m);font-size:11px;color:var(--ink3)}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:13px}
+.mcard{background:var(--l1);border:1px solid var(--rim);border-radius:var(--r3);padding:22px;cursor:pointer;transition:all .22s cubic-bezier(.34,1.56,.64,1);position:relative;overflow:hidden;opacity:0;animation:fadeUp .4s ease forwards}
+.mcard:nth-child(1){animation-delay:.05s}.mcard:nth-child(2){animation-delay:.1s}.mcard:nth-child(3){animation-delay:.15s}.mcard:nth-child(4){animation-delay:.2s}.mcard:nth-child(5){animation-delay:.25s}.mcard:nth-child(6){animation-delay:.3s}
+.mcard::before{content:'';position:absolute;top:0;right:0;width:90px;height:90px;background:radial-gradient(circle at top right,var(--cc,rgba(0,212,255,.05)),transparent 65%);pointer-events:none}
+.mcard:hover{border-color:var(--cb,var(--cyan));transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.3)}
+.mcard.locked{cursor:default}
+.mcard.locked:hover{transform:none;box-shadow:none;border-color:var(--rim)}
+.mc-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+.mc-ico{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px}
+.mc-bdg{font-size:9.5px;font-family:var(--m);font-weight:600;padding:3px 9px;border-radius:99px;letter-spacing:.8px;height:fit-content}
+.mc-live{background:rgba(0,229,160,.1);color:var(--em);border:1px solid rgba(0,229,160,.25)}
+.mc-soon{background:var(--l3);color:var(--ink3);border:1px solid var(--rim)}
+.mc-n{font-family:var(--m);font-size:9px;color:var(--ink4);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px}
+.mc-name{font-size:14px;font-weight:700;color:var(--ink0);margin-bottom:6px}
+.mc-desc{font-size:12px;color:var(--ink2);line-height:1.6;margin-bottom:16px}
+.mc-ft{display:flex;align-items:center;justify-content:space-between}
+.mc-chips{display:flex;gap:5px}
+.mc-chip{font-size:9.5px;font-family:var(--m);color:var(--ink3);background:var(--l3);border:1px solid var(--rim);border-radius:4px;padding:2px 7px}
+.mc-arr{color:var(--cyan);font-size:20px;transition:transform .15s;opacity:.7}
+.mcard:not(.locked):hover .mc-arr{transform:translateX(5px);opacity:1}
+.lo{position:absolute;inset:0;border-radius:var(--r3);background:rgba(4,6,13,.55);backdrop-filter:blur(2px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
+.lo-i{font-size:22px;opacity:.6}
+.lo-t{font-size:10px;font-family:var(--m);color:var(--ink3);letter-spacing:1px;text-transform:uppercase}
+
+/* ═══ ROSTER PAGE ═══ */
+.mbar{display:flex;align-items:center;padding:0 18px;height:46px;min-height:46px;background:var(--base);border-bottom:1px solid var(--rim);flex-shrink:0}
+.bc{display:flex;align-items:center;gap:7px;font-size:12.5px}
+.bc-h{color:var(--ink3);cursor:pointer;transition:color .15s;display:flex;align-items:center;gap:4px}
+.bc-h:hover{color:var(--cyan)}
+.bc-s{color:var(--ink4);font-size:10px}
+.bc-c{color:var(--ink1);font-weight:600}
+.mbar-r{margin-left:auto;display:flex;align-items:center;gap:8px}
+.rc{display:flex;align-items:center;gap:5px;font-family:var(--m);font-size:10px;color:var(--em);background:rgba(0,229,160,.06);border:1px solid rgba(0,229,160,.15);border-radius:6px;padding:3px 9px}
+.rd2{width:5px;height:5px;border-radius:50%;background:var(--em);box-shadow:0 0 6px var(--em)}
+
+.rsh{display:flex;flex:1;overflow:hidden}
+.cp{width:285px;min-width:285px;background:var(--base);border-right:1px solid var(--rim);display:flex;flex-direction:column;overflow-y:auto}
+.cs{padding:13px;border-bottom:1px solid var(--rim)}
+.cl{font-family:var(--m);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--ink4);margin-bottom:10px}
+.ctrl{width:100%;padding:8px 10px;background:var(--l2);border:1px solid var(--rim);border-radius:7px;color:var(--ink1);font-size:13px;outline:none;transition:all .15s;margin-bottom:9px;appearance:none}
+.ctrl:focus{border-color:var(--cyan);box-shadow:0 0 0 3px var(--cdim)}
+.c2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ag-h{display:grid;grid-template-columns:55px 1fr 46px 26px;gap:5px;padding:5px 3px;font-family:var(--m);font-size:9px;color:var(--ink4);letter-spacing:1px;border-bottom:1px solid var(--rim);margin-bottom:4px}
+.ag-r{display:grid;grid-template-columns:55px 1fr 46px 26px;gap:5px;padding:3px;border-radius:6px;align-items:center;transition:background .1s;margin-bottom:2px}
+.ag-r:hover{background:var(--l2)}
+.ai{background:var(--l2);border:1px solid var(--rim);border-radius:5px;padding:4px 6px;color:var(--ink1);font-size:11.5px;outline:none;width:100%}
+.ai:focus{border-color:var(--cyan2)}
+.as{background:var(--l2);border:1px solid var(--rim);border-radius:5px;padding:3px 4px;color:var(--ink1);font-family:var(--m);font-size:10px;outline:none;width:100%;appearance:none}
+.ad{background:none;border:none;cursor:pointer;color:var(--ink4);font-size:13px;padding:3px;border-radius:4px;transition:all .15s;line-height:1}
+.ad:hover{background:rgba(255,61,90,.1);color:var(--rose)}
+.btn-add-ag{width:100%;padding:7px;background:none;border:1px dashed var(--rim2);border-radius:7px;color:var(--ink3);font-size:11.5px;cursor:pointer;margin-top:7px;transition:all .15s}
+.btn-add-ag:hover{border-color:var(--cyan);color:var(--cyan);background:var(--cdim)}
+.alrt{padding:9px 12px;border-radius:7px;font-size:12px;margin-bottom:10px;line-height:1.5}
+.a-ok{background:rgba(0,229,160,.07);border:1px solid rgba(0,229,160,.2);color:#5efac9}
+.a-err{background:rgba(255,61,90,.07);border:1px solid rgba(255,61,90,.2);color:#ff8099}
+.a-warn{background:rgba(255,184,48,.07);border:1px solid rgba(255,184,48,.2);color:#ffd06b}
+.btn-gen{width:100%;padding:11px;background:linear-gradient(135deg,var(--cyan),var(--cyan2));color:var(--bg);border:none;border-radius:9px;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;box-shadow:0 4px 20px rgba(0,212,255,.25)}
+.btn-gen:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,212,255,.35)}
+.btn-gen:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn-sm{flex:1;padding:8px 6px;background:var(--l2);border:1px solid var(--rim2);border-radius:7px;color:var(--ink2);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:5px}
+.btn-sm:hover{border-color:var(--cyan);color:var(--cyan);background:var(--cdim)}
+.exp-row{display:flex;gap:7px;margin-top:9px}
+.btn-save{width:100%;padding:9px;margin-top:7px;background:rgba(0,229,160,.08);border:1px solid rgba(0,229,160,.2);border-radius:8px;color:var(--em);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s}
+.btn-save:hover{background:rgba(0,229,160,.14)}
+.sp{width:15px;height:15px;border-radius:50%;border:2px solid rgba(0,0,0,.2);border-top-color:var(--bg);animation:spin .65s linear infinite;flex-shrink:0}
+
+.ro{flex:1;overflow-y:auto;padding:20px 24px;background:var(--bg)}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;text-align:center}
+.empty-ico{font-size:52px;opacity:.2;margin-bottom:18px}
+.empty-h{font-size:18px;font-weight:700;color:var(--ink2);margin-bottom:7px}
+.empty-p{font-size:13px;color:var(--ink3);max-width:300px;line-height:1.7}
+.rg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:24px;max-width:460px;text-align:left}
+.rp{background:var(--l1);border:1px solid var(--rim);border-radius:7px;padding:9px 12px}
+.rpn{font-family:var(--m);font-size:9.5px;color:var(--cyan);margin-bottom:2px}
+.rpt{font-size:12px;color:var(--ink2)}
+
+.sr{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.sc{background:var(--l1);border:1px solid var(--rim);border-radius:var(--r2);padding:13px 15px;position:relative;overflow:hidden}
+.sc::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,var(--cyan),transparent)}
+.scl{font-family:var(--m);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink4);margin-bottom:7px}
+.scv{font-family:var(--m);font-size:26px;font-weight:600;color:var(--ink0);letter-spacing:-1px}
+.scs{font-size:11px;color:var(--ink3);margin-top:3px}
+
+.tab-row{display:flex;gap:2px;background:var(--l1);border:1px solid var(--rim);border-radius:9px;padding:3px;width:fit-content;margin-bottom:16px}
+.tb{padding:6px 15px;border:none;background:none;color:var(--ink3);font-size:13px;font-weight:500;border-radius:7px;cursor:pointer;transition:all .15s}
+.tb.on{background:var(--l3);color:var(--cyan);box-shadow:0 1px 6px rgba(0,0,0,.4)}
+.tb:hover:not(.on){color:var(--ink1)}
+
+.leg-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.leg{display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--ink3)}
+.chip{display:inline-block;padding:2px 7px;border-radius:4px;font-family:var(--m);font-size:9.5px;font-weight:500;letter-spacing:.3px}
+.c-wo{background:var(--wo-bg);color:var(--wo);border:1px solid rgba(255,61,90,.2)}
+.c-roi{background:var(--roi-bg);color:var(--roi);border:1px solid rgba(0,229,160,.15)}
+.c-sun{background:var(--sun-bg);color:var(--sun-c);border:1px solid rgba(255,184,48,.2)}
+.c-sat{background:var(--sat-bg);color:var(--sat-c);border:1px solid rgba(167,139,250,.2)}
+
+.tbox{background:var(--l1);border:1px solid var(--rim);border-radius:var(--r2);overflow:auto;max-height:calc(100vh - 340px)}
+.rtb{border-collapse:collapse;min-width:100%}
+.rtb th{background:var(--base);color:var(--ink3);padding:8px 5px;text-align:center;font-family:var(--m);font-size:9.5px;font-weight:400;white-space:nowrap;border-right:1px solid var(--rim);position:sticky;top:0;z-index:10}
+.rtb th.th-a{text-align:left;padding-left:12px;min-width:155px;position:sticky;left:0;z-index:20;border-right:2px solid var(--rim2)}
+.rtb th.th-l{min-width:44px;position:sticky;left:155px;z-index:20;border-right:2px solid var(--rim2)}
+.rtb th.th-t{color:var(--cyan);border-left:2px solid var(--rim2);background:rgba(0,212,255,.03)}
+.rtb td{padding:5px 3px;text-align:center;border-bottom:1px solid rgba(30,45,69,.5);border-right:1px solid rgba(30,45,69,.4)}
+.rtb td.td-a{text-align:left;padding-left:12px;position:sticky;left:0;z-index:5;background:var(--l1);border-right:2px solid var(--rim2);white-space:nowrap}
+.rtb td.td-l{position:sticky;left:155px;z-index:5;background:var(--l1);border-right:2px solid var(--rim2)}
+.rtb tr:hover td{background:var(--l2)}
+.rtb tr:hover td.td-a,.rtb tr:hover td.td-l{background:var(--l2)}
+.rtb td.td-t{border-left:2px solid var(--rim2);font-family:var(--m);font-weight:600;color:var(--cyan);background:rgba(0,212,255,.04)}
+.d-sun{color:var(--sun-c)!important}.d-sat{color:var(--sat-c)!important}
+.lbdg{display:inline-block;padding:2px 7px;border-radius:4px;font-family:var(--m);font-size:9.5px;font-weight:500}
+.ptb{border-collapse:collapse;width:100%}
+.ptb th{background:var(--base);color:var(--ink3);padding:9px 12px;text-align:left;font-family:var(--m);font-size:9.5px;letter-spacing:1px;border-bottom:2px solid var(--rim)}
+.ptb td{padding:9px 12px;border-bottom:1px solid rgba(30,45,69,.5);font-size:13px}
+.ptb tr:hover td{background:var(--l2)}
+.si{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:7px;border:1px solid var(--rim);margin-bottom:6px;background:var(--l2);transition:all .15s;cursor:pointer}
+.si:hover{border-color:var(--cyan);background:var(--l3)}
+.si-info{flex:1}
+.si-t{font-size:13px;font-weight:600;color:var(--ink0)}
+.si-s{font-size:11px;color:var(--ink3);font-family:var(--m)}
+.si-d{background:none;border:none;cursor:pointer;color:var(--ink4);font-size:14px;padding:4px;border-radius:4px;transition:all .15s}
+.si-d:hover{background:rgba(255,61,90,.1);color:var(--rose)}
+
+/* ═══ ADMIN ═══ */
+.asc{flex:1;overflow-y:auto;padding:24px 32px}
+.a-h{font-size:22px;font-weight:800;color:var(--ink0);letter-spacing:-.5px;margin-bottom:4px}
+.a-s{font-size:13px;color:var(--ink3);margin-bottom:24px}
+.agrid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.acard{background:var(--l1);border:1px solid var(--rim);border-radius:var(--r2);padding:20px}
+.acard.full{grid-column:1/-1}
+.ac-t{font-size:14px;font-weight:700;color:var(--ink0);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.ac-t::before{content:'';width:3px;height:16px;background:var(--cyan);border-radius:2px}
+.btn-p{padding:8px 16px;background:var(--cyan);color:var(--bg);border:none;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s}
+.btn-p:hover{background:var(--cyan2);transform:translateY(-1px)}
+.btn-d{padding:6px 11px;background:rgba(255,61,90,.1);border:1px solid rgba(255,61,90,.2);border-radius:6px;color:var(--rose);font-size:12px;cursor:pointer;transition:all .15s}
+.btn-d:hover{background:rgba(255,61,90,.2)}
+.btn-e{padding:6px 11px;background:var(--l3);border:1px solid var(--rim2);border-radius:6px;color:var(--ink2);font-size:12px;cursor:pointer;transition:all .15s}
+.btn-e:hover{border-color:var(--cyan);color:var(--cyan)}
+.tbl{border-collapse:collapse;width:100%;font-size:12.5px}
+.tbl th{background:var(--base);color:var(--ink3);padding:9px 12px;text-align:left;font-family:var(--m);font-size:9.5px;letter-spacing:1px;border-bottom:2px solid var(--rim)}
+.tbl td{padding:10px 12px;border-bottom:1px solid rgba(30,45,69,.5);vertical-align:middle}
+.tbl tr:hover td{background:rgba(255,255,255,.02)}
+.tog-w{position:relative;display:inline-block;width:38px;height:21px;flex-shrink:0}
+.tog-w input{opacity:0;width:0;height:0}
+.tog-sl{position:absolute;inset:0;background:var(--rim2);border-radius:99px;cursor:pointer;transition:all .2s}
+.tog-sl::before{content:'';position:absolute;width:15px;height:15px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:all .2s}
+.tog-w input:checked+.tog-sl{background:var(--cyan)}
+.tog-w input:checked+.tog-sl::before{transform:translateX(17px)}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-bg.show{display:flex}
+.modal{background:var(--l1);border:1px solid var(--rim2);border-radius:16px;padding:26px;width:100%;max-width:420px;box-shadow:0 24px 80px rgba(0,0,0,.6);animation:fadeUp .25s ease}
+.modal-h{font-size:17px;font-weight:700;color:var(--ink0);margin-bottom:18px}
+.modal-ft{display:flex;gap:8px;margin-top:18px}
+.btn-can{flex:1;padding:10px;background:var(--l2);border:1px solid var(--rim);border-radius:8px;color:var(--ink2);font-size:13px;cursor:pointer;transition:all .15s}
+.btn-can:hover{border-color:var(--rim2)}
+.btn-cf{flex:1;padding:10px;background:var(--cyan);color:var(--bg);border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s}
+.btn-cf:hover{background:var(--cyan2)}
+
+/* MOBILE */
+@media(max-width:768px){
+  :root{--nav-w:0px}
+  .sidenav{display:none}
+  .sidenav.mob{display:flex;position:fixed;top:var(--top);left:0;bottom:0;width:260px;z-index:300}
+  .bs{display:none}
+  .hero{padding:22px 18px 18px}
+  .h-h{font-size:22px}
+  .msec{padding:18px}
+  .mgrid{grid-template-columns:1fr}
+  .agrid{grid-template-columns:1fr}
+  .sr{grid-template-columns:1fr 1fr}
+  .rsh{flex-direction:column}
+  .cp{width:100%;min-width:0;max-height:260px}
+  .ro{padding:14px}
+  .tbox{max-height:calc(100vh - 420px)}
+  #mobBtn{display:flex!important}
+}
+@media print{.topbar,.sidenav,.cp,.mbar,.tab-row{display:none!important}.shell{height:auto}.content{overflow:visible}.pg.on{overflow:visible}.ro{padding:0}.tbox{max-height:none;overflow:visible}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="LS">
+  <div class="lb"><div class="lb-g"></div></div>
+  <div class="lc">
+    <div class="l-brand">
+      <div class="l-logo">⚡</div>
+      <div class="l-name">C-Serv<em>.AI</em></div>
+      <div class="l-sub">Customer Service Intelligence Platform</div>
+    </div>
+    <div class="l-tabs">
+      <button class="l-tab on" onclick="setRole('admin',this)">🔐 Admin</button>
+      <button class="l-tab" onclick="setRole('operator',this)">👤 Operator</button>
+    </div>
+    <div id="lerr" class="lerr"></div>
+    <div class="fg"><label class="fl">Username</label><input class="fi" type="text" id="lu" placeholder="Enter username" autocomplete="username"></div>
+    <div class="fg"><label class="fl">Password</label><input class="fi" type="password" id="lp" placeholder="Enter password" autocomplete="current-password"></div>
+    <button class="btn-login" id="lbtn" onclick="doLogin()">
+      <span id="ltxt">Sign In</span>
+      <div class="sp" id="lsp" style="display:none"></div>
+    </button>
+    <div class="l-hint" id="lhint">Admin: <span>admin</span> / <span>Admin@123</span></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="APP">
+  <div class="topbar">
+    <div class="brand" onclick="go('home')">
+      <div class="brand-ico">⚡</div>
+      <div><div class="bn">C-Serv<em>.AI</em></div><div class="bs">Intelligence Platform</div></div>
+    </div>
+    <div class="tb-mid">
+      <div class="live-pill"><div class="ld"></div><span>C-Serv.AI Live</span></div>
+    </div>
+    <div class="tb-r">
+      <div class="ib" id="mobBtn" onclick="toggleNav()" style="display:none">☰</div>
+      <div class="u-pill">
+        <div class="uav" id="tav">AD</div>
+        <div><div class="un" id="tnm">Admin</div><div class="ur" id="trl">admin</div></div>
+        <span class="rb rb-a" id="trbdg">ADMIN</span>
+      </div>
+      <div class="ib" onclick="doLogout()" title="Logout">⏻</div>
+    </div>
+  </div>
+
+  <div class="shell">
+    <nav class="sidenav" id="snav">
+      <div class="ng">
+        <div class="ngl">Overview</div>
+        <div class="nl on" id="nl-home" onclick="go('home')"><span class="ni">🏠</span><span class="nt">Dashboard</span></div>
+      </div>
+      <div class="ng">
+        <div class="ngl">Modules</div>
+        <div class="nl" id="nl-roster" onclick="go('roster')"><span class="ni">📅</span><span class="nt">Roster Generator</span><span class="nbadge nb-live">LIVE</span></div>
+        <div class="nl locked"><span class="ni">📊</span><span class="nt">Analytics</span><span class="nbadge nb-soon">SOON</span></div>
+        <div class="nl locked"><span class="ni">👥</span><span class="nt">Agent Manager</span><span class="nbadge nb-soon">SOON</span></div>
+        <div class="nl locked"><span class="ni">📞</span><span class="nt">Call Tracker</span><span class="nbadge nb-soon">SOON</span></div>
+        <div class="nl locked"><span class="ni">🤖</span><span class="nt">AI Forecasting</span><span class="nbadge nb-soon">SOON</span></div>
+      </div>
+      <div class="nd"></div>
+      <div class="ng">
+        <div class="ngl">System</div>
+        <div class="nl" id="nl-admin" style="display:none" onclick="go('admin')"><span class="ni">⚙️</span><span class="nt">Admin Panel</span></div>
+        <div class="nl" id="nl-saved" onclick="go('saved')"><span class="ni">💾</span><span class="nt">Saved Rosters</span></div>
+      </div>
+      <div class="nav-footer"><div class="nav-ver">C-Serv.AI · v1.0.0</div></div>
+    </nav>
+
+    <div class="content">
+
+      <!-- HOME -->
+      <div class="pg on" id="pg-home">
+        <div class="hs">
+          <div class="hero">
+            <div class="h-eye">Customer Service Intelligence Platform</div>
+            <h1 class="h-h">Smarter Operations,<br><span class="hl">Zero Guesswork</span></h1>
+            <p class="h-p">C-Serv.AI centralises your team operations — from intelligent roster scheduling to performance analytics. Accessible by your entire team, anywhere, anytime.</p>
+            <div class="h-kpis">
+              <div><div class="kv">17</div><div class="kl">Active Agents</div></div>
+              <div><div class="kv" style="color:var(--cyan)">1</div><div class="kl">Live Modules</div></div>
+              <div><div class="kv">5+</div><div class="kl">Coming Soon</div></div>
+              <div><div class="kv" style="color:var(--em)">8</div><div class="kl">Scheduling Rules</div></div>
+            </div>
+          </div>
+          <div class="msec">
+            <div class="mhd"><div class="mt">Platform Modules</div><div class="mc2" id="mct">1 active · 5 coming soon</div></div>
+            <div class="mgrid" id="mgrid"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ROSTER -->
+      <div class="pg" id="pg-roster">
+        <div class="mbar">
+          <div class="bc">
+            <span class="bc-h" onclick="go('home')">🏠 Dashboard</span>
+            <span class="bc-s">›</span>
+            <span class="bc-c">📅 Roster Generator</span>
+          </div>
+          <div class="mbar-r"><div class="rc"><div class="rd2"></div>8 Rules Active</div></div>
+        </div>
+        <div class="rsh">
+          <aside class="cp">
+            <div class="cs">
+              <div class="cl">Schedule Period</div>
+              <div class="c2">
+                <div>
+                  <label class="fl" style="font-size:11px;color:var(--ink2)">Month</label>
+                  <select class="ctrl" id="selM">
+                    <option value="0">January</option><option value="1">February</option><option value="2" selected>March</option>
+                    <option value="3">April</option><option value="4">May</option><option value="5">June</option>
+                    <option value="6">July</option><option value="7">August</option><option value="8">September</option>
+                    <option value="9">October</option><option value="10">November</option><option value="11">December</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="fl" style="font-size:11px;color:var(--ink2)">Year</label>
+                  <input type="number" class="ctrl" id="selY" value="2026" min="2020" max="2035">
+                </div>
+              </div>
+              <label class="fl" style="font-size:11px;color:var(--ink2)">WO Saturdays</label>
+              <select class="ctrl" id="selS">
+                <option value="1,3">2nd &amp; 4th Saturday</option>
+                <option value="0,2">1st &amp; 3rd Saturday</option>
+                <option value="0,3">1st &amp; Last Saturday</option>
+              </select>
+            </div>
+            <div class="cs" style="flex:1;overflow-y:auto">
+              <div class="cl">Team Agents <span id="agCnt" style="color:var(--ink4)"></span></div>
+              <div class="ag-h"><span>Emp#</span><span>Name</span><span>Lvl</span><span></span></div>
+              <div id="agList"></div>
+              <button class="btn-add-ag" id="btnAddAg" onclick="addAgent()">+ Add Agent</button>
+            </div>
+            <div class="cs">
+              <div id="rAB"></div>
+              <button class="btn-gen" id="btnGen" onclick="generate()">
+                <span id="btnT">⚡ Generate Roster</span>
+                <div class="sp" id="btnSp" style="display:none"></div>
+              </button>
+              <div class="exp-row" id="expRow" style="display:none">
+                <button class="btn-sm" onclick="doCSV()">⬇ CSV</button>
+                <button class="btn-sm" onclick="doXLS()">⬇ Excel</button>
+                <button class="btn-sm" onclick="window.print()">🖨</button>
+              </div>
+              <button class="btn-save" id="btnSv" style="display:none" onclick="saveR()">💾 Save Roster</button>
+            </div>
+          </aside>
+          <div class="ro" id="rOut">
+            <div class="empty" id="emDiv">
+              <div class="empty-ico">📅</div>
+              <div class="empty-h">Ready to Generate</div>
+              <div class="empty-p">Configure your team and click Generate Roster.</div>
+              <div class="rg">
+                <div class="rp"><div class="rpn">RULE 01</div><div class="rpt">All Sundays → Universal WO</div></div>
+                <div class="rp"><div class="rpn">RULE 02</div><div class="rpt">2 Saturdays → Universal WO</div></div>
+                <div class="rp"><div class="rpn">RULE 03</div><div class="rpt">No 3 consecutive WOs</div></div>
+                <div class="rp"><div class="rpn">RULE 04</div><div class="rpt">Max 1 consec extra WO pair</div></div>
+                <div class="rp"><div class="rpn">RULE 05</div><div class="rpt">Max 2 agents on WO/day</div></div>
+                <div class="rp"><div class="rpn">RULE 06</div><div class="rpt">L0↔L0 · L1-3↔L4-7</div></div>
+                <div class="rp"><div class="rpn">RULE 07</div><div class="rpt">Equal WOs for all agents</div></div>
+                <div class="rp"><div class="rpn">RULE 08</div><div class="rpt">Min 1 L0 always working</div></div>
+              </div>
+            </div>
+            <div id="resDiv" style="display:none" class="fu">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px">
+                <div>
+                  <div style="font-size:20px;font-weight:800;color:var(--ink0);letter-spacing:-.5px" id="rTi">—</div>
+                  <div style="font-size:11.5px;color:var(--ink3);margin-top:3px;font-family:var(--m)" id="rSu">—</div>
+                </div>
+              </div>
+              <div class="sr">
+                <div class="sc"><div class="scl">Target WOs</div><div class="scv" id="s1">—</div><div class="scs">per agent</div></div>
+                <div class="sc"><div class="scl">Team Size</div><div class="scv" id="s2">—</div><div class="scs">agents</div></div>
+                <div class="sc"><div class="scl">Pair Days</div><div class="scv" id="s3">—</div><div class="scs">extra WO days</div></div>
+                <div class="sc"><div class="scl">Avg Coverage</div><div class="scv" id="s4">—</div><div class="scs">working/day</div></div>
+              </div>
+              <div class="tab-row">
+                <button class="tb on" onclick="swTab('cal',this)">📅 Calendar</button>
+                <button class="tb" onclick="swTab('pairs',this)">🔗 WO Pairs</button>
+                <button class="tb" onclick="swTab('sum',this)">📊 Summary</button>
+              </div>
+              <div id="tab-cal">
+                <div class="leg-row">
+                  <div class="leg"><span class="chip c-sun">SUN</span> Sunday</div>
+                  <div class="leg"><span class="chip c-sat">SAT★</span> WO Saturday</div>
+                  <div class="leg"><span class="chip c-wo">WO</span> Weekly Off</div>
+                  <div class="leg"><span class="chip c-roi">ROI</span> Working</div>
+                </div>
+                <div class="tbox"><table class="rtb" id="calT"></table></div>
+              </div>
+              <div id="tab-pairs" style="display:none"><div class="tbox" style="max-height:none"><table class="ptb" id="pairT"></table></div></div>
+              <div id="tab-sum" style="display:none"><div class="tbox" style="max-height:none"><table class="ptb" id="sumT"></table></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SAVED -->
+      <div class="pg" id="pg-saved">
+        <div class="mbar">
+          <div class="bc"><span class="bc-h" onclick="go('home')">🏠 Dashboard</span><span class="bc-s">›</span><span class="bc-c">💾 Saved Rosters</span></div>
+        </div>
+        <div style="flex:1;overflow-y:auto;padding:24px 28px">
+          <div style="font-size:20px;font-weight:800;color:var(--ink0);margin-bottom:4px">Saved Rosters</div>
+          <div style="font-size:13px;color:var(--ink3);margin-bottom:18px">Click any roster to load it back into the generator.</div>
+          <div id="savedL"><div style="color:var(--ink3);font-size:13px">Loading…</div></div>
+        </div>
+      </div>
+
+      <!-- ADMIN -->
+      <div class="pg" id="pg-admin">
+        <div class="mbar">
+          <div class="bc"><span class="bc-h" onclick="go('home')">🏠 Dashboard</span><span class="bc-s">›</span><span class="bc-c">⚙️ Admin Panel</span></div>
+        </div>
+        <div class="asc">
+          <div class="a-h">Admin Panel</div>
+          <div class="a-s">Manage users, module access, and passwords.</div>
+          <div class="agrid">
+            <div class="acard full">
+              <div class="ac-t">👥 User Management</div>
+              <div style="margin-bottom:12px"><button class="btn-p" onclick="openAdd()">+ Add User</button></div>
+              <div style="overflow-x:auto">
+                <table class="tbl">
+                  <thead><tr><th>Name</th><th>Username</th><th>Role</th><th>Modules</th><th>Can Save</th><th>Can Export</th><th>Actions</th></tr></thead>
+                  <tbody id="uTbl"></tbody>
+                </table>
+              </div>
+            </div>
+            <div class="acard">
+              <div class="ac-t">🔐 Operator Module Access</div>
+              <p style="font-size:12px;color:var(--ink3);margin-bottom:14px">Toggle which modules operators can access.</p>
+              <div id="modToggles"></div>
+              <button class="btn-p" style="margin-top:14px;width:100%" onclick="saveAccess()">Save Access Settings</button>
+            </div>
+            <div class="acard">
+              <div class="ac-t">🔑 Change Your Password</div>
+              <div class="fg" style="margin-bottom:10px">
+                <label class="fl" style="color:var(--ink2)">New Password</label>
+                <input class="fi" type="password" id="np1" placeholder="New password" style="background:var(--l2);border-color:var(--rim)">
+              </div>
+              <div class="fg" style="margin-bottom:10px">
+                <label class="fl" style="color:var(--ink2)">Confirm Password</label>
+                <input class="fi" type="password" id="np2" placeholder="Confirm password" style="background:var(--l2);border-color:var(--rim)">
+              </div>
+              <div id="pwdM"></div>
+              <button class="btn-p" style="width:100%" onclick="chgPwd()">Update Password</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-bg" id="mAdd">
+  <div class="modal">
+    <div class="modal-h">Add New User</div>
+    <div class="fg"><label class="fl">Full Name</label><input class="fi" type="text" id="an" style="background:var(--l2);border-color:var(--rim)"></div>
+    <div class="fg"><label class="fl">Username</label><input class="fi" type="text" id="au" style="background:var(--l2);border-color:var(--rim)"></div>
+    <div class="fg"><label class="fl">Password</label><input class="fi" type="password" id="ap" placeholder="Min 6 characters" style="background:var(--l2);border-color:var(--rim)"></div>
+    <div class="fg"><label class="fl">Role</label><select class="ctrl" id="ar" style="margin-bottom:0"><option value="operator">Operator</option><option value="admin">Admin</option></select></div>
+    <div id="addErr" class="lerr" style="margin-top:8px"></div>
+    <div class="modal-ft">
+      <button class="btn-can" onclick="closeM('mAdd')">Cancel</button>
+      <button class="btn-cf" onclick="createUser()">Create User</button>
+    </div>
+  </div>
+</div>
+<div class="modal-bg" id="mEdit">
+  <div class="modal">
+    <div class="modal-h">Edit User</div>
+    <input type="hidden" id="eid">
+    <div class="fg"><label class="fl">Full Name</label><input class="fi" type="text" id="en" style="background:var(--l2);border-color:var(--rim)"></div>
+    <div class="fg"><label class="fl">New Password <span style="color:var(--ink3);font-size:10px">(blank = keep)</span></label><input class="fi" type="password" id="epw" style="background:var(--l2);border-color:var(--rim)"></div>
+    <div class="fg"><label class="fl">Role</label><select class="ctrl" id="er" style="margin-bottom:0"><option value="operator">Operator</option><option value="admin">Admin</option></select></div>
+    <div style="margin-top:10px;display:flex;gap:16px;flex-wrap:wrap">
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink1);cursor:pointer"><input type="checkbox" id="ecs"> Can Save Rosters</label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink1);cursor:pointer"><input type="checkbox" id="ece"> Can Export Rosters</label>
+    </div>
+    <div id="editErr" class="lerr" style="margin-top:8px"></div>
+    <div class="modal-ft">
+      <button class="btn-can" onclick="closeM('mEdit')">Cancel</button>
+      <button class="btn-cf" onclick="updUser()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+let ME=null, AG=[], ROSTER=null, MACCESS={};
+const MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DS=['Su','Mo','Tu','We','Th','Fr','Sa'];
+const DF=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const LN=['Team Leader','Sr.L1','Sr.L2','Sr.L3','Jr.L4','Jr.L5','Jr.L6','Trainee'];
+const LC=[
+  {bg:'rgba(192,132,252,.12)',fg:'#c084fc',b:'rgba(192,132,252,.25)'},
+  {bg:'rgba(96,165,250,.12)', fg:'#60a5fa',b:'rgba(96,165,250,.25)'},
+  {bg:'rgba(52,211,153,.12)', fg:'#34d399',b:'rgba(52,211,153,.25)'},
+  {bg:'rgba(251,191,36,.12)', fg:'#fbbf24',b:'rgba(251,191,36,.25)'},
+  {bg:'rgba(244,114,182,.12)',fg:'#f472b6',b:'rgba(244,114,182,.25)'},
+  {bg:'rgba(74,222,128,.12)', fg:'#4ade80',b:'rgba(74,222,128,.25)'},
+  {bg:'rgba(251,146,60,.12)', fg:'#fb923c',b:'rgba(251,146,60,.25)'},
+  {bg:'rgba(248,113,113,.12)',fg:'#f87171',b:'rgba(248,113,113,.25)'},
+];
+const MODS=[
+  {id:'roster',n:'01',name:'Roster Generator',desc:'Auto-generate monthly WO rosters with 8 scheduling rules enforced automatically.',ico:'📅',chips:['8 Rules','17 Agents'],col:'#00d4ff',live:true},
+  {id:'analytics',n:'02',name:'Performance Analytics',desc:'Real-time KPI dashboards, call metrics, and AI-powered insights.',ico:'📊',chips:['KPIs','AI'],col:'#00e5a0',live:false},
+  {id:'agentmgr',n:'03',name:'Agent Manager',desc:'Centralised agent profiles, skill matrices, and HR integration.',ico:'👥',chips:['Profiles','Skills'],col:'#a78bfa',live:false},
+  {id:'calls',n:'04',name:'Call Tracker',desc:'Monitor live call queues and CSAT in real-time with instant alerts.',ico:'📞',chips:['Real-time','Alerts'],col:'#ffb830',live:false},
+  {id:'ai',n:'05',name:'AI Forecasting',desc:'Predict staffing needs using ML trained on your team data.',ico:'🤖',chips:['ML','Predict'],col:'#ff3d5a',live:false},
+  {id:'reports',n:'06',name:'Reports & Exports',desc:'Cross-module reports — daily, weekly, monthly. Excel, PDF, API.',ico:'📈',chips:['Excel','PDF'],col:'#0099cc',live:false},
+];
+
+// ══ API ══
+async function api(m,u,b){const o={method:m,headers:{'Content-Type':'application/json'}};if(b)o.body=JSON.stringify(b);const r=await fetch(u,o);const d=await r.json();if(!r.ok)throw new Error(d.error||'Server error');return d}
+
+// ══ LOGIN ══
+let loginRole='admin';
+function setRole(r,el){loginRole=r;document.querySelectorAll('.l-tab').forEach(t=>t.classList.remove('on'));el.classList.add('on');document.getElementById('lu').value='';document.getElementById('lerr').classList.remove('show');document.getElementById('lhint').innerHTML=r==='admin'?'Admin: <span>admin</span> / <span>Admin@123</span>':'Ask your admin for credentials'}
+document.getElementById('lp').onkeydown=e=>{if(e.key==='Enter')doLogin()};
+document.getElementById('lu').onkeydown=e=>{if(e.key==='Enter')doLogin()};
+async function doLogin(){
+  const btn=document.getElementById('lbtn'),sp=document.getElementById('lsp'),tx=document.getElementById('ltxt'),er=document.getElementById('lerr');
+  const u=document.getElementById('lu').value.trim(),p=document.getElementById('lp').value;
+  if(!u||!p){showLE('Please enter username and password');return}
+  btn.disabled=true;sp.style.display='block';tx.textContent='Signing in…';er.classList.remove('show');
+  try{const d=await api('POST','/api/login',{username:u,password:p});ME=d.user;MACCESS=d.moduleAccess||{};await loadAG();initApp()}
+  catch(e){showLE(e.message)}
+  btn.disabled=false;sp.style.display='none';tx.textContent='Sign In';
+}
+function showLE(m){const e=document.getElementById('lerr');e.textContent='⚠ '+m;e.classList.add('show')}
+async function doLogout(){await api('POST','/api/logout');ME=null;AG=[];ROSTER=null;document.getElementById('LS').style.display='flex';document.getElementById('APP').classList.remove('show');document.getElementById('lu').value='';document.getElementById('lp').value=''}
+
+// ══ INIT ══
+function initApp(){
+  document.getElementById('LS').style.display='none';
+  document.getElementById('APP').classList.add('show');
+  const ini=ME.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('tav').textContent=ini;
+  document.getElementById('tnm').textContent=ME.name;
+  document.getElementById('trl').textContent=ME.role;
+  document.getElementById('trbdg').textContent=ME.role.toUpperCase();
+  document.getElementById('trbdg').className='rb '+(ME.role==='admin'?'rb-a':'rb-o');
+  document.getElementById('nl-admin').style.display=ME.role==='admin'?'flex':'none';
+  if(window.innerWidth<=768)document.getElementById('mobBtn').style.display='flex';
+  buildGrid();applyPerms();renderAG();go('home');
+}
+function applyPerms(){
+  const cs=ME.role==='admin'||ME.canSaveRoster, ce=ME.role==='admin'||ME.canExportRoster, ed=ME.role==='admin';
+  document.getElementById('btnSv').style.display=cs?'block':'none';
+  document.getElementById('btnAddAg').style.display=ed?'block':'none';
+}
+async function loadAG(){try{AG=await api('GET','/api/agents')}catch{AG=[]}}
+function toggleNav(){document.getElementById('snav').classList.toggle('mob')}
+function closeMobNav(){document.getElementById('snav').classList.remove('mob')}
+
+// ══ NAV ══
+function go(id){
+  if(ME?.role==='operator'&&id==='roster'&&!ME.allowedModules.includes('roster')&&!MACCESS.roster){alert('Access denied. Ask your admin.');return}
+  if(ME?.role==='operator'&&id==='admin')return;
+  document.querySelectorAll('.pg').forEach(p=>{p.classList.remove('on');p.style.display='none'});
+  document.querySelectorAll('.nl').forEach(l=>l.classList.remove('on'));
+  const pg=document.getElementById('pg-'+id);
+  if(pg){pg.style.display='flex';requestAnimationFrame(()=>pg.classList.add('on'))}
+  const nl=document.getElementById('nl-'+id);if(nl)nl.classList.add('on');
+  if(id==='saved')loadSaved();if(id==='admin'){loadUsers();loadAccess()}if(id==='roster')renderAG();
+  closeMobNav();
+}
+
+// ══ MODULE GRID ══
+function buildGrid(){
+  const canSee=id=>ME.role==='admin'||MACCESS[id]||ME.allowedModules.includes(id);
+  document.getElementById('mgrid').innerHTML=MODS.map(m=>{
+    const acc=m.live&&canSee(m.id),lk=!acc;
+    return `<div class="mcard${lk?' locked':''}" style="--cb:${m.col}" ${acc?`onclick="go('${m.id}')"`:''}>`+
+      `<div class="mc-hd"><div class="mc-ico" style="background:${m.col}18">${m.ico}</div><span class="mc-bdg ${m.live?'mc-live':'mc-soon'}">${m.live?'● LIVE':'SOON'}</span></div>`+
+      `<div class="mc-n">MODULE ${m.n}</div><div class="mc-name">${m.name}</div><div class="mc-desc">${m.desc}</div>`+
+      `<div class="mc-ft"><div class="mc-chips">${m.chips.map(c=>`<span class="mc-chip">${c}</span>`).join('')}</div>${acc?'<div class="mc-arr">→</div>':''}</div>`+
+      (lk?`<div class="lo"><div class="lo-i">🔒</div><div class="lo-t">${m.live&&!canSee(m.id)?'Access Restricted':'Coming Soon'}</div></div>`:'')+
+      `</div>`;
+  }).join('');
+}
+
+// ══ AGENTS ══
+function renderAG(){
+  document.getElementById('agCnt').textContent=`(${AG.length})`;
+  const ed=ME.role==='admin';
+  document.getElementById('agList').innerHTML=AG.map((a,i)=>`
+    <div class="ag-r">
+      <input class="ai" value="${x(a.emp)}" oninput="AG[${i}].emp=this.value" style="font-family:var(--m);font-size:10px" ${ed?'':'readonly'}>
+      <input class="ai" value="${x(a.name)}" oninput="AG[${i}].name=this.value" ${ed?'':'readonly'}>
+      <select class="as" onchange="AG[${i}].level=+this.value" ${ed?'':'disabled'}>
+        ${[0,1,2,3,4,5,6,7].map(l=>`<option value="${l}"${l===a.level?' selected':''}>L${l}</option>`).join('')}
+      </select>
+      ${ed?`<button class="ad" onclick="rmAg(${i})">✕</button>`:'<span></span>'}
+    </div>`).join('');
+}
+function addAgent(){AG.push({emp:'EP'+(Math.floor(Math.random()*900)+100),name:'New Agent',level:1,dept:'Customer Service',loc:'Gurgaon-US'});renderAG();if(ME.role==='admin')syncAG()}
+function rmAg(i){AG.splice(i,1);renderAG();if(ME.role==='admin')syncAG()}
+async function syncAG(){try{await api('PUT','/api/agents',AG)}catch{}}
+
+// ══ PAIRING ══
+function vPair(a,b){const la=a.level,lb=b.level;if(la===0&&lb===0)return true;if(la===0||lb===0)return false;const S=new Set([1,2,3]),J=new Set([4,5,6,7]);return(S.has(la)&&J.has(lb))||(J.has(la)&&S.has(lb))}
+
+// ══ GENERATE ══
+function generate(){
+  const btn=document.getElementById('btnGen'),sp=document.getElementById('btnSp'),tx=document.getElementById('btnT');
+  btn.disabled=true;sp.style.display='block';tx.textContent='Generating…';
+  setTimeout(()=>{
+    try{ROSTER=compute();renderAll(ROSTER);rAlert('✓ Roster generated — all 8 rules satisfied.','ok');const ce=ME.role==='admin'||ME.canExportRoster;document.getElementById('expRow').style.display=ce?'flex':'none'}
+    catch(e){rAlert('⚠ '+e.message,'err')}
+    btn.disabled=false;sp.style.display='none';tx.textContent='⚡ Generate Roster';
+  },60);
+}
+function compute(){
+  const yr=+document.getElementById('selY').value,mo=+document.getElementById('selM').value;
+  const si=document.getElementById('selS').value.split(',').map(Number);
+  if(AG.length<2)throw new Error('Need at least 2 agents.');
+  const dim=new Date(yr,mo+1,0).getDate(),days=Array.from({length:dim},(_,i)=>i+1);
+  const dow={};days.forEach(d=>dow[d]=new Date(yr,mo,d).getDay());
+  const suns=days.filter(d=>dow[d]===0),sats=days.filter(d=>dow[d]===6);
+  const wos=si.map(i=>sats[i]).filter(Boolean),uSet=new Set([...suns,...wos]);
+  const tgt=8+(suns.length>=5?1:0),ex=tgt-uSet.size;
+  if(ex<0)throw new Error('Target WOs less than universal WO days.');
+  const wd=days.filter(d=>!uSet.has(d));
+  const blk=d=>{const p1=uSet.has(d-1),p2=uSet.has(d-2),n1=uSet.has(d+1),n2=uSet.has(d+2);return(p1&&p2)||(n1&&n2)||(p1&&n1)};
+  const safe=wd.filter(d=>!blk(d));
+  if(safe.length*2<ex*AG.length)throw new Error(`Not enough safe days (${safe.length}) for ${ex} extra WOs/agent.`);
+  const qt={},ew={},cu={};AG.forEach(a=>{qt[a.name]=ex;ew[a.name]=[];cu[a.name]=false});const asn={};
+  const hadj=(a,d)=>{const idx=days.indexOf(d);for(const di of[idx-1,idx+1]){if(di>=0&&di<days.length){const nd=days[di];if(!uSet.has(nd)&&ew[a.name].includes(nd))return true}}return false};
+  const w3=(a,d)=>{const s=new Set([...ew[a.name],d]);for(const x of s)if(s.has(x+1)&&s.has(x+2))return true;return false};
+  const can=(a,d)=>ew[a.name].length<qt[a.name]&&!w3(a,d)&&!(hadj(a,d)&&cu[a.name]);
+  for(const day of safe){
+    if(AG.every(a=>ew[a.name].length>=qt[a.name]))continue;
+    const el=AG.filter(a=>can(a,day)),pr=[];
+    for(let i=0;i<el.length;i++)for(let j=i+1;j<el.length;j++)if(vPair(el[i],el[j]))pr.push([el[i],el[j]]);
+    if(!pr.length)continue;
+    pr.sort((p,q)=>{const sp=(qt[p[0].name]-ew[p[0].name].length)+(qt[p[1].name]-ew[p[1].name].length)-(hadj(p[0],day)?10:0)-(hadj(p[1],day)?10:0);const sq=(qt[q[0].name]-ew[q[0].name].length)+(qt[q[1].name]-ew[q[1].name].length)-(hadj(q[0],day)?10:0)-(hadj(q[1],day)?10:0);return sq-sp});
+    const ch=pr.find(([a,b])=>ew[a.name].length<qt[a.name]&&ew[b.name].length<qt[b.name]);if(!ch)continue;
+    const[a1,a2]=ch;ew[a1.name].push(day);ew[a2.name].push(day);asn[day]=[a1,a2];
+    for(const a of[a1,a2])if(hadj(a,day))cu[a.name]=true;
+  }
+  const sh=AG.filter(a=>ew[a.name].length<qt[a.name]);if(sh.length)throw new Error(`Could not assign all WOs to: ${sh.map(a=>a.name).join(', ')}.`);
+  const sc={};AG.forEach(a=>{sc[a.name]={};days.forEach(d=>{sc[a.name][d]=uSet.has(d)?'UWO':ew[a.name].includes(d)?'WO':'ROI'})});
+  const dt={};days.forEach(d=>{dt[d]=suns.includes(d)?'SUN':wos.includes(d)?'SAT':'WORK'});
+  return{yr,mo,days,dow,suns,wos,uSet,tgt,ex,safe,asn,sc,dt,agents:[...AG]};
+}
+
+function renderAll(r){
+  document.getElementById('emDiv').style.display='none';
+  document.getElementById('resDiv').style.display='block';
+  const mn=MN[r.mo];
+  document.getElementById('rTi').textContent=`${mn} ${r.yr} — WO Roster`;
+  document.getElementById('rSu').textContent=`${r.agents.length} agents · ${r.tgt} WOs each · ${Object.keys(r.asn).length} extra pair-days`;
+  const pc=Object.keys(r.asn).length,wdc=r.days.filter(d=>!r.uSet.has(d)).length;
+  document.getElementById('s1').textContent=r.tgt;
+  document.getElementById('s2').textContent=r.agents.length;
+  document.getElementById('s3').textContent=pc;
+  document.getElementById('s4').textContent=((wdc*r.agents.length-pc*2)/wdc).toFixed(1);
+  bCal(r);bPairs(r);bSum(r);
+}
+function lb(l){const c=LC[l]||LC[0];return`<span class="lbdg" style="background:${c.bg};color:${c.fg};border:1px solid ${c.b}">L${l}</span>`}
+function bCal(r){
+  const mn=MN[r.mo];let h='<thead><tr>';
+  h+=`<th class="th-a">${mn} ${r.yr}</th><th class="th-l">LVL</th>`;
+  r.days.forEach(d=>{const dw=r.dow[d];h+=`<th class="${dw===0?'d-sun':dw===6?'d-sat':''}">${DS[dw]}<br><span style="font-size:9px">${d}</span></th>`});
+  h+=`<th class="th-t">WO</th></tr></thead><tbody>`;
+  r.agents.forEach(a=>{
+    const c=LC[a.level]||LC[0];h+='<tr>';
+    h+=`<td class="td-a" style="border-left:3px solid ${c.fg}"><span style="color:var(--ink0);font-size:12px;font-weight:600">${x(a.name)}</span><span style="display:block;font-size:9.5px;color:var(--ink4);font-family:var(--m)">${x(a.emp)}</span></td><td class="td-l">${lb(a.level)}</td>`;
+    let tot=0;r.days.forEach(d=>{const s=r.sc[a.name][d],t=r.dt[d];let chip;if(t==='SUN'){chip=`<span class="chip c-sun">SUN</span>`;tot++}else if(t==='SAT'){chip=`<span class="chip c-sat">SAT</span>`;tot++}else if(s==='WO'){chip=`<span class="chip c-wo">WO</span>`;tot++}else{chip=`<span class="chip c-roi">ROI</span>`}h+=`<td>${chip}</td>`});
+    h+=`<td class="td-t"><b>${tot}</b></td></tr>`;
+  });h+='</tbody>';document.getElementById('calT').innerHTML=h;
+}
+function bPairs(r){
+  const mn=MN[r.mo];let h=`<thead><tr><th>Date</th><th>Day</th><th>Type</th><th>Agent 1</th><th>LVL</th><th>Agent 2</th><th>LVL</th></tr></thead><tbody>`;
+  r.days.forEach(d=>{
+    const dn=DF[r.dow[d]],t=r.dt[d],p=r.asn[d];let tc,body;
+    if(t==='SUN'){tc=`<span class="chip c-sun">Sunday</span>`;body=`<td colspan="4" style="color:var(--ink3);font-style:italic;font-size:12px">All agents — Universal WO</td>`}
+    else if(t==='SAT'){tc=`<span class="chip c-sat">WO Saturday</span>`;body=`<td colspan="4" style="color:var(--ink3);font-style:italic;font-size:12px">All agents — Universal WO</td>`}
+    else if(p){const[a1,a2]=p;tc=`<span class="chip c-wo">WO Day</span>`;body=`<td style="font-weight:600;color:var(--ink0)">${x(a1.name)}</td><td>${lb(a1.level)}</td><td style="font-weight:600;color:var(--ink0)">${x(a2.name)}</td><td>${lb(a2.level)}</td>`}
+    else{tc=`<span class="chip c-roi">All ROI</span>`;body=`<td colspan="4" style="color:var(--ink3);font-style:italic;font-size:12px">All agents working</td>`}
+    h+=`<tr${t!=='WORK'?' style="background:rgba(255,255,255,.01)"':''}><td style="font-family:var(--m);font-size:11px;color:var(--ink2);font-weight:500">${mn.slice(0,3)} ${String(d).padStart(2,'0')}</td><td style="color:var(--ink3)">${dn.slice(0,3)}</td><td>${tc}</td>${body}</tr>`;
+  });h+='</tbody>';document.getElementById('pairT').innerHTML=h;
+}
+function bSum(r){
+  let h=`<thead><tr><th>Emp#</th><th>Name</th><th>Level</th><th>Role</th><th>Univ WO</th><th>Extra WO</th><th>Total WO</th><th>Working Days</th></tr></thead><tbody>`;
+  r.agents.forEach(a=>{
+    const tot=r.days.filter(d=>r.sc[a.name][d]!=='ROI').length,univ=r.days.filter(d=>r.sc[a.name][d]==='UWO').length,ext=r.days.filter(d=>r.sc[a.name][d]==='WO').length,wk=r.days.length-tot;
+    h+=`<tr><td style="font-family:var(--m);font-size:10.5px;color:var(--ink3)">${x(a.emp)}</td><td style="font-weight:600;color:var(--ink0)">${x(a.name)}</td><td>${lb(a.level)}</td><td style="color:var(--ink3)">${LN[a.level]||''}</td><td style="text-align:center;font-family:var(--m);color:var(--ink2)">${univ}</td><td style="text-align:center;font-family:var(--m);color:var(--rose);font-weight:600">${ext}</td><td style="text-align:center;font-family:var(--m);color:var(--cyan);font-weight:700;font-size:15px">${tot}</td><td style="text-align:center;font-family:var(--m);color:var(--roi)">${wk}</td></tr>`;
+  });h+='</tbody>';document.getElementById('sumT').innerHTML=h;
+}
+function swTab(id,el){['cal','pairs','sum'].forEach(t=>document.getElementById('tab-'+t).style.display=t===id?'block':'none');document.querySelectorAll('.tb').forEach(b=>b.classList.remove('on'));el.classList.add('on')}
+
+// ══ SAVE / LOAD ROSTERS ══
+async function saveR(){
+  if(!ROSTER)return rAlert('Generate a roster first.','warn');
+  const r=ROSTER,mn=MN[r.mo];
+  const pl={title:`${mn} ${r.yr}`,month:r.mo,year:r.yr,agentCount:r.agents.length,targetWO:r.tgt,
+    days:r.days,dowSer:Object.entries(r.dow),sundays:r.suns,woSats:r.wos,univSetSer:[...r.uSet],
+    target:r.tgt,extra:r.ex,asgnSer:Object.entries(r.asn).map(([d,p])=>[+d,p.map(a=>a.name)]),
+    schedSer:Object.entries(r.sc),dtypeSer:Object.entries(r.dt),agents:r.agents};
+  try{await api('POST','/api/rosters',pl);rAlert('✓ Roster saved!','ok')}catch(e){rAlert('⚠ '+e.message,'err')}
+}
+async function loadSaved(){
+  const el=document.getElementById('savedL');el.innerHTML='<div style="color:var(--ink3);font-size:13px">Loading…</div>';
+  try{
+    const ls=await api('GET','/api/rosters');
+    if(!ls.length){el.innerHTML='<div style="color:var(--ink3);font-size:13px;padding:20px 0">No saved rosters yet. Generate one and click Save Roster.</div>';return}
+    el.innerHTML=ls.map(r=>`<div class="si" onclick="loadR(${r.id})"><div style="font-size:22px">📅</div><div class="si-info"><div class="si-t">${x(r.title)}</div><div class="si-s">${r.agentCount} agents · ${r.targetWO} WOs each · ${new Date(r.savedAt).toLocaleDateString()} · by ${x(r.savedBy)}</div></div>${ME.role==='admin'?`<button class="si-d" onclick="event.stopPropagation();delR(${r.id})">🗑</button>`:''}</div>`).join('');
+  }catch(e){el.innerHTML=`<div style="color:var(--rose)">Error: ${e.message}</div>`}
+}
+async function loadR(id){
+  try{
+    const d=await api('GET',`/api/rosters/${id}`);
+    const dow={};d.dowSer.forEach(([k,v])=>dow[+k]=v);
+    const uSet=new Set(d.univSetSer);const asn={};
+    d.asgnSer.forEach(([day,names])=>{asn[day]=names.map(n=>d.agents.find(a=>a.name===n)).filter(Boolean)});
+    const sc={};d.schedSer.forEach(([name,entries])=>{sc[name]={};Object.entries(entries).forEach(([dd,v])=>sc[name][+dd]=v)});
+    const dt={};d.dtypeSer.forEach(([k,v])=>dt[+k]=v);
+    ROSTER={yr:d.year,mo:d.month,days:d.days,dow,suns:d.sundays,wos:d.woSats,uSet,tgt:d.target,ex:d.extra,asn,sc,dt,agents:d.agents};
+    AG=d.agents;go('roster');renderAG();renderAll(ROSTER);
+    const ce=ME.role==='admin'||ME.canExportRoster;document.getElementById('expRow').style.display=ce?'flex':'none';
+  }catch(e){alert('Failed to load: '+e.message)}
+}
+async function delR(id){if(!confirm('Delete this roster?'))return;try{await api('DELETE',`/api/rosters/${id}`);loadSaved()}catch(e){alert('Error: '+e.message)}}
+
+// ══ EXPORTS ══
+function doCSV(){if(!ROSTER)return;const r=ROSTER,mn=MN[r.mo];let csv=`Emp#,Name,Level,Role,${r.days.map(d=>`${mn.slice(0,3)}-${d}`).join(',')},Total WO\n`;r.agents.forEach(a=>{const row=r.days.map(d=>r.sc[a.name][d]==='UWO'?'WO':r.sc[a.name][d]);csv+=`${a.emp},"${a.name}",L${a.level},"${LN[a.level]||''}",${row.join(',')},${row.filter(v=>v==='WO').length}\n`});dl(new Blob([csv],{type:'text/csv'}),`Roster_${mn}_${r.yr}.csv`)}
+function doXLS(){if(!ROSTER)return;const r=ROSTER,mn=MN[r.mo];let h=`<html><head><meta charset="UTF-8"></head><body><table border="1"><tr><th>Emp#</th><th>Name</th><th>Level</th><th>Role</th>${r.days.map(d=>`<th>${mn.slice(0,3)}-${d}</th>`).join('')}<th>Total WO</th></tr>`;r.agents.forEach(a=>{const row=r.days.map(d=>r.sc[a.name][d]==='UWO'?'WO':r.sc[a.name][d]);h+=`<tr><td>${a.emp}</td><td>${a.name}</td><td>L${a.level}</td><td>${LN[a.level]||''}</td>`;row.forEach(v=>{const bg=v==='WO'?'#FF3D5A':'#FFFFFF',fg=v==='WO'?'#fff':'#000';h+=`<td style="background:${bg};color:${fg}">${v}</td>`});h+=`<td>${row.filter(v=>v==='WO').length}</td></tr>`});h+='</table></body></html>';dl(new Blob([h],{type:'application/vnd.ms-excel'}),`Roster_${mn}_${r.yr}.xls`)}
+function dl(blob,name){const u=URL.createObjectURL(blob);Object.assign(document.createElement('a'),{href:u,download:name}).click();URL.revokeObjectURL(u)}
+
+// ══ ADMIN ══
+async function loadUsers(){
+  try{
+    const us=await api('GET','/api/admin/users');
+    document.getElementById('uTbl').innerHTML=us.map(u=>`<tr><td style="font-weight:600;color:var(--ink0)">${x(u.name)}</td><td style="font-family:var(--m);font-size:11px;color:var(--ink2)">${x(u.username)}</td><td><span class="rb ${u.role==='admin'?'rb-a':'rb-o'}">${u.role.toUpperCase()}</span></td><td style="font-size:12px;color:var(--ink2)">${(u.allowedModules||[]).join(', ')||'—'}</td><td style="text-align:center">${u.canSaveRoster?'✓':'—'}</td><td style="text-align:center">${u.canExportRoster?'✓':'—'}</td><td style="display:flex;gap:5px"><button class="btn-e" onclick="openEdit(${u.id},'${x(u.name)}','${x(u.role)}',${u.canSaveRoster||false},${u.canExportRoster||false})">Edit</button>${u.username!=='admin'?`<button class="btn-d" onclick="delUser(${u.id})">Delete</button>`:''}</td></tr>`).join('');
+  }catch{}
+}
+async function loadAccess(){
+  try{
+    const ac=await api('GET','/api/admin/access');
+    document.getElementById('modToggles').innerHTML=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><label class="tog-w"><input type="checkbox" id="tog_roster" ${ac.roster?'checked':''}><span class="tog-sl"></span></label><span style="font-size:13px;color:var(--ink1)">📅 Roster Generator</span></div>`;
+  }catch{}
+}
+async function saveAccess(){
+  const ac={roster:document.getElementById('tog_roster')?.checked||false};
+  try{await api('PUT','/api/admin/access',ac);MACCESS=ac;buildGrid();alert('✓ Access settings saved!')}catch(e){alert('Error: '+e.message)}
+}
+function openAdd(){document.getElementById('an').value='';document.getElementById('au').value='';document.getElementById('ap').value='';document.getElementById('ar').value='operator';document.getElementById('addErr').classList.remove('show');openM('mAdd')}
+async function createUser(){
+  const n=document.getElementById('an').value.trim(),u=document.getElementById('au').value.trim(),p=document.getElementById('ap').value,r=document.getElementById('ar').value;
+  if(!n||!u||!p){showME('addErr','All fields required');return}if(p.length<6){showME('addErr','Password must be 6+ characters');return}
+  try{await api('POST','/api/admin/users',{name:n,username:u,password:p,role:r});closeM('mAdd');loadUsers()}catch(e){showME('addErr',e.message)}
+}
+function openEdit(id,name,role,cs,ce){document.getElementById('eid').value=id;document.getElementById('en').value=name;document.getElementById('epw').value='';document.getElementById('er').value=role;document.getElementById('ecs').checked=cs;document.getElementById('ece').checked=ce;document.getElementById('editErr').classList.remove('show');openM('mEdit')}
+async function updUser(){
+  const id=document.getElementById('eid').value,n=document.getElementById('en').value.trim(),pw=document.getElementById('epw').value,r=document.getElementById('er').value,cs=document.getElementById('ecs').checked,ce=document.getElementById('ece').checked;
+  const pl={name:n,role:r,canSaveRoster:cs,canExportRoster:ce};if(pw){if(pw.length<6){showME('editErr','Password must be 6+ characters');return}pl.password=pw}
+  try{await api('PUT',`/api/admin/users/${id}`,pl);closeM('mEdit');loadUsers()}catch(e){showME('editErr',e.message)}
+}
+async function delUser(id){if(!confirm('Delete this user?'))return;try{await api('DELETE',`/api/admin/users/${id}`);loadUsers()}catch(e){alert('Error: '+e.message)}}
+async function chgPwd(){
+  const p1=document.getElementById('np1').value,p2=document.getElementById('np2').value,el=document.getElementById('pwdM');
+  if(!p1||!p2){el.innerHTML='<div class="alrt a-warn">Fill both fields.</div>';return}
+  if(p1!==p2){el.innerHTML='<div class="alrt a-err">Passwords do not match.</div>';return}
+  if(p1.length<6){el.innerHTML='<div class="alrt a-err">Min 6 characters.</div>';return}
+  try{await api('PUT',`/api/admin/users/${ME.id}`,{password:p1});el.innerHTML='<div class="alrt a-ok">✓ Password updated!</div>';document.getElementById('np1').value='';document.getElementById('np2').value='';setTimeout(()=>el.innerHTML='',3000)}catch(e){el.innerHTML=`<div class="alrt a-err">${e.message}</div>`}
+}
+
+// ══ MODALS + UTILS ══
+function openM(id){document.getElementById(id).classList.add('show')}
+function closeM(id){document.getElementById(id).classList.remove('show')}
+function showME(id,msg){const e=document.getElementById(id);e.textContent='⚠ '+msg;e.classList.add('show')}
+function rAlert(msg,t){const b=document.getElementById('rAB');b.innerHTML=`<div class="alrt a-${t}">${msg}</div>`;setTimeout(()=>b.innerHTML='',6000)}
+function x(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+// ══ BOOTSTRAP ══
+window.addEventListener('DOMContentLoaded',async()=>{
+  try{const d=await api('GET','/api/me');ME=d.user;MACCESS=d.moduleAccess||{};await loadAG();initApp()}
+  catch{/* show login */}
+});
+</script>
+</body>
+</html>
