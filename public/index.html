@@ -3,325 +3,343 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>C-Serv.AI</title>
+<title>C-Serv.AI v2</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{
+/* ══════════════════════════════════════════════════
+   THEMES
+══════════════════════════════════════════════════ */
+:root,[data-theme="dark"]{
   --bg:#04060d;--base:#080e1a;--l1:#0d1526;--l2:#111d33;--l3:#172340;--l4:#1e2e50;
   --rim:#1e2d45;--rim2:#263549;
   --ink0:#f2f8ff;--ink1:#bccde0;--ink2:#7a9bbf;--ink3:#4a6080;--ink4:#2d3f5a;
-  --cyan:#00d4ff;--cyan2:#0099cc;--cdim:rgba(0,212,255,.06);--cglow:rgba(0,212,255,.15);
+  --cyan:#00d4ff;--cyan2:#0099cc;--cdim:rgba(0,212,255,.06);
   --em:#00e5a0;--amber:#ffb830;--rose:#ff3d5a;--violet:#a78bfa;
   --wo:#ff3d5a;--wo-bg:rgba(255,61,90,.12);--roi:#00e5a0;--roi-bg:rgba(0,229,160,.08);
   --sun-c:#ffb830;--sun-bg:rgba(255,184,48,.1);--sat-c:#a78bfa;--sat-bg:rgba(167,139,250,.1);
-  --nav-w:250px;--top:58px;--r:8px;--r2:12px;--r3:16px;
-  --f:'Outfit',sans-serif;--m:'IBM Plex Mono',monospace;
+  --hol-c:#00e5a0;--hol-bg:rgba(0,229,160,.1);
 }
+[data-theme="light"]{
+  --bg:#f0f4f8;--base:#ffffff;--l1:#f7f9fc;--l2:#edf2f7;--l3:#e2e8f0;--l4:#cbd5e0;
+  --rim:#cbd5e0;--rim2:#b2bfcc;
+  --ink0:#0d1526;--ink1:#2d3f5a;--ink2:#4a6080;--ink3:#7a9bbf;--ink4:#bccde0;
+  --cyan:#0077cc;--cyan2:#005fa3;--cdim:rgba(0,119,204,.07);
+  --em:#00804a;--amber:#b07600;--rose:#cc1122;--violet:#6d28d9;
+  --wo:#cc1122;--wo-bg:rgba(204,17,34,.1);--roi:#00804a;--roi-bg:rgba(0,128,74,.08);
+  --sun-c:#b07600;--sun-bg:rgba(176,118,0,.1);--sat-c:#6d28d9;--sat-bg:rgba(109,40,217,.08);
+  --hol-c:#00804a;--hol-bg:rgba(0,128,74,.1);
+}
+[data-theme="ocean"]{
+  --bg:#050f1f;--base:#071428;--l1:#091830;--l2:#0d2040;--l3:#102850;--l4:#153060;
+  --rim:#1a3060;--rim2:#1e3a70;
+  --ink0:#e8f4ff;--ink1:#a0c8e8;--ink2:#5090b8;--ink3:#306080;--ink4:#204060;
+  --cyan:#40c8ff;--cyan2:#1890cc;--cdim:rgba(64,200,255,.06);
+  --em:#40ffc0;--amber:#ffc840;--rose:#ff4060;--violet:#c080ff;
+  --wo:#ff4060;--wo-bg:rgba(255,64,96,.12);--roi:#40ffc0;--roi-bg:rgba(64,255,192,.08);
+  --sun-c:#ffc840;--sun-bg:rgba(255,200,64,.1);--sat-c:#c080ff;--sat-bg:rgba(192,128,255,.1);
+  --hol-c:#40ffc0;--hol-bg:rgba(64,255,192,.1);
+}
+[data-theme="forest"]{
+  --bg:#050e08;--base:#06110a;--l1:#081610;--l2:#0b1e14;--l3:#0e2618;--l4:#122f1e;
+  --rim:#163824;--rim2:#1a422a;
+  --ink0:#e8f5ec;--ink1:#a0c8aa;--ink2:#508060;--ink3:#306040;--ink4:#204030;
+  --cyan:#40e080;--cyan2:#28a858;--cdim:rgba(64,224,128,.06);
+  --em:#80ff40;--amber:#ffd040;--rose:#ff4040;--violet:#a080ff;
+  --wo:#ff4040;--wo-bg:rgba(255,64,64,.12);--roi:#80ff40;--roi-bg:rgba(128,255,64,.08);
+  --sun-c:#ffd040;--sun-bg:rgba(255,208,64,.1);--sat-c:#a080ff;--sat-bg:rgba(160,128,255,.1);
+  --hol-c:#80ff40;--hol-bg:rgba(128,255,64,.1);
+}
+[data-theme="sunset"]{
+  --bg:#0f0808;--base:#160a0a;--l1:#1e0e0e;--l2:#281414;--l3:#321a1a;--l4:#3c2020;
+  --rim:#4a2828;--rim2:#582e2e;
+  --ink0:#fff0e8;--ink1:#e0b8a0;--ink2:#b07858;--ink3:#805040;--ink4:#603830;
+  --cyan:#ff8040;--cyan2:#cc5520;--cdim:rgba(255,128,64,.06);
+  --em:#ffc040;--amber:#ffdd60;--rose:#ff2040;--violet:#e060ff;
+  --wo:#ff2040;--wo-bg:rgba(255,32,64,.12);--roi:#ffc040;--roi-bg:rgba(255,192,64,.08);
+  --sun-c:#ffdd60;--sun-bg:rgba(255,221,96,.1);--sat-c:#e060ff;--sat-bg:rgba(224,96,255,.1);
+  --hol-c:#ffc040;--hol-bg:rgba(255,192,64,.1);
+}
+
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{font-family:var(--f);background:var(--bg);color:var(--ink1);font-size:14px;line-height:1.5;min-height:100vh;overflow:hidden}
+html,body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--ink1);font-size:14px;line-height:1.5;min-height:100vh}
 ::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-thumb{background:var(--rim2);border-radius:99px}
-input,select,button,textarea{font-family:var(--f)}
+input,select,button,textarea{font-family:'Outfit',sans-serif}
+a{color:var(--cyan);text-decoration:none}
 
 @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes pulse2{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
 @keyframes glow{0%,100%{box-shadow:0 0 20px rgba(0,212,255,.3)}50%{box-shadow:0 0 40px rgba(0,212,255,.6)}}
-.fu{animation:fadeUp .32s ease forwards}
+.fu{animation:fadeUp .3s ease forwards}
 
-/* ═══ LOGIN ═══ */
+/* ── LAYOUT ── */
 #LS{position:fixed;inset:0;z-index:1000;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px}
 .lb{position:absolute;inset:0;overflow:hidden}
 .lb::before{content:'';position:absolute;top:-30%;left:-20%;width:80%;height:80%;background:radial-gradient(ellipse,rgba(0,212,255,.07) 0%,transparent 65%)}
-.lb::after{content:'';position:absolute;bottom:-20%;right:-10%;width:60%;height:60%;background:radial-gradient(ellipse,rgba(0,229,160,.05) 0%,transparent 65%)}
 .lb-g{position:absolute;inset:0;background-image:linear-gradient(rgba(0,212,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.025) 1px,transparent 1px);background-size:48px 48px}
-.lc{position:relative;z-index:1;width:100%;max-width:420px;background:var(--l1);border:1px solid var(--rim2);border-radius:20px;padding:38px 34px;box-shadow:0 24px 80px rgba(0,0,0,.6),0 0 0 1px rgba(0,212,255,.06);animation:fadeUp .5s ease}
-.l-brand{text-align:center;margin-bottom:28px}
-.l-logo{width:54px;height:54px;background:linear-gradient(135deg,var(--cyan),var(--cyan2));border-radius:14px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 0 28px rgba(0,212,255,.4);animation:glow 3s ease infinite}
-.l-name{font-size:24px;font-weight:800;letter-spacing:-.5px;color:var(--ink0)}
+.lc{position:relative;z-index:1;width:100%;max-width:420px;background:var(--l1);border:1px solid var(--rim2);border-radius:20px;padding:36px 32px;box-shadow:0 24px 80px rgba(0,0,0,.5),0 0 0 1px rgba(0,212,255,.06);animation:fadeUp .5s ease}
+.l-brand{text-align:center;margin-bottom:26px}
+.l-logo{width:52px;height:52px;background:linear-gradient(135deg,var(--cyan),var(--cyan2));border-radius:14px;margin:0 auto 11px;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 0 28px rgba(0,212,255,.4);animation:glow 3s ease infinite}
+.l-name{font-size:22px;font-weight:800;letter-spacing:-.5px;color:var(--ink0)}
 .l-name em{color:var(--cyan);font-style:normal}
-.l-sub{font-family:var(--m);font-size:9.5px;letter-spacing:2px;text-transform:uppercase;color:var(--ink3);margin-top:4px}
-.l-tabs{display:flex;gap:4px;background:var(--l2);border:1px solid var(--rim);border-radius:10px;padding:3px;margin-bottom:24px}
-.l-tab{flex:1;padding:8px;border:none;background:none;color:var(--ink3);font-family:var(--f);font-size:13px;font-weight:500;border-radius:8px;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px}
-.l-tab.on{background:var(--l3);color:var(--ink0);box-shadow:0 1px 6px rgba(0,0,0,.4)}
-.fg{margin-bottom:14px}
-.fl{display:block;font-size:11.5px;color:var(--ink2);margin-bottom:5px;font-weight:500}
-.fi{width:100%;padding:10px 12px;background:var(--l2);border:1px solid var(--rim2);border-radius:8px;color:var(--ink0);font-size:14px;outline:none;transition:all .15s}
-.fi:focus{border-color:var(--cyan);box-shadow:0 0 0 3px var(--cdim);background:var(--l3)}
+.l-sub{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--ink3);margin-top:4px}
+.l-tabs{display:flex;gap:3px;background:var(--l2);border:1px solid var(--rim);border-radius:10px;padding:3px;margin-bottom:20px}
+.l-tab{flex:1;padding:8px 4px;border:none;background:none;color:var(--ink3);font-size:12px;font-weight:500;border-radius:7px;cursor:pointer;transition:all .15s}
+.l-tab.on{background:var(--l3);color:var(--ink0);box-shadow:0 1px 6px rgba(0,0,0,.3)}
+.fg{margin-bottom:12px}
+.fl{display:block;font-size:11px;color:var(--ink2);margin-bottom:4px;font-weight:500}
+.fi{width:100%;padding:9px 11px;background:var(--l2);border:1px solid var(--rim2);border-radius:8px;color:var(--ink0);font-size:14px;outline:none;transition:all .15s}
+.fi:focus{border-color:var(--cyan);box-shadow:0 0 0 3px var(--cdim)}
 .fi::placeholder{color:var(--ink4)}
-.lerr{background:rgba(255,61,90,.07);border:1px solid rgba(255,61,90,.2);border-radius:8px;padding:9px 12px;color:#ff8099;font-size:12.5px;margin-bottom:12px;display:none}
+.lerr{background:rgba(255,61,90,.07);border:1px solid rgba(255,61,90,.2);border-radius:8px;padding:8px 11px;color:#ff8099;font-size:12px;margin-bottom:10px;display:none}
 .lerr.show{display:block}
-.btn-login{width:100%;padding:12px;background:linear-gradient(135deg,var(--cyan),var(--cyan2));color:var(--bg);border:none;border-radius:10px;font-family:var(--f);font-size:15px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;box-shadow:0 4px 20px rgba(0,212,255,.3)}
+.btn-login{width:100%;padding:11px;background:linear-gradient(135deg,var(--cyan),var(--cyan2));color:var(--bg);border:none;border-radius:9px;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;box-shadow:0 4px 20px rgba(0,212,255,.3)}
 .btn-login:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,212,255,.4)}
 .btn-login:disabled{opacity:.5;cursor:not-allowed;transform:none}
-.l-hint{text-align:center;margin-top:16px;font-size:11px;font-family:var(--m);color:var(--ink4)}
-.l-hint span{color:var(--ink3)}
+.sp{width:14px;height:14px;border-radius:50%;border:2px solid rgba(0,0,0,.2);border-top-color:currentColor;animation:spin .65s linear infinite;flex-shrink:0}
+.l-hint{text-align:center;margin-top:14px;font-size:11px;color:var(--ink4)}
 
-/* ═══ APP SHELL ═══ */
-#APP{display:none;flex-direction:column;height:100vh}
+/* ── APP ── */
+#APP{display:none;height:100vh;flex-direction:column;overflow:hidden}
 #APP.show{display:flex}
-
-/* TOPBAR */
-.topbar{height:var(--top);background:rgba(4,6,13,.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--rim);display:flex;align-items:center;flex-shrink:0;position:relative;z-index:200}
-.brand{width:var(--nav-w);display:flex;align-items:center;gap:10px;padding:0 18px;height:100%;border-right:1px solid var(--rim);flex-shrink:0;cursor:pointer;transition:background .15s}
+.topbar{height:56px;background:var(--base);border-bottom:1px solid var(--rim);display:flex;align-items:center;flex-shrink:0;position:relative;z-index:200}
+.brand{width:240px;display:flex;align-items:center;gap:9px;padding:0 16px;height:100%;border-right:1px solid var(--rim);flex-shrink:0;cursor:pointer;transition:background .15s;min-width:0}
 .brand:hover{background:var(--cdim)}
-.brand-ico{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--cyan),var(--cyan2));display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 0 16px rgba(0,212,255,.35);flex-shrink:0}
-.bn{font-size:17px;font-weight:800;letter-spacing:-.5px;color:var(--ink0);line-height:1}
+.brand-ico{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--cyan),var(--cyan2));display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 0 12px rgba(0,212,255,.3);flex-shrink:0}
+.bn{font-size:16px;font-weight:800;letter-spacing:-.5px;color:var(--ink0);line-height:1.1}
 .bn em{color:var(--cyan);font-style:normal}
-.bs{font-family:var(--m);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink3)}
-.tb-mid{flex:1;display:flex;align-items:center;padding:0 20px;gap:12px}
-.live-pill{display:flex;align-items:center;gap:7px;font-family:var(--m);font-size:10.5px;color:var(--em);background:rgba(0,229,160,.06);border:1px solid rgba(0,229,160,.18);border-radius:99px;padding:4px 12px}
-.ld{width:6px;height:6px;border-radius:50%;background:var(--em);box-shadow:0 0 8px var(--em);animation:pulse2 2.4s ease infinite}
-.tb-r{display:flex;align-items:center;gap:8px;padding-right:18px;margin-left:auto}
-.ib{width:34px;height:34px;border-radius:var(--r);background:var(--l1);border:1px solid var(--rim);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;color:var(--ink2);transition:all .15s}
+.bs{font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink3)}
+.tb-mid{flex:1;display:flex;align-items:center;padding:0 14px;gap:10px}
+.live-pill{display:flex;align-items:center;gap:6px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--em);background:rgba(0,229,160,.06);border:1px solid rgba(0,229,160,.18);border-radius:99px;padding:3px 10px}
+.ld{width:5px;height:5px;border-radius:50%;background:var(--em);box-shadow:0 0 6px var(--em);animation:pulse2 2.4s ease infinite}
+.tb-r{display:flex;align-items:center;gap:6px;padding-right:14px;margin-left:auto}
+.ib{width:32px;height:32px;border-radius:7px;background:var(--l1);border:1px solid var(--rim);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:var(--ink2);transition:all .15s;position:relative;flex-shrink:0}
 .ib:hover{border-color:var(--cyan);color:var(--cyan);background:var(--cdim)}
-.u-pill{display:flex;align-items:center;gap:8px;padding:4px 10px 4px 6px;background:var(--l1);border:1px solid var(--rim);border-radius:var(--r);cursor:pointer;transition:all .15s}
-.uav{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,#1a5cb8,var(--cyan2));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0}
+.notif-dot{position:absolute;top:4px;right:4px;width:7px;height:7px;border-radius:50%;background:var(--rose);box-shadow:0 0 5px var(--rose)}
+.u-pill{display:flex;align-items:center;gap:7px;padding:4px 9px 4px 5px;background:var(--l1);border:1px solid var(--rim);border-radius:7px;cursor:pointer}
+.uav{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,#1a5cb8,var(--cyan2));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
 .un{font-size:12px;font-weight:600;color:var(--ink0);line-height:1}
-.ur{font-size:10px;color:var(--ink3);font-family:var(--m)}
-.rb{font-size:9px;font-family:var(--m);font-weight:600;padding:2px 7px;border-radius:99px}
+.ur{font-size:10px;color:var(--ink3);font-family:'IBM Plex Mono',monospace}
+.rb{font-size:8.5px;font-family:'IBM Plex Mono',monospace;font-weight:600;padding:2px 6px;border-radius:99px;flex-shrink:0}
+.rb-sa{background:rgba(167,139,250,.12);color:var(--violet);border:1px solid rgba(167,139,250,.25)}
 .rb-a{background:rgba(0,212,255,.1);color:var(--cyan);border:1px solid rgba(0,212,255,.2)}
 .rb-o{background:rgba(0,229,160,.08);color:var(--em);border:1px solid rgba(0,229,160,.18)}
 
-/* SHELL */
+/* ── SIDENAV ── */
 .shell{display:flex;flex:1;overflow:hidden}
-
-/* SIDENAV */
-.sidenav{width:var(--nav-w);min-width:var(--nav-w);background:var(--base);border-right:1px solid var(--rim);display:flex;flex-direction:column;overflow-y:auto;height:calc(100vh - var(--top))}
-.ng{padding:14px 10px 4px}
-.ngl{font-size:9px;font-family:var(--m);letter-spacing:2px;text-transform:uppercase;color:var(--ink4);padding:0 8px;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.sidenav{width:240px;min-width:240px;background:var(--base);border-right:1px solid var(--rim);display:flex;flex-direction:column;overflow-y:auto;height:calc(100vh - 56px);transition:transform .25s}
+.ng{padding:12px 8px 4px}
+.ngl{font-size:9px;font-family:'IBM Plex Mono',monospace;letter-spacing:2px;text-transform:uppercase;color:var(--ink4);padding:0 8px;margin-bottom:5px;display:flex;align-items:center;gap:7px}
 .ngl::after{content:'';flex:1;height:1px;background:var(--rim)}
-.nl{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--r);cursor:pointer;transition:all .15s;color:var(--ink3);font-size:13px;font-weight:500;margin-bottom:1px;position:relative;user-select:none}
+.nl{display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:7px;cursor:pointer;transition:all .15s;color:var(--ink3);font-size:13px;font-weight:500;margin-bottom:1px;position:relative;user-select:none}
 .nl:hover{background:var(--l1);color:var(--ink1)}
 .nl.on{background:var(--cdim);color:var(--cyan);border:1px solid rgba(0,212,255,.1)}
-.nl.on::before{content:'';position:absolute;left:-10px;top:50%;transform:translateY(-50%);width:3px;height:22px;background:linear-gradient(180deg,var(--cyan),var(--cyan2));border-radius:0 3px 3px 0;box-shadow:0 0 10px rgba(0,212,255,.5)}
-.nl.locked{opacity:.35;cursor:not-allowed}
-.nl.locked:hover{background:none;color:var(--ink3)}
-.ni{font-size:16px;width:20px;text-align:center;flex-shrink:0}
+.nl.on::before{content:'';position:absolute;left:-8px;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--cyan);border-radius:0 3px 3px 0;box-shadow:0 0 8px rgba(0,212,255,.5)}
+.ni{font-size:15px;width:20px;text-align:center;flex-shrink:0}
 .nt{flex:1}
-.nbadge{font-size:9px;font-family:var(--m);font-weight:600;padding:2px 7px;border-radius:99px}
+.nbadge{font-size:8.5px;font-family:'IBM Plex Mono',monospace;font-weight:600;padding:2px 6px;border-radius:99px}
 .nb-live{background:rgba(0,229,160,.1);color:var(--em);border:1px solid rgba(0,229,160,.2)}
 .nb-soon{background:var(--l2);color:var(--ink3);border:1px solid var(--rim)}
-.nd{height:1px;background:var(--rim);margin:8px 12px}
-.nav-footer{margin-top:auto;padding:14px 18px;border-top:1px solid var(--rim)}
-.nav-ver{font-family:var(--m);font-size:10px;color:var(--ink4)}
+.nb-new{background:rgba(255,61,90,.1);color:var(--rose);border:1px solid rgba(255,61,90,.2)}
+.nd{height:1px;background:var(--rim);margin:6px 10px}
+.nav-footer{margin-top:auto;padding:12px 16px;border-top:1px solid var(--rim)}
 
-/* CONTENT */
+/* ── CONTENT ── */
 .content{flex:1;overflow:hidden;display:flex;flex-direction:column}
 .pg{display:none;flex:1;flex-direction:column;overflow:hidden}
 .pg.on{display:flex}
 
-/* ═══ HOME ═══ */
-.hs{flex:1;overflow-y:auto}
-.hero{padding:38px 38px 30px;background:linear-gradient(180deg,rgba(0,212,255,.04) 0%,transparent 100%);border-bottom:1px solid var(--rim);position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(0,212,255,.022) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.022) 1px,transparent 1px);background-size:44px 44px;pointer-events:none}
-.hero::after{content:'';position:absolute;top:-60px;right:-40px;width:320px;height:320px;background:radial-gradient(circle,rgba(0,212,255,.07) 0%,transparent 65%);pointer-events:none}
-.h-eye{display:flex;align-items:center;gap:8px;font-family:var(--m);font-size:10px;color:var(--cyan);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px}
-.h-eye::before{content:'';width:22px;height:2px;background:linear-gradient(90deg,var(--cyan),transparent)}
-.h-h{font-size:32px;font-weight:800;color:var(--ink0);letter-spacing:-1.5px;line-height:1.1;margin-bottom:12px}
-.h-h .hl{color:transparent;background:linear-gradient(90deg,var(--cyan),var(--em));-webkit-background-clip:text;background-clip:text}
-.h-p{color:var(--ink2);font-size:14px;max-width:520px;line-height:1.7;margin-bottom:26px}
-.h-kpis{display:flex;gap:34px;flex-wrap:wrap}
-.kv{font-size:26px;font-weight:800;font-family:var(--m);color:var(--ink0);letter-spacing:-1px}
-.kl{font-size:11px;color:var(--ink3);margin-top:2px}
-
-.msec{padding:28px 38px}
-.mhd{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
-.mt{font-size:15px;font-weight:700;color:var(--ink0);display:flex;align-items:center;gap:8px}
-.mt::before{content:'';width:3px;height:18px;background:var(--cyan);border-radius:2px;box-shadow:0 0 8px var(--cyan)}
-.mc2{font-family:var(--m);font-size:11px;color:var(--ink3)}
-.mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:13px}
-.mcard{background:var(--l1);border:1px solid var(--rim);border-radius:var(--r3);padding:22px;cursor:pointer;transition:all .22s cubic-bezier(.34,1.56,.64,1);position:relative;overflow:hidden;opacity:0;animation:fadeUp .4s ease forwards}
-.mcard:nth-child(1){animation-delay:.05s}.mcard:nth-child(2){animation-delay:.1s}.mcard:nth-child(3){animation-delay:.15s}.mcard:nth-child(4){animation-delay:.2s}.mcard:nth-child(5){animation-delay:.25s}.mcard:nth-child(6){animation-delay:.3s}
-.mcard::before{content:'';position:absolute;top:0;right:0;width:90px;height:90px;background:radial-gradient(circle at top right,var(--cc,rgba(0,212,255,.05)),transparent 65%);pointer-events:none}
-.mcard:hover{border-color:var(--cb,var(--cyan));transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.3)}
-.mcard.locked{cursor:default}
-.mcard.locked:hover{transform:none;box-shadow:none;border-color:var(--rim)}
-.mc-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
-.mc-ico{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px}
-.mc-bdg{font-size:9.5px;font-family:var(--m);font-weight:600;padding:3px 9px;border-radius:99px;letter-spacing:.8px;height:fit-content}
-.mc-live{background:rgba(0,229,160,.1);color:var(--em);border:1px solid rgba(0,229,160,.25)}
-.mc-soon{background:var(--l3);color:var(--ink3);border:1px solid var(--rim)}
-.mc-n{font-family:var(--m);font-size:9px;color:var(--ink4);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px}
-.mc-name{font-size:14px;font-weight:700;color:var(--ink0);margin-bottom:6px}
-.mc-desc{font-size:12px;color:var(--ink2);line-height:1.6;margin-bottom:16px}
-.mc-ft{display:flex;align-items:center;justify-content:space-between}
-.mc-chips{display:flex;gap:5px}
-.mc-chip{font-size:9.5px;font-family:var(--m);color:var(--ink3);background:var(--l3);border:1px solid var(--rim);border-radius:4px;padding:2px 7px}
-.mc-arr{color:var(--cyan);font-size:20px;transition:transform .15s;opacity:.7}
-.mcard:not(.locked):hover .mc-arr{transform:translateX(5px);opacity:1}
-.lo{position:absolute;inset:0;border-radius:var(--r3);background:rgba(4,6,13,.55);backdrop-filter:blur(2px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
-.lo-i{font-size:22px;opacity:.6}
-.lo-t{font-size:10px;font-family:var(--m);color:var(--ink3);letter-spacing:1px;text-transform:uppercase}
-
-/* ═══ ROSTER PAGE ═══ */
-.mbar{display:flex;align-items:center;padding:0 18px;height:46px;min-height:46px;background:var(--base);border-bottom:1px solid var(--rim);flex-shrink:0}
-.bc{display:flex;align-items:center;gap:7px;font-size:12.5px}
-.bc-h{color:var(--ink3);cursor:pointer;transition:color .15s;display:flex;align-items:center;gap:4px}
+/* ── COMMON UI ── */
+.ctrl{width:100%;padding:8px 10px;background:var(--l2);border:1px solid var(--rim);border-radius:7px;color:var(--ink1);font-size:13px;outline:none;transition:border-color .15s;appearance:none}
+.ctrl:focus{border-color:var(--cyan);box-shadow:0 0 0 3px var(--cdim)}
+.alrt{padding:9px 12px;border-radius:7px;font-size:12.5px;margin-bottom:10px;line-height:1.5}
+.a-ok{background:rgba(0,229,160,.07);border:1px solid rgba(0,229,160,.2);color:var(--hol-c)}
+.a-err{background:rgba(255,61,90,.07);border:1px solid rgba(255,61,90,.2);color:#ff8099}
+.a-warn{background:rgba(255,184,48,.07);border:1px solid rgba(255,184,48,.2);color:#ffd06b}
+.a-info{background:var(--cdim);border:1px solid rgba(0,212,255,.2);color:var(--ink1)}
+.btn{padding:8px 16px;border:none;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{opacity:.88;transform:translateY(-1px)}
+.btn:active{transform:none}
+.btn-prim{background:var(--cyan);color:var(--bg)}
+.btn-em{background:var(--em);color:var(--bg)}
+.btn-rose{background:rgba(255,61,90,.12);color:var(--rose);border:1px solid rgba(255,61,90,.2)}
+.btn-ghost{background:var(--l2);color:var(--ink2);border:1px solid var(--rim2)}
+.btn-amber{background:rgba(255,184,48,.12);color:var(--amber);border:1px solid rgba(255,184,48,.2)}
+.mbar{display:flex;align-items:center;padding:0 16px;height:44px;min-height:44px;background:var(--base);border-bottom:1px solid var(--rim);flex-shrink:0;gap:8px}
+.bc{display:flex;align-items:center;gap:6px;font-size:12px;flex:1}
+.bc-h{color:var(--ink3);cursor:pointer;transition:color .15s}
 .bc-h:hover{color:var(--cyan)}
 .bc-s{color:var(--ink4);font-size:10px}
 .bc-c{color:var(--ink1);font-weight:600}
-.mbar-r{margin-left:auto;display:flex;align-items:center;gap:8px}
-.rc{display:flex;align-items:center;gap:5px;font-family:var(--m);font-size:10px;color:var(--em);background:rgba(0,229,160,.06);border:1px solid rgba(0,229,160,.15);border-radius:6px;padding:3px 9px}
-.rd2{width:5px;height:5px;border-radius:50%;background:var(--em);box-shadow:0 0 6px var(--em)}
-
-.rsh{display:flex;flex:1;overflow:hidden}
-.cp{width:285px;min-width:285px;background:var(--base);border-right:1px solid var(--rim);display:flex;flex-direction:column;overflow-y:auto}
-.cs{padding:13px;border-bottom:1px solid var(--rim)}
-.cl{font-family:var(--m);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--ink4);margin-bottom:10px}
-.ctrl{width:100%;padding:8px 10px;background:var(--l2);border:1px solid var(--rim);border-radius:7px;color:var(--ink1);font-size:13px;outline:none;transition:all .15s;margin-bottom:9px;appearance:none}
-.ctrl:focus{border-color:var(--cyan);box-shadow:0 0 0 3px var(--cdim)}
-.c2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.ag-h{display:grid;grid-template-columns:55px 1fr 46px 26px;gap:5px;padding:5px 3px;font-family:var(--m);font-size:9px;color:var(--ink4);letter-spacing:1px;border-bottom:1px solid var(--rim);margin-bottom:4px}
-.ag-r{display:grid;grid-template-columns:55px 1fr 46px 26px;gap:5px;padding:3px;border-radius:6px;align-items:center;transition:background .1s;margin-bottom:2px}
-.ag-r:hover{background:var(--l2)}
-.ai{background:var(--l2);border:1px solid var(--rim);border-radius:5px;padding:4px 6px;color:var(--ink1);font-size:11.5px;outline:none;width:100%}
-.ai:focus{border-color:var(--cyan2)}
-.as{background:var(--l2);border:1px solid var(--rim);border-radius:5px;padding:3px 4px;color:var(--ink1);font-family:var(--m);font-size:10px;outline:none;width:100%;appearance:none}
-.ad{background:none;border:none;cursor:pointer;color:var(--ink4);font-size:13px;padding:3px;border-radius:4px;transition:all .15s;line-height:1}
-.ad:hover{background:rgba(255,61,90,.1);color:var(--rose)}
-.btn-add-ag{width:100%;padding:7px;background:none;border:1px dashed var(--rim2);border-radius:7px;color:var(--ink3);font-size:11.5px;cursor:pointer;margin-top:7px;transition:all .15s}
-.btn-add-ag:hover{border-color:var(--cyan);color:var(--cyan);background:var(--cdim)}
-.alrt{padding:9px 12px;border-radius:7px;font-size:12px;margin-bottom:10px;line-height:1.5}
-.a-ok{background:rgba(0,229,160,.07);border:1px solid rgba(0,229,160,.2);color:#5efac9}
-.a-err{background:rgba(255,61,90,.07);border:1px solid rgba(255,61,90,.2);color:#ff8099}
-.a-warn{background:rgba(255,184,48,.07);border:1px solid rgba(255,184,48,.2);color:#ffd06b}
-.btn-gen{width:100%;padding:11px;background:linear-gradient(135deg,var(--cyan),var(--cyan2));color:var(--bg);border:none;border-radius:9px;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;box-shadow:0 4px 20px rgba(0,212,255,.25)}
-.btn-gen:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,212,255,.35)}
-.btn-gen:disabled{opacity:.45;cursor:not-allowed;transform:none}
-.btn-sm{flex:1;padding:8px 6px;background:var(--l2);border:1px solid var(--rim2);border-radius:7px;color:var(--ink2);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:5px}
-.btn-sm:hover{border-color:var(--cyan);color:var(--cyan);background:var(--cdim)}
-.exp-row{display:flex;gap:7px;margin-top:9px}
-.btn-save{width:100%;padding:9px;margin-top:7px;background:rgba(0,229,160,.08);border:1px solid rgba(0,229,160,.2);border-radius:8px;color:var(--em);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s}
-.btn-save:hover{background:rgba(0,229,160,.14)}
-.sp{width:15px;height:15px;border-radius:50%;border:2px solid rgba(0,0,0,.2);border-top-color:var(--bg);animation:spin .65s linear infinite;flex-shrink:0}
-
-.ro{flex:1;overflow-y:auto;padding:20px 24px;background:var(--bg)}
-.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;text-align:center}
-.empty-ico{font-size:52px;opacity:.2;margin-bottom:18px}
-.empty-h{font-size:18px;font-weight:700;color:var(--ink2);margin-bottom:7px}
-.empty-p{font-size:13px;color:var(--ink3);max-width:300px;line-height:1.7}
-.rg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:24px;max-width:460px;text-align:left}
-.rp{background:var(--l1);border:1px solid var(--rim);border-radius:7px;padding:9px 12px}
-.rpn{font-family:var(--m);font-size:9.5px;color:var(--cyan);margin-bottom:2px}
-.rpt{font-size:12px;color:var(--ink2)}
-
-.sr{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
-.sc{background:var(--l1);border:1px solid var(--rim);border-radius:var(--r2);padding:13px 15px;position:relative;overflow:hidden}
-.sc::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,var(--cyan),transparent)}
-.scl{font-family:var(--m);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink4);margin-bottom:7px}
-.scv{font-family:var(--m);font-size:26px;font-weight:600;color:var(--ink0);letter-spacing:-1px}
-.scs{font-size:11px;color:var(--ink3);margin-top:3px}
-
-.tab-row{display:flex;gap:2px;background:var(--l1);border:1px solid var(--rim);border-radius:9px;padding:3px;width:fit-content;margin-bottom:16px}
-.tb{padding:6px 15px;border:none;background:none;color:var(--ink3);font-size:13px;font-weight:500;border-radius:7px;cursor:pointer;transition:all .15s}
-.tb.on{background:var(--l3);color:var(--cyan);box-shadow:0 1px 6px rgba(0,0,0,.4)}
-.tb:hover:not(.on){color:var(--ink1)}
-
-.leg-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px}
-.leg{display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--ink3)}
-.chip{display:inline-block;padding:2px 7px;border-radius:4px;font-family:var(--m);font-size:9.5px;font-weight:500;letter-spacing:.3px}
-.c-wo{background:var(--wo-bg);color:var(--wo);border:1px solid rgba(255,61,90,.2)}
-.c-roi{background:var(--roi-bg);color:var(--roi);border:1px solid rgba(0,229,160,.15)}
-.c-sun{background:var(--sun-bg);color:var(--sun-c);border:1px solid rgba(255,184,48,.2)}
-.c-sat{background:var(--sat-bg);color:var(--sat-c);border:1px solid rgba(167,139,250,.2)}
-
-.tbox{background:var(--l1);border:1px solid var(--rim);border-radius:var(--r2);overflow:auto;max-height:calc(100vh - 340px)}
-.rtb{border-collapse:collapse;min-width:100%}
-.rtb th{background:var(--base);color:var(--ink3);padding:8px 5px;text-align:center;font-family:var(--m);font-size:9.5px;font-weight:400;white-space:nowrap;border-right:1px solid var(--rim);position:sticky;top:0;z-index:10}
-.rtb th.th-a{text-align:left;padding-left:12px;min-width:155px;position:sticky;left:0;z-index:20;border-right:2px solid var(--rim2)}
-.rtb th.th-l{min-width:44px;position:sticky;left:155px;z-index:20;border-right:2px solid var(--rim2)}
-.rtb th.th-t{color:var(--cyan);border-left:2px solid var(--rim2);background:rgba(0,212,255,.03)}
-.rtb td{padding:5px 3px;text-align:center;border-bottom:1px solid rgba(30,45,69,.5);border-right:1px solid rgba(30,45,69,.4)}
-.rtb td.td-a{text-align:left;padding-left:12px;position:sticky;left:0;z-index:5;background:var(--l1);border-right:2px solid var(--rim2);white-space:nowrap}
-.rtb td.td-l{position:sticky;left:155px;z-index:5;background:var(--l1);border-right:2px solid var(--rim2)}
-.rtb tr:hover td{background:var(--l2)}
-.rtb tr:hover td.td-a,.rtb tr:hover td.td-l{background:var(--l2)}
-.rtb td.td-t{border-left:2px solid var(--rim2);font-family:var(--m);font-weight:600;color:var(--cyan);background:rgba(0,212,255,.04)}
-.d-sun{color:var(--sun-c)!important}.d-sat{color:var(--sat-c)!important}
-.lbdg{display:inline-block;padding:2px 7px;border-radius:4px;font-family:var(--m);font-size:9.5px;font-weight:500}
-.ptb{border-collapse:collapse;width:100%}
-.ptb th{background:var(--base);color:var(--ink3);padding:9px 12px;text-align:left;font-family:var(--m);font-size:9.5px;letter-spacing:1px;border-bottom:2px solid var(--rim)}
-.ptb td{padding:9px 12px;border-bottom:1px solid rgba(30,45,69,.5);font-size:13px}
-.ptb tr:hover td{background:var(--l2)}
-.si{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:7px;border:1px solid var(--rim);margin-bottom:6px;background:var(--l2);transition:all .15s;cursor:pointer}
-.si:hover{border-color:var(--cyan);background:var(--l3)}
-.si-info{flex:1}
-.si-t{font-size:13px;font-weight:600;color:var(--ink0)}
-.si-s{font-size:11px;color:var(--ink3);font-family:var(--m)}
-.si-d{background:none;border:none;cursor:pointer;color:var(--ink4);font-size:14px;padding:4px;border-radius:4px;transition:all .15s}
-.si-d:hover{background:rgba(255,61,90,.1);color:var(--rose)}
-
-/* ═══ ADMIN ═══ */
-.asc{flex:1;overflow-y:auto;padding:24px 32px}
-.a-h{font-size:22px;font-weight:800;color:var(--ink0);letter-spacing:-.5px;margin-bottom:4px}
-.a-s{font-size:13px;color:var(--ink3);margin-bottom:24px}
-.agrid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.acard{background:var(--l1);border:1px solid var(--rim);border-radius:var(--r2);padding:20px}
-.acard.full{grid-column:1/-1}
-.ac-t{font-size:14px;font-weight:700;color:var(--ink0);margin-bottom:14px;display:flex;align-items:center;gap:8px}
-.ac-t::before{content:'';width:3px;height:16px;background:var(--cyan);border-radius:2px}
-.btn-p{padding:8px 16px;background:var(--cyan);color:var(--bg);border:none;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s}
-.btn-p:hover{background:var(--cyan2);transform:translateY(-1px)}
-.btn-d{padding:6px 11px;background:rgba(255,61,90,.1);border:1px solid rgba(255,61,90,.2);border-radius:6px;color:var(--rose);font-size:12px;cursor:pointer;transition:all .15s}
-.btn-d:hover{background:rgba(255,61,90,.2)}
-.btn-e{padding:6px 11px;background:var(--l3);border:1px solid var(--rim2);border-radius:6px;color:var(--ink2);font-size:12px;cursor:pointer;transition:all .15s}
-.btn-e:hover{border-color:var(--cyan);color:var(--cyan)}
-.tbl{border-collapse:collapse;width:100%;font-size:12.5px}
-.tbl th{background:var(--base);color:var(--ink3);padding:9px 12px;text-align:left;font-family:var(--m);font-size:9.5px;letter-spacing:1px;border-bottom:2px solid var(--rim)}
-.tbl td{padding:10px 12px;border-bottom:1px solid rgba(30,45,69,.5);vertical-align:middle}
-.tbl tr:hover td{background:rgba(255,255,255,.02)}
-.tog-w{position:relative;display:inline-block;width:38px;height:21px;flex-shrink:0}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:500;display:none;align-items:center;justify-content:center;padding:16px}
+.modal-bg.show{display:flex}
+.modal{background:var(--l1);border:1px solid var(--rim2);border-radius:14px;padding:24px;width:100%;max-width:440px;box-shadow:0 24px 60px rgba(0,0,0,.5);animation:fadeUp .22s ease;max-height:90vh;overflow-y:auto}
+.modal.wide{max-width:640px}
+.modal-h{font-size:16px;font-weight:700;color:var(--ink0);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.modal-ft{display:flex;gap:7px;margin-top:16px;justify-content:flex-end}
+.tbl{border-collapse:collapse;width:100%}
+.tbl th{background:var(--base);color:var(--ink3);padding:8px 11px;text-align:left;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;border-bottom:2px solid var(--rim);white-space:nowrap}
+.tbl td{padding:9px 11px;border-bottom:1px solid rgba(30,45,69,.5);vertical-align:middle;font-size:13px}
+.tbl tr:hover td{background:rgba(255,255,255,.025)}
+.chip{display:inline-block;padding:2px 8px;border-radius:5px;font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:500;white-space:nowrap}
+.c-pend{background:rgba(255,184,48,.1);color:var(--amber);border:1px solid rgba(255,184,48,.2)}
+.c-appr{background:rgba(0,229,160,.1);color:var(--em);border:1px solid rgba(0,229,160,.2)}
+.c-reje{background:rgba(255,61,90,.1);color:var(--rose);border:1px solid rgba(255,61,90,.2)}
+.c-canc{background:rgba(122,155,191,.1);color:var(--ink2);border:1px solid rgba(122,155,191,.2)}
+.c-plan{background:rgba(0,212,255,.08);color:var(--cyan);border:1px solid rgba(0,212,255,.2)}
+.c-unpl{background:rgba(255,61,90,.08);color:var(--rose);border:1px solid rgba(255,61,90,.15)}
+.tog-w{position:relative;display:inline-block;width:36px;height:20px;flex-shrink:0}
 .tog-w input{opacity:0;width:0;height:0}
 .tog-sl{position:absolute;inset:0;background:var(--rim2);border-radius:99px;cursor:pointer;transition:all .2s}
-.tog-sl::before{content:'';position:absolute;width:15px;height:15px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:all .2s}
+.tog-sl::before{content:'';position:absolute;width:14px;height:14px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:all .2s}
 .tog-w input:checked+.tog-sl{background:var(--cyan)}
-.tog-w input:checked+.tog-sl::before{transform:translateX(17px)}
+.tog-w input:checked+.tog-sl::before{transform:translateX(16px)}
 
-/* MODAL */
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
-.modal-bg.show{display:flex}
-.modal{background:var(--l1);border:1px solid var(--rim2);border-radius:16px;padding:26px;width:100%;max-width:420px;box-shadow:0 24px 80px rgba(0,0,0,.6);animation:fadeUp .25s ease}
-.modal-h{font-size:17px;font-weight:700;color:var(--ink0);margin-bottom:18px}
-.modal-ft{display:flex;gap:8px;margin-top:18px}
-.btn-can{flex:1;padding:10px;background:var(--l2);border:1px solid var(--rim);border-radius:8px;color:var(--ink2);font-size:13px;cursor:pointer;transition:all .15s}
-.btn-can:hover{border-color:var(--rim2)}
-.btn-cf{flex:1;padding:10px;background:var(--cyan);color:var(--bg);border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s}
-.btn-cf:hover{background:var(--cyan2)}
+/* ─── ROSTER PAGE ─── */
+.rsh{display:flex;flex:1;overflow:hidden}
+.cp{width:280px;min-width:280px;background:var(--base);border-right:1px solid var(--rim);display:flex;flex-direction:column;overflow-y:auto}
+.cs{padding:12px;border-bottom:1px solid var(--rim)}
+.cl{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--ink4);margin-bottom:8px}
+.c2{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.hol-item{display:flex;align-items:center;gap:6px;padding:5px 8px;background:var(--l2);border:1px solid var(--rim);border-radius:6px;margin-bottom:5px;font-size:12px}
+.hol-item .hd-name{flex:1;color:var(--ink1)}
+.hol-item .hd-date{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--hol-c)}
+.hol-item .hd-rm{background:none;border:none;cursor:pointer;color:var(--ink4);font-size:12px;padding:2px}
+.hol-item .hd-rm:hover{color:var(--rose)}
+.add-hol{display:grid;grid-template-columns:1fr auto auto;gap:5px;margin-top:7px}
+.ro{flex:1;overflow-y:auto;padding:18px 22px;background:var(--bg)}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:50px 20px;text-align:center}
+.empty-ico{font-size:46px;opacity:.2;margin-bottom:16px}
+.empty-h{font-size:17px;font-weight:700;color:var(--ink2);margin-bottom:6px}
+.empty-p{font-size:13px;color:var(--ink3);max-width:300px;line-height:1.7}
+.sr{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.sc{background:var(--l1);border:1px solid var(--rim);border-radius:11px;padding:12px 14px;position:relative;overflow:hidden}
+.sc::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--cyan),transparent)}
+.scl{font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink4);margin-bottom:6px}
+.scv{font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:600;color:var(--ink0);letter-spacing:-1px}
+.scs{font-size:11px;color:var(--ink3);margin-top:2px}
+.tab-row{display:flex;gap:2px;background:var(--l1);border:1px solid var(--rim);border-radius:8px;padding:3px;width:fit-content;margin-bottom:14px}
+.tb{padding:6px 14px;border:none;background:none;color:var(--ink3);font-size:12.5px;font-weight:500;border-radius:6px;cursor:pointer;transition:all .15s}
+.tb.on{background:var(--l3);color:var(--cyan)}
+.tbox{background:var(--l1);border:1px solid var(--rim);border-radius:11px;overflow:auto;max-height:calc(100vh - 340px)}
+.rtb{border-collapse:collapse;min-width:100%}
+.rtb th{background:var(--base);color:var(--ink3);padding:7px 4px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:400;white-space:nowrap;border-right:1px solid var(--rim);position:sticky;top:0;z-index:10}
+.rtb th.th-a{text-align:left;padding-left:10px;min-width:150px;position:sticky;left:0;z-index:20;border-right:2px solid var(--rim2)}
+.rtb th.th-t{color:var(--cyan);border-left:2px solid var(--rim2);background:rgba(0,212,255,.03)}
+.rtb td{padding:4px 3px;text-align:center;border-bottom:1px solid rgba(30,45,69,.4);border-right:1px solid rgba(30,45,69,.3)}
+.rtb td.td-a{text-align:left;padding-left:10px;position:sticky;left:0;z-index:5;background:var(--l1);border-right:2px solid var(--rim2);white-space:nowrap}
+.rtb td.td-t{border-left:2px solid var(--rim2);font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--cyan)}
+.rtb tr:hover td{background:var(--l2)}.rtb tr:hover td.td-a{background:var(--l2)}
+.lbdg{display:inline-block;padding:2px 6px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:500}
+.ptb{border-collapse:collapse;width:100%}
+.ptb th{background:var(--base);color:var(--ink3);padding:8px 11px;text-align:left;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;border-bottom:2px solid var(--rim)}
+.ptb td{padding:8px 11px;border-bottom:1px solid rgba(30,45,69,.4);font-size:12.5px}
+.ptb tr:hover td{background:var(--l2)}
+.btn-gen{width:100%;padding:11px;background:linear-gradient(135deg,var(--cyan),var(--cyan2));color:var(--bg);border:none;border-radius:9px;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;margin-bottom:7px}
+.btn-gen:hover{transform:translateY(-2px);opacity:.9}
+.btn-gen:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.exp-row{display:flex;gap:6px;margin-bottom:6px}
+.btn-sm{flex:1;padding:7px 5px;background:var(--l2);border:1px solid var(--rim2);border-radius:6px;color:var(--ink2);font-size:11.5px;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:4px}
+.btn-sm:hover{border-color:var(--cyan);color:var(--cyan);background:var(--cdim)}
+.btn-save{width:100%;padding:8px;background:rgba(0,229,160,.08);border:1px solid rgba(0,229,160,.2);border-radius:7px;color:var(--em);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;margin-bottom:5px}
+.btn-save:hover{background:rgba(0,229,160,.14)}
+
+/* ─── SHORT LEAVE PAGE ─── */
+.sl-shell{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.sl-tabs{display:flex;gap:2px;background:var(--l1);border:1px solid var(--rim);border-radius:8px;padding:3px;margin:0 18px 0 0}
+.sl-tab{padding:6px 14px;border:none;background:none;color:var(--ink3);font-size:12.5px;font-weight:500;border-radius:6px;cursor:pointer;transition:all .15s}
+.sl-tab.on{background:var(--l3);color:var(--cyan)}
+.sl-body{flex:1;overflow-y:auto;padding:18px 22px}
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px}
+.kpi{background:var(--l1);border:1px solid var(--rim);border-radius:10px;padding:12px 14px;text-align:center}
+.kpi-val{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:700;color:var(--ink0);margin-bottom:3px}
+.kpi-lbl{font-size:11px;color:var(--ink3)}
+.kpi-bal{color:var(--em)}
+.sl-card{background:var(--l1);border:1px solid var(--rim);border-radius:10px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:flex-start;gap:12px}
+.sl-ico{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.sl-info{flex:1;min-width:0}
+.sl-title{font-size:14px;font-weight:600;color:var(--ink0);margin-bottom:3px}
+.sl-meta{font-size:11.5px;color:var(--ink3);font-family:'IBM Plex Mono',monospace}
+.sl-acts{display:flex;gap:5px;flex-shrink:0;flex-wrap:wrap}
+.filter-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.filter-sel{padding:6px 10px;background:var(--l2);border:1px solid var(--rim);border-radius:7px;color:var(--ink1);font-size:12.5px;outline:none;appearance:none}
+.filter-sel:focus{border-color:var(--cyan)}
+
+/* ─── ADMIN / SUPER ADMIN ─── */
+.asc{flex:1;overflow-y:auto;padding:20px 28px}
+.a-h{font-size:20px;font-weight:800;color:var(--ink0);letter-spacing:-.5px;margin-bottom:3px}
+.a-s{font-size:13px;color:var(--ink3);margin-bottom:20px}
+.agrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.acard{background:var(--l1);border:1px solid var(--rim);border-radius:11px;padding:18px}
+.acard.full{grid-column:1/-1}
+.ac-t{font-size:13.5px;font-weight:700;color:var(--ink0);margin-bottom:12px;display:flex;align-items:center;gap:7px}
+.ac-t::before{content:'';width:3px;height:15px;background:var(--cyan);border-radius:2px}
+.perm-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.perm-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink1)}
+.theme-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.theme-btn{padding:8px 4px;border:2px solid var(--rim);border-radius:8px;background:var(--l2);cursor:pointer;text-align:center;transition:all .15s;font-size:11.5px;color:var(--ink2)}
+.theme-btn.on{border-color:var(--cyan);color:var(--cyan);background:var(--cdim)}
+.theme-btn:hover{border-color:var(--rim2);color:var(--ink1)}
+.theme-swatch{width:28px;height:14px;border-radius:4px;margin:0 auto 4px}
+
+/* ─── BACKUP ─── */
+.bk-item{background:var(--l2);border:1px solid var(--rim);border-radius:8px;padding:11px 14px;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.bk-ico{font-size:20px}
+.bk-info{flex:1;min-width:0}
+.bk-name{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--ink1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bk-size{font-size:11px;color:var(--ink3)}
+.bk-acts{display:flex;gap:5px;flex-shrink:0}
+
+/* ─── RULES PAGE ─── */
+.rule-card{background:var(--l1);border:1px solid var(--rim);border-radius:10px;padding:16px;margin-bottom:10px}
+.rule-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.rule-num{width:26px;height:26px;border-radius:6px;background:var(--cdim);border:1px solid rgba(0,212,255,.15);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--cyan);flex-shrink:0}
+.rule-name{font-size:13.5px;font-weight:600;color:var(--ink0)}
+.rule-desc{font-size:12px;color:var(--ink3);margin-bottom:8px}
+.rule-ctrl{display:flex;align-items:center;gap:8px}
+.num-input{width:70px;padding:6px 8px;background:var(--l2);border:1px solid var(--rim2);border-radius:6px;color:var(--ink1);font-size:13px;text-align:center;outline:none}
+.num-input:focus{border-color:var(--cyan)}
+
+/* FORMAT PAGE */
+.fmt-card{background:var(--l1);border:1px solid var(--rim);border-radius:10px;padding:16px;margin-bottom:10px}
+.fmt-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--rim)}
+.fmt-row:last-child{border-bottom:none}
+.fmt-label{font-size:13px;color:var(--ink1);font-weight:500}
+.fmt-sub{font-size:11px;color:var(--ink3);margin-top:2px}
 
 /* MOBILE */
 @media(max-width:768px){
-  :root{--nav-w:0px}
-  .sidenav{display:none}
-  .sidenav.mob{display:flex;position:fixed;top:var(--top);left:0;bottom:0;width:260px;z-index:300}
-  .bs{display:none}
-  .hero{padding:22px 18px 18px}
-  .h-h{font-size:22px}
-  .msec{padding:18px}
-  .mgrid{grid-template-columns:1fr}
-  .agrid{grid-template-columns:1fr}
-  .sr{grid-template-columns:1fr 1fr}
+  .sidenav{position:fixed;top:56px;left:0;bottom:0;z-index:300;transform:translateX(-100%)}
+  .sidenav.mob-open{transform:none}
   .rsh{flex-direction:column}
-  .cp{width:100%;min-width:0;max-height:260px}
-  .ro{padding:14px}
-  .tbox{max-height:calc(100vh - 420px)}
+  .cp{width:100%;min-width:0;max-height:220px}
+  .ro{padding:12px}
+  .sr{grid-template-columns:1fr 1fr}
+  .kpi-row{grid-template-columns:1fr 1fr}
+  .agrid{grid-template-columns:1fr}
+  .theme-grid{grid-template-columns:repeat(3,1fr)}
+  .tbox{max-height:calc(100vh - 400px)}
   #mobBtn{display:flex!important}
 }
-@media print{.topbar,.sidenav,.cp,.mbar,.tab-row{display:none!important}.shell{height:auto}.content{overflow:visible}.pg.on{overflow:visible}.ro{padding:0}.tbox{max-height:none;overflow:visible}}
+@media print{.topbar,.sidenav,.cp,.mbar,.tab-row,.exp-row,.btn-save,.btn-gen{display:none!important}.shell{height:auto}.content{overflow:visible}.pg.on{overflow:visible}.ro{padding:0}.tbox{max-height:none;overflow:visible}}
 </style>
 </head>
 <body>
 
-<!-- LOGIN -->
+<!-- ═══════════════════════════════════════
+     LOGIN
+═══════════════════════════════════════ -->
 <div id="LS">
   <div class="lb"><div class="lb-g"></div></div>
   <div class="lc">
     <div class="l-brand">
       <div class="l-logo">⚡</div>
       <div class="l-name">C-Serv<em>.AI</em></div>
-      <div class="l-sub">Customer Service Intelligence Platform</div>
+      <div class="l-sub">Customer Service Intelligence Platform · v2.0</div>
     </div>
     <div class="l-tabs">
+      <button class="l-tab" onclick="setRole('superadmin',this)">🔱 Super Admin</button>
       <button class="l-tab on" onclick="setRole('admin',this)">🔐 Admin</button>
       <button class="l-tab" onclick="setRole('operator',this)">👤 Operator</button>
     </div>
@@ -330,13 +348,15 @@ input,select,button,textarea{font-family:var(--f)}
     <div class="fg"><label class="fl">Password</label><input class="fi" type="password" id="lp" placeholder="Enter password" autocomplete="current-password"></div>
     <button class="btn-login" id="lbtn" onclick="doLogin()">
       <span id="ltxt">Sign In</span>
-      <div class="sp" id="lsp" style="display:none"></div>
+      <div class="sp" id="lsp" style="display:none;border-top-color:var(--bg)"></div>
     </button>
-    <div class="l-hint" id="lhint">Admin: <span>admin</span> / <span>Admin@123</span></div>
+    <div class="l-hint" id="lhint"></div>
   </div>
 </div>
 
-<!-- APP -->
+<!-- ═══════════════════════════════════════
+     APP SHELL
+═══════════════════════════════════════ -->
 <div id="APP">
   <div class="topbar">
     <div class="brand" onclick="go('home')">
@@ -344,10 +364,13 @@ input,select,button,textarea{font-family:var(--f)}
       <div><div class="bn">C-Serv<em>.AI</em></div><div class="bs">Intelligence Platform</div></div>
     </div>
     <div class="tb-mid">
-      <div class="live-pill"><div class="ld"></div><span>C-Serv.AI Live</span></div>
+      <div class="live-pill"><div class="ld"></div><span id="liveTxt">C-Serv.AI Live</span></div>
     </div>
     <div class="tb-r">
       <div class="ib" id="mobBtn" onclick="toggleNav()" style="display:none">☰</div>
+      <div class="ib" id="notifBtn" onclick="go('shortleave')" title="Short Leave Notifications" style="display:none">
+        🔔<div class="notif-dot" id="notifDot" style="display:none"></div>
+      </div>
       <div class="u-pill">
         <div class="uav" id="tav">AD</div>
         <div><div class="un" id="tnm">Admin</div><div class="ur" id="trl">admin</div></div>
@@ -366,250 +389,143 @@ input,select,button,textarea{font-family:var(--f)}
       <div class="ng">
         <div class="ngl">Modules</div>
         <div class="nl" id="nl-roster" onclick="go('roster')"><span class="ni">📅</span><span class="nt">Roster Generator</span><span class="nbadge nb-live">LIVE</span></div>
-        <div class="nl locked"><span class="ni">📊</span><span class="nt">Analytics</span><span class="nbadge nb-soon">SOON</span></div>
-        <div class="nl locked"><span class="ni">👥</span><span class="nt">Agent Manager</span><span class="nbadge nb-soon">SOON</span></div>
-        <div class="nl locked"><span class="ni">📞</span><span class="nt">Call Tracker</span><span class="nbadge nb-soon">SOON</span></div>
-        <div class="nl locked"><span class="ni">🤖</span><span class="nt">AI Forecasting</span><span class="nbadge nb-soon">SOON</span></div>
+        <div class="nl" id="nl-shortleave" onclick="go('shortleave')"><span class="ni">🕐</span><span class="nt">Short Leave</span><span class="nbadge nb-live" id="slBadge" style="display:none">!</span></div>
+      </div>
+      <div class="nd"></div>
+      <div class="ng">
+        <div class="ngl">Configuration</div>
+        <div class="nl" id="nl-rules" onclick="go('rules')" style="display:none"><span class="ni">📋</span><span class="nt">Rules Manager</span></div>
+        <div class="nl" id="nl-format" onclick="go('format')" style="display:none"><span class="ni">🗂</span><span class="nt">Roster Format</span></div>
       </div>
       <div class="nd"></div>
       <div class="ng">
         <div class="ngl">System</div>
-        <div class="nl" id="nl-admin" style="display:none" onclick="go('admin')"><span class="ni">⚙️</span><span class="nt">Admin Panel</span></div>
-        <div class="nl" id="nl-saved" onclick="go('saved')"><span class="ni">💾</span><span class="nt">Saved Rosters</span></div>
+        <div class="nl" id="nl-users" onclick="go('users')" style="display:none"><span class="ni">👥</span><span class="nt">User Management</span></div>
+        <div class="nl" id="nl-backup" onclick="go('backup')" style="display:none"><span class="ni">💾</span><span class="nt">Backup & Restore</span></div>
+        <div class="nl" id="nl-settings" onclick="go('settings')" style="display:none"><span class="ni">⚙️</span><span class="nt">Settings</span></div>
+        <div class="nl" id="nl-saved" onclick="go('saved')"><span class="ni">🗄</span><span class="nt">Saved Rosters</span></div>
       </div>
-      <div class="nav-footer"><div class="nav-ver">C-Serv.AI · v1.0.0</div></div>
+      <div class="nav-footer">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--ink4)">C-Serv.AI · v2.0.0</div>
+        <div style="margin-top:8px;display:flex;gap:5px;flex-wrap:wrap" id="themeBar"></div>
+      </div>
     </nav>
 
     <div class="content">
-
-      <!-- HOME -->
-      <div class="pg on" id="pg-home">
-        <div class="hs">
-          <div class="hero">
-            <div class="h-eye">Customer Service Intelligence Platform</div>
-            <h1 class="h-h">Smarter Operations,<br><span class="hl">Zero Guesswork</span></h1>
-            <p class="h-p">C-Serv.AI centralises your team operations — from intelligent roster scheduling to performance analytics. Accessible by your entire team, anywhere, anytime.</p>
-            <div class="h-kpis">
-              <div><div class="kv">17</div><div class="kl">Active Agents</div></div>
-              <div><div class="kv" style="color:var(--cyan)">1</div><div class="kl">Live Modules</div></div>
-              <div><div class="kv">5+</div><div class="kl">Coming Soon</div></div>
-              <div><div class="kv" style="color:var(--em)">8</div><div class="kl">Scheduling Rules</div></div>
-            </div>
-          </div>
-          <div class="msec">
-            <div class="mhd"><div class="mt">Platform Modules</div><div class="mc2" id="mct">1 active · 5 coming soon</div></div>
-            <div class="mgrid" id="mgrid"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ROSTER -->
-      <div class="pg" id="pg-roster">
-        <div class="mbar">
-          <div class="bc">
-            <span class="bc-h" onclick="go('home')">🏠 Dashboard</span>
-            <span class="bc-s">›</span>
-            <span class="bc-c">📅 Roster Generator</span>
-          </div>
-          <div class="mbar-r"><div class="rc"><div class="rd2"></div>8 Rules Active</div></div>
-        </div>
-        <div class="rsh">
-          <aside class="cp">
-            <div class="cs">
-              <div class="cl">Schedule Period</div>
-              <div class="c2">
-                <div>
-                  <label class="fl" style="font-size:11px;color:var(--ink2)">Month</label>
-                  <select class="ctrl" id="selM">
-                    <option value="0">January</option><option value="1">February</option><option value="2" selected>March</option>
-                    <option value="3">April</option><option value="4">May</option><option value="5">June</option>
-                    <option value="6">July</option><option value="7">August</option><option value="8">September</option>
-                    <option value="9">October</option><option value="10">November</option><option value="11">December</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="fl" style="font-size:11px;color:var(--ink2)">Year</label>
-                  <input type="number" class="ctrl" id="selY" value="2026" min="2020" max="2035">
-                </div>
-              </div>
-              <label class="fl" style="font-size:11px;color:var(--ink2)">WO Saturdays</label>
-              <select class="ctrl" id="selS">
-                <option value="1,3">2nd &amp; 4th Saturday</option>
-                <option value="0,2">1st &amp; 3rd Saturday</option>
-                <option value="0,3">1st &amp; Last Saturday</option>
-              </select>
-            </div>
-            <div class="cs" style="flex:1;overflow-y:auto">
-              <div class="cl">Team Agents <span id="agCnt" style="color:var(--ink4)"></span></div>
-              <div class="ag-h"><span>Emp#</span><span>Name</span><span>Lvl</span><span></span></div>
-              <div id="agList"></div>
-              <button class="btn-add-ag" id="btnAddAg" onclick="addAgent()">+ Add Agent</button>
-            </div>
-            <div class="cs">
-              <div id="rAB"></div>
-              <button class="btn-gen" id="btnGen" onclick="generate()">
-                <span id="btnT">⚡ Generate Roster</span>
-                <div class="sp" id="btnSp" style="display:none"></div>
-              </button>
-              <div class="exp-row" id="expRow" style="display:none">
-                <button class="btn-sm" onclick="doCSV()">⬇ CSV</button>
-                <button class="btn-sm" onclick="doXLS()">⬇ Excel</button>
-                <button class="btn-sm" onclick="window.print()">🖨</button>
-              </div>
-              <button class="btn-save" id="btnSv" style="display:none" onclick="saveR()">💾 Save Roster</button>
-            </div>
-          </aside>
-          <div class="ro" id="rOut">
-            <div class="empty" id="emDiv">
-              <div class="empty-ico">📅</div>
-              <div class="empty-h">Ready to Generate</div>
-              <div class="empty-p">Configure your team and click Generate Roster.</div>
-              <div class="rg">
-                <div class="rp"><div class="rpn">RULE 01</div><div class="rpt">All Sundays → Universal WO</div></div>
-                <div class="rp"><div class="rpn">RULE 02</div><div class="rpt">2 Saturdays → Universal WO</div></div>
-                <div class="rp"><div class="rpn">RULE 03</div><div class="rpt">No 3 consecutive WOs</div></div>
-                <div class="rp"><div class="rpn">RULE 04</div><div class="rpt">Max 1 consec extra WO pair</div></div>
-                <div class="rp"><div class="rpn">RULE 05</div><div class="rpt">Max 2 agents on WO/day</div></div>
-                <div class="rp"><div class="rpn">RULE 06</div><div class="rpt">L0↔L0 · L1-3↔L4-7</div></div>
-                <div class="rp"><div class="rpn">RULE 07</div><div class="rpt">Equal WOs for all agents</div></div>
-                <div class="rp"><div class="rpn">RULE 08</div><div class="rpt">Min 1 L0 always working</div></div>
-              </div>
-            </div>
-            <div id="resDiv" style="display:none" class="fu">
-              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px">
-                <div>
-                  <div style="font-size:20px;font-weight:800;color:var(--ink0);letter-spacing:-.5px" id="rTi">—</div>
-                  <div style="font-size:11.5px;color:var(--ink3);margin-top:3px;font-family:var(--m)" id="rSu">—</div>
-                </div>
-              </div>
-              <div class="sr">
-                <div class="sc"><div class="scl">Target WOs</div><div class="scv" id="s1">—</div><div class="scs">per agent</div></div>
-                <div class="sc"><div class="scl">Team Size</div><div class="scv" id="s2">—</div><div class="scs">agents</div></div>
-                <div class="sc"><div class="scl">Pair Days</div><div class="scv" id="s3">—</div><div class="scs">extra WO days</div></div>
-                <div class="sc"><div class="scl">Avg Coverage</div><div class="scv" id="s4">—</div><div class="scs">working/day</div></div>
-              </div>
-              <div class="tab-row">
-                <button class="tb on" onclick="swTab('cal',this)">📅 Calendar</button>
-                <button class="tb" onclick="swTab('pairs',this)">🔗 WO Pairs</button>
-                <button class="tb" onclick="swTab('sum',this)">📊 Summary</button>
-              </div>
-              <div id="tab-cal">
-                <div class="leg-row">
-                  <div class="leg"><span class="chip c-sun">SUN</span> Sunday</div>
-                  <div class="leg"><span class="chip c-sat">SAT★</span> WO Saturday</div>
-                  <div class="leg"><span class="chip c-wo">WO</span> Weekly Off</div>
-                  <div class="leg"><span class="chip c-roi">ROI</span> Working</div>
-                </div>
-                <div class="tbox"><table class="rtb" id="calT"></table></div>
-              </div>
-              <div id="tab-pairs" style="display:none"><div class="tbox" style="max-height:none"><table class="ptb" id="pairT"></table></div></div>
-              <div id="tab-sum" style="display:none"><div class="tbox" style="max-height:none"><table class="ptb" id="sumT"></table></div></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- SAVED -->
-      <div class="pg" id="pg-saved">
-        <div class="mbar">
-          <div class="bc"><span class="bc-h" onclick="go('home')">🏠 Dashboard</span><span class="bc-s">›</span><span class="bc-c">💾 Saved Rosters</span></div>
-        </div>
-        <div style="flex:1;overflow-y:auto;padding:24px 28px">
-          <div style="font-size:20px;font-weight:800;color:var(--ink0);margin-bottom:4px">Saved Rosters</div>
-          <div style="font-size:13px;color:var(--ink3);margin-bottom:18px">Click any roster to load it back into the generator.</div>
-          <div id="savedL"><div style="color:var(--ink3);font-size:13px">Loading…</div></div>
-        </div>
-      </div>
-
-      <!-- ADMIN -->
-      <div class="pg" id="pg-admin">
-        <div class="mbar">
-          <div class="bc"><span class="bc-h" onclick="go('home')">🏠 Dashboard</span><span class="bc-s">›</span><span class="bc-c">⚙️ Admin Panel</span></div>
-        </div>
-        <div class="asc">
-          <div class="a-h">Admin Panel</div>
-          <div class="a-s">Manage users, module access, and passwords.</div>
-          <div class="agrid">
-            <div class="acard full">
-              <div class="ac-t">👥 User Management</div>
-              <div style="margin-bottom:12px"><button class="btn-p" onclick="openAdd()">+ Add User</button></div>
-              <div style="overflow-x:auto">
-                <table class="tbl">
-                  <thead><tr><th>Name</th><th>Username</th><th>Role</th><th>Modules</th><th>Can Save</th><th>Can Export</th><th>Actions</th></tr></thead>
-                  <tbody id="uTbl"></tbody>
-                </table>
-              </div>
-            </div>
-            <div class="acard">
-              <div class="ac-t">🔐 Operator Module Access</div>
-              <p style="font-size:12px;color:var(--ink3);margin-bottom:14px">Toggle which modules operators can access.</p>
-              <div id="modToggles"></div>
-              <button class="btn-p" style="margin-top:14px;width:100%" onclick="saveAccess()">Save Access Settings</button>
-            </div>
-            <div class="acard">
-              <div class="ac-t">🔑 Change Your Password</div>
-              <div class="fg" style="margin-bottom:10px">
-                <label class="fl" style="color:var(--ink2)">New Password</label>
-                <input class="fi" type="password" id="np1" placeholder="New password" style="background:var(--l2);border-color:var(--rim)">
-              </div>
-              <div class="fg" style="margin-bottom:10px">
-                <label class="fl" style="color:var(--ink2)">Confirm Password</label>
-                <input class="fi" type="password" id="np2" placeholder="Confirm password" style="background:var(--l2);border-color:var(--rim)">
-              </div>
-              <div id="pwdM"></div>
-              <button class="btn-p" style="width:100%" onclick="chgPwd()">Update Password</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
+      <!-- Pages injected below -->
+      <div class="pg on" id="pg-home"></div>
+      <div class="pg" id="pg-roster"></div>
+      <div class="pg" id="pg-shortleave"></div>
+      <div class="pg" id="pg-rules"></div>
+      <div class="pg" id="pg-format"></div>
+      <div class="pg" id="pg-users"></div>
+      <div class="pg" id="pg-backup"></div>
+      <div class="pg" id="pg-settings"></div>
+      <div class="pg" id="pg-saved"></div>
     </div>
   </div>
 </div>
 
 <!-- MODALS -->
-<div class="modal-bg" id="mAdd">
-  <div class="modal">
-    <div class="modal-h">Add New User</div>
-    <div class="fg"><label class="fl">Full Name</label><input class="fi" type="text" id="an" style="background:var(--l2);border-color:var(--rim)"></div>
-    <div class="fg"><label class="fl">Username</label><input class="fi" type="text" id="au" style="background:var(--l2);border-color:var(--rim)"></div>
-    <div class="fg"><label class="fl">Password</label><input class="fi" type="password" id="ap" placeholder="Min 6 characters" style="background:var(--l2);border-color:var(--rim)"></div>
-    <div class="fg"><label class="fl">Role</label><select class="ctrl" id="ar" style="margin-bottom:0"><option value="operator">Operator</option><option value="admin">Admin</option></select></div>
-    <div id="addErr" class="lerr" style="margin-top:8px"></div>
-    <div class="modal-ft">
-      <button class="btn-can" onclick="closeM('mAdd')">Cancel</button>
-      <button class="btn-cf" onclick="createUser()">Create User</button>
-    </div>
+<div class="modal-bg" id="mAddUser"><div class="modal">
+  <div class="modal-h">👤 Add New User</div>
+  <div class="fg"><label class="fl">Full Name</label><input class="fi" type="text" id="an" style="background:var(--l2);border-color:var(--rim)"></div>
+  <div class="fg"><label class="fl">Username</label><input class="fi" type="text" id="au" style="background:var(--l2);border-color:var(--rim)"></div>
+  <div class="fg"><label class="fl">Email <span style="color:var(--ink3);font-size:10px">(for notifications)</span></label><input class="fi" type="email" id="ae" style="background:var(--l2);border-color:var(--rim)"></div>
+  <div class="fg"><label class="fl">Password</label><input class="fi" type="password" id="ap" placeholder="Min 6 characters" style="background:var(--l2);border-color:var(--rim)"></div>
+  <div class="fg"><label class="fl">Role</label>
+    <select class="ctrl" id="ar" style="margin-bottom:0">
+      <option value="operator">Operator</option>
+      <option value="admin">Admin</option>
+    </select>
   </div>
-</div>
-<div class="modal-bg" id="mEdit">
-  <div class="modal">
-    <div class="modal-h">Edit User</div>
-    <input type="hidden" id="eid">
+  <div id="addErr" class="lerr" style="margin-top:8px"></div>
+  <div class="modal-ft"><button class="btn btn-ghost" onclick="closeM('mAddUser')">Cancel</button><button class="btn btn-prim" onclick="createUser()">Create User</button></div>
+</div></div>
+
+<div class="modal-bg" id="mEditUser"><div class="modal wide">
+  <div class="modal-h">✏️ Edit User & Permissions</div>
+  <input type="hidden" id="eid">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
     <div class="fg"><label class="fl">Full Name</label><input class="fi" type="text" id="en" style="background:var(--l2);border-color:var(--rim)"></div>
-    <div class="fg"><label class="fl">New Password <span style="color:var(--ink3);font-size:10px">(blank = keep)</span></label><input class="fi" type="password" id="epw" style="background:var(--l2);border-color:var(--rim)"></div>
-    <div class="fg"><label class="fl">Role</label><select class="ctrl" id="er" style="margin-bottom:0"><option value="operator">Operator</option><option value="admin">Admin</option></select></div>
-    <div style="margin-top:10px;display:flex;gap:16px;flex-wrap:wrap">
-      <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink1);cursor:pointer"><input type="checkbox" id="ecs"> Can Save Rosters</label>
-      <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink1);cursor:pointer"><input type="checkbox" id="ece"> Can Export Rosters</label>
-    </div>
-    <div id="editErr" class="lerr" style="margin-top:8px"></div>
-    <div class="modal-ft">
-      <button class="btn-can" onclick="closeM('mEdit')">Cancel</button>
-      <button class="btn-cf" onclick="updUser()">Save Changes</button>
+    <div class="fg"><label class="fl">Role</label><select class="ctrl" id="er"><option value="operator">Operator</option><option value="admin">Admin</option></select></div>
+  </div>
+  <div class="fg"><label class="fl">New Password <span style="color:var(--ink3);font-size:10px">(leave blank to keep)</span></label><input class="fi" type="password" id="epw" style="background:var(--l2);border-color:var(--rim)"></div>
+  <div style="margin-top:10px">
+    <div class="fl" style="margin-bottom:8px">Module Permissions</div>
+    <div style="background:var(--l2);border:1px solid var(--rim);border-radius:9px;padding:12px">
+      <div style="font-size:12px;font-weight:600;color:var(--ink2);margin-bottom:8px">📅 Roster Generator</div>
+      <div class="perm-grid">
+        <label class="perm-item"><input type="checkbox" id="ep_r_view"> View Roster</label>
+        <label class="perm-item"><input type="checkbox" id="ep_r_gen"> Generate Roster</label>
+        <label class="perm-item"><input type="checkbox" id="ep_r_save"> Save Roster</label>
+        <label class="perm-item"><input type="checkbox" id="ep_r_export"> Export Roster</label>
+        <label class="perm-item"><input type="checkbox" id="ep_r_editag"> Edit Agents</label>
+        <label class="perm-item"><input type="checkbox" id="ep_r_editrules"> Edit Rules</label>
+      </div>
+      <div style="font-size:12px;font-weight:600;color:var(--ink2);margin:12px 0 8px">🕐 Short Leave</div>
+      <div class="perm-grid">
+        <label class="perm-item"><input type="checkbox" id="ep_sl_view"> View Leaves</label>
+        <label class="perm-item"><input type="checkbox" id="ep_sl_apply"> Apply Leave</label>
+        <label class="perm-item"><input type="checkbox" id="ep_sl_approve"> Approve</label>
+        <label class="perm-item"><input type="checkbox" id="ep_sl_reject"> Reject</label>
+        <label class="perm-item"><input type="checkbox" id="ep_sl_cancel"> Cancel (Admin)</label>
+        <label class="perm-item"><input type="checkbox" id="ep_sl_dash"> Dashboard</label>
+      </div>
     </div>
   </div>
-</div>
+  <div id="editErr" class="lerr" style="margin-top:8px"></div>
+  <div class="modal-ft"><button class="btn btn-ghost" onclick="closeM('mEditUser')">Cancel</button><button class="btn btn-prim" onclick="updUser()">Save Changes</button></div>
+</div></div>
+
+<div class="modal-bg" id="mApplySL"><div class="modal">
+  <div class="modal-h">🕐 Apply Short Leave</div>
+  <div class="fg"><label class="fl">Short Leave Date</label><input class="fi" type="date" id="slDate" style="background:var(--l2);border-color:var(--rim)"></div>
+  <div class="fg"><label class="fl">Reason <span style="color:var(--ink3);font-size:10px">(optional)</span></label><textarea class="fi" id="slReason" rows="3" style="background:var(--l2);border-color:var(--rim);resize:vertical"></textarea></div>
+  <div id="slInfo" class="alrt a-info" style="font-size:12px"></div>
+  <div id="slErr" class="lerr" style="margin-top:5px"></div>
+  <div class="modal-ft"><button class="btn btn-ghost" onclick="closeM('mApplySL')">Cancel</button><button class="btn btn-prim" onclick="submitSL()">Submit Request</button></div>
+</div></div>
+
+<div class="modal-bg" id="mActSL"><div class="modal">
+  <div class="modal-h" id="mActSLh">Action</div>
+  <input type="hidden" id="slActId">
+  <input type="hidden" id="slActType">
+  <div class="fg"><label class="fl">Remarks <span style="color:var(--ink3);font-size:10px">(optional)</span></label><textarea class="fi" id="slRemarks" rows="3" style="background:var(--l2);border-color:var(--rim);resize:vertical"></textarea></div>
+  <div id="slActErr" class="lerr"></div>
+  <div class="modal-ft"><button class="btn btn-ghost" onclick="closeM('mActSL')">Cancel</button><button class="btn btn-prim" id="slActBtn" onclick="doSLAct()">Confirm</button></div>
+</div></div>
+
+<div class="modal-bg" id="mHoliday"><div class="modal">
+  <div class="modal-h">🗓 Manage Company Holidays</div>
+  <div id="holList" style="max-height:250px;overflow-y:auto;margin-bottom:12px"></div>
+  <div style="background:var(--l2);border:1px solid var(--rim);border-radius:8px;padding:12px">
+    <div class="fl" style="margin-bottom:8px">Add New Holiday</div>
+    <div style="display:grid;grid-template-columns:1fr auto;gap:7px;margin-bottom:7px">
+      <input class="fi" type="text" id="hn" placeholder="Holiday Name (e.g. Holi)" style="background:var(--l3);border-color:var(--rim2)">
+      <input class="fi" type="date" id="hd" style="background:var(--l3);border-color:var(--rim2);width:140px">
+    </div>
+    <button class="btn btn-prim" onclick="addHoliday()" style="width:100%">+ Add Holiday</button>
+  </div>
+  <div class="modal-ft"><button class="btn btn-prim" onclick="saveHolidays()">Save & Close</button></div>
+</div></div>
+
+<div class="modal-bg" id="mRestoreConfirm"><div class="modal">
+  <div class="modal-h">⚠️ Confirm Restore</div>
+  <p style="font-size:13px;color:var(--ink2);margin-bottom:10px">This will <strong style="color:var(--rose)">replace all current data</strong> with the backup. A pre-restore backup will be created automatically.</p>
+  <p style="font-size:13px;color:var(--ink2)">Backup: <code id="restoreName" style="color:var(--amber)"></code></p>
+  <div class="modal-ft"><button class="btn btn-ghost" onclick="closeM('mRestoreConfirm')">Cancel</button><button class="btn btn-rose" onclick="doRestore()">Yes, Restore</button></div>
+</div></div>
 
 <script>
 // ══════════════════════════════════════════
-// STATE
+// GLOBALS
 // ══════════════════════════════════════════
-let ME=null, AG=[], ROSTER=null, MACCESS={};
+let ME=null, AG=[], ROSTER=null, RULES={}, RFMT={}, HOLIDAYS=[], MACCESS={}, SLS=[];
 const MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
 const DS=['Su','Mo','Tu','We','Th','Fr','Sa'];
 const DF=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-const LN=['Team Leader','Sr.L1','Sr.L2','Sr.L3','Jr.L4','Jr.L5','Jr.L6','Trainee'];
+const LN=['Team Leader','Sr. L1','Sr. L2','Sr. L3','Jr. L4','Jr. L5','Jr. L6','Trainee'];
 const LC=[
   {bg:'rgba(192,132,252,.12)',fg:'#c084fc',b:'rgba(192,132,252,.25)'},
   {bg:'rgba(96,165,250,.12)', fg:'#60a5fa',b:'rgba(96,165,250,.25)'},
@@ -620,21 +536,54 @@ const LC=[
   {bg:'rgba(251,146,60,.12)', fg:'#fb923c',b:'rgba(251,146,60,.25)'},
   {bg:'rgba(248,113,113,.12)',fg:'#f87171',b:'rgba(248,113,113,.25)'},
 ];
-const MODS=[
-  {id:'roster',n:'01',name:'Roster Generator',desc:'Auto-generate monthly WO rosters with 8 scheduling rules enforced automatically.',ico:'📅',chips:['8 Rules','17 Agents'],col:'#00d4ff',live:true},
-  {id:'analytics',n:'02',name:'Performance Analytics',desc:'Real-time KPI dashboards, call metrics, and AI-powered insights.',ico:'📊',chips:['KPIs','AI'],col:'#00e5a0',live:false},
-  {id:'agentmgr',n:'03',name:'Agent Manager',desc:'Centralised agent profiles, skill matrices, and HR integration.',ico:'👥',chips:['Profiles','Skills'],col:'#a78bfa',live:false},
-  {id:'calls',n:'04',name:'Call Tracker',desc:'Monitor live call queues and CSAT in real-time with instant alerts.',ico:'📞',chips:['Real-time','Alerts'],col:'#ffb830',live:false},
-  {id:'ai',n:'05',name:'AI Forecasting',desc:'Predict staffing needs using ML trained on your team data.',ico:'🤖',chips:['ML','Predict'],col:'#ff3d5a',live:false},
-  {id:'reports',n:'06',name:'Reports & Exports',desc:'Cross-module reports — daily, weekly, monthly. Excel, PDF, API.',ico:'📈',chips:['Excel','PDF'],col:'#0099cc',live:false},
+const THEMES=[
+  {id:'dark',    name:'Dark',   swatch:'#0d1526,#00d4ff'},
+  {id:'light',   name:'Light',  swatch:'#f0f4f8,#0077cc'},
+  {id:'ocean',   name:'Ocean',  swatch:'#050f1f,#40c8ff'},
+  {id:'forest',  name:'Forest', swatch:'#050e08,#40e080'},
+  {id:'sunset',  name:'Sunset', swatch:'#0f0808,#ff8040'},
 ];
 
-// ══ API ══
-async function api(m,u,b){const o={method:m,headers:{'Content-Type':'application/json'}};if(b)o.body=JSON.stringify(b);const r=await fetch(u,o);const d=await r.json();if(!r.ok)throw new Error(d.error||'Server error');return d}
+// ── API ──────────────────────────────────
+async function api(m,u,b){
+  const o={method:m,headers:{'Content-Type':'application/json'}};
+  if(b)o.body=JSON.stringify(b);
+  const r=await fetch(u,o);
+  const d=await r.json();
+  if(!r.ok)throw new Error(d.error||'Server error');
+  return d;
+}
 
-// ══ LOGIN ══
+// ── THEME ────────────────────────────────
+function setTheme(id){
+  document.documentElement.setAttribute('data-theme',id);
+  localStorage.setItem('cserv_theme',id);
+  document.querySelectorAll('.theme-btn').forEach(b=>b.classList.toggle('on',b.dataset.theme===id));
+}
+function buildThemeBar(){
+  const bar=document.getElementById('themeBar');
+  bar.innerHTML=THEMES.map(t=>`<button class="theme-btn" data-theme="${t.id}" onclick="setTheme('${t.id}')" title="${t.name}" style="padding:4px 6px;border-radius:6px;font-size:9.5px;display:flex;flex-direction:column;align-items:center;gap:3px">
+    <span style="width:24px;height:10px;border-radius:3px;display:block;background:linear-gradient(90deg,${t.swatch})"></span>${t.name}</button>`).join('');
+  setTheme(localStorage.getItem('cserv_theme')||'dark');
+}
+
+// ── PERM HELPER ──────────────────────────
+function can(mod,act){
+  if(!ME) return false;
+  if(ME.role==='superadmin') return true;
+  return !!ME.permissions?.[mod]?.[act];
+}
+
+// ── LOGIN ────────────────────────────────
 let loginRole='admin';
-function setRole(r,el){loginRole=r;document.querySelectorAll('.l-tab').forEach(t=>t.classList.remove('on'));el.classList.add('on');document.getElementById('lu').value='';document.getElementById('lerr').classList.remove('show');document.getElementById('lhint').innerHTML=r==='admin'?'Admin: <span>admin</span> / <span>Admin@123</span>':'Ask your admin for credentials'}
+function setRole(r,el){
+  loginRole=r;
+  document.querySelectorAll('.l-tab').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('lu').value='';
+  const hints={superadmin:'superadmin / Super@123',admin:'admin / Admin@123',operator:'operator / Op@123'};
+  document.getElementById('lhint').textContent=hints[r]||'';
+}
 document.getElementById('lp').onkeydown=e=>{if(e.key==='Enter')doLogin()};
 document.getElementById('lu').onkeydown=e=>{if(e.key==='Enter')doLogin()};
 async function doLogin(){
@@ -642,126 +591,354 @@ async function doLogin(){
   const u=document.getElementById('lu').value.trim(),p=document.getElementById('lp').value;
   if(!u||!p){showLE('Please enter username and password');return}
   btn.disabled=true;sp.style.display='block';tx.textContent='Signing in…';er.classList.remove('show');
-  try{const d=await api('POST','/api/login',{username:u,password:p});ME=d.user;MACCESS=d.moduleAccess||{};await loadAG();initApp()}
-  catch(e){showLE(e.message)}
+  try{
+    const d=await api('POST','/api/login',{username:u,password:p});
+    ME=d.user;MACCESS=d.moduleAccess||{};
+    const rd=await api('GET','/api/me');
+    RULES=rd.rules||{};RFMT=rd.rosterFormat||{};
+    await Promise.all([loadAG(),loadHolidays()]);
+    initApp();
+  }catch(e){showLE(e.message)}
   btn.disabled=false;sp.style.display='none';tx.textContent='Sign In';
 }
 function showLE(m){const e=document.getElementById('lerr');e.textContent='⚠ '+m;e.classList.add('show')}
-async function doLogout(){await api('POST','/api/logout');ME=null;AG=[];ROSTER=null;document.getElementById('LS').style.display='flex';document.getElementById('APP').classList.remove('show');document.getElementById('lu').value='';document.getElementById('lp').value=''}
+async function doLogout(){
+  await api('POST','/api/logout');
+  ME=null;AG=[];ROSTER=null;SLS=[];
+  document.getElementById('LS').style.display='flex';
+  document.getElementById('APP').classList.remove('show');
+  document.getElementById('lu').value='';document.getElementById('lp').value='';
+}
 
-// ══ INIT ══
+// ── INIT ─────────────────────────────────
 function initApp(){
   document.getElementById('LS').style.display='none';
   document.getElementById('APP').classList.add('show');
   const ini=ME.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
   document.getElementById('tav').textContent=ini;
   document.getElementById('tnm').textContent=ME.name;
-  document.getElementById('trl').textContent=ME.role;
+  document.getElementById('trl').textContent=ME.username;
+  const roles={superadmin:'rb-sa',admin:'rb-a',operator:'rb-o'};
+  document.getElementById('trbdg').className='rb '+(roles[ME.role]||'rb-o');
   document.getElementById('trbdg').textContent=ME.role.toUpperCase();
-  document.getElementById('trbdg').className='rb '+(ME.role==='admin'?'rb-a':'rb-o');
-  document.getElementById('nl-admin').style.display=ME.role==='admin'?'flex':'none';
+  // Nav visibility
+  const sa=ME.role==='superadmin',adm=sa||ME.role==='admin';
+  if(adm){
+    document.getElementById('nl-rules').style.display='flex';
+    document.getElementById('nl-format').style.display='flex';
+    document.getElementById('nl-users').style.display='flex';
+    document.getElementById('nl-backup').style.display='flex';
+    document.getElementById('nl-settings').style.display='flex';
+  }
+  if(adm){document.getElementById('notifBtn').style.display='flex'}
   if(window.innerWidth<=768)document.getElementById('mobBtn').style.display='flex';
-  buildGrid();applyPerms();renderAG();go('home');
-}
-function applyPerms(){
-  const cs=ME.role==='admin'||ME.canSaveRoster, ce=ME.role==='admin'||ME.canExportRoster, ed=ME.role==='admin';
-  document.getElementById('btnSv').style.display=cs?'block':'none';
-  document.getElementById('btnAddAg').style.display=ed?'block':'none';
+  buildThemeBar();
+  buildHome();
+  buildRosterPage();
+  buildSLPage();
+  buildRulesPage();
+  buildFormatPage();
+  buildUsersPage();
+  buildBackupPage();
+  buildSettingsPage();
+  buildSavedPage();
+  go('home');
+  if(adm) pollSL();
 }
 async function loadAG(){try{AG=await api('GET','/api/agents')}catch{AG=[]}}
-function toggleNav(){document.getElementById('snav').classList.toggle('mob')}
-function closeMobNav(){document.getElementById('snav').classList.remove('mob')}
+async function loadHolidays(){try{HOLIDAYS=await api('GET','/api/holidays')}catch{HOLIDAYS=[]}}
+function toggleNav(){document.getElementById('snav').classList.toggle('mob-open')}
 
-// ══ NAV ══
+// ── NAV ──────────────────────────────────
 function go(id){
-  if(ME?.role==='operator'&&id==='roster'&&!ME.allowedModules.includes('roster')&&!MACCESS.roster){alert('Access denied. Ask your admin.');return}
-  if(ME?.role==='operator'&&id==='admin')return;
   document.querySelectorAll('.pg').forEach(p=>{p.classList.remove('on');p.style.display='none'});
   document.querySelectorAll('.nl').forEach(l=>l.classList.remove('on'));
   const pg=document.getElementById('pg-'+id);
   if(pg){pg.style.display='flex';requestAnimationFrame(()=>pg.classList.add('on'))}
   const nl=document.getElementById('nl-'+id);if(nl)nl.classList.add('on');
-  if(id==='saved')loadSaved();if(id==='admin'){loadUsers();loadAccess()}if(id==='roster')renderAG();
-  closeMobNav();
+  if(id==='shortleave') loadSLPage();
+  if(id==='saved') loadSavedData();
+  if(id==='backup') loadBackups();
+  if(id==='users') loadUsers();
+  document.getElementById('snav').classList.remove('mob-open');
 }
 
-// ══ MODULE GRID ══
-function buildGrid(){
-  const canSee=id=>ME.role==='admin'||MACCESS[id]||ME.allowedModules.includes(id);
-  document.getElementById('mgrid').innerHTML=MODS.map(m=>{
-    const acc=m.live&&canSee(m.id),lk=!acc;
-    return `<div class="mcard${lk?' locked':''}" style="--cb:${m.col}" ${acc?`onclick="go('${m.id}')"`:''}>`+
-      `<div class="mc-hd"><div class="mc-ico" style="background:${m.col}18">${m.ico}</div><span class="mc-bdg ${m.live?'mc-live':'mc-soon'}">${m.live?'● LIVE':'SOON'}</span></div>`+
-      `<div class="mc-n">MODULE ${m.n}</div><div class="mc-name">${m.name}</div><div class="mc-desc">${m.desc}</div>`+
-      `<div class="mc-ft"><div class="mc-chips">${m.chips.map(c=>`<span class="mc-chip">${c}</span>`).join('')}</div>${acc?'<div class="mc-arr">→</div>':''}</div>`+
-      (lk?`<div class="lo"><div class="lo-i">🔒</div><div class="lo-t">${m.live&&!canSee(m.id)?'Access Restricted':'Coming Soon'}</div></div>`:'')+
-      `</div>`;
-  }).join('');
+// ══ HOME PAGE ════════════════════════════
+function buildHome(){
+  document.getElementById('pg-home').innerHTML=`
+  <div style="flex:1;overflow-y:auto">
+    <div style="padding:32px 32px 24px;background:linear-gradient(180deg,rgba(0,212,255,.04),transparent);border-bottom:1px solid var(--rim);position:relative;overflow:hidden">
+      <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(0,212,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.02) 1px,transparent 1px);background-size:44px 44px;pointer-events:none"></div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--cyan);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px"><span style="display:inline-block;width:20px;height:2px;background:var(--cyan)"></span>Customer Service Intelligence</div>
+      <div style="font-size:28px;font-weight:800;color:var(--ink0);letter-spacing:-1px;line-height:1.15;margin-bottom:10px">Welcome, <span style="color:var(--cyan)">${x(ME.name)}</span></div>
+      <div style="font-size:14px;color:var(--ink2);max-width:500px;line-height:1.7;margin-bottom:22px">C-Serv.AI centralises your team operations — intelligent roster scheduling, short leave management, and more.</div>
+      <div style="display:flex;gap:28px;flex-wrap:wrap">
+        <div><div style="font-size:22px;font-weight:800;font-family:'IBM Plex Mono',monospace;color:var(--ink0)">${AG.length}</div><div style="font-size:11px;color:var(--ink3)">Active Agents</div></div>
+        <div><div style="font-size:22px;font-weight:800;font-family:'IBM Plex Mono',monospace;color:var(--cyan)">2</div><div style="font-size:11px;color:var(--ink3)">Live Modules</div></div>
+        <div><div style="font-size:22px;font-weight:800;font-family:'IBM Plex Mono',monospace;color:var(--em)">${RULES.shortLeaveMonthlyLimit||3}</div><div style="font-size:11px;color:var(--ink3)">SL/Month Limit</div></div>
+      </div>
+    </div>
+    <div style="padding:24px 32px">
+      <div style="font-size:14px;font-weight:700;color:var(--ink0);margin-bottom:14px;display:flex;align-items:center;gap:7px"><span style="display:inline-block;width:3px;height:17px;background:var(--cyan);border-radius:2px"></span>Active Modules</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px">
+        ${[
+          {id:'roster',ico:'📅',name:'Roster Generator',desc:'Auto-generate monthly WO rosters with configurable rules, holidays, and custom export formats.',col:'#00d4ff',chips:['Rules','Holidays','XLSX']},
+          {id:'shortleave',ico:'🕐',name:'Short Leave Request',desc:'Agents apply short leaves, admins approve/reject, full dashboard with planned vs unplanned tracking.',col:'#00e5a0',chips:['Apply','Approve','Dashboard']},
+        ].map(m=>`<div style="background:var(--l1);border:1px solid var(--rim);border-radius:13px;padding:20px;cursor:pointer;transition:all .2s" onclick="go('${m.id}')" onmouseover="this.style.borderColor='${m.col}';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='';this.style.transform=''">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px">
+            <div style="width:44px;height:44px;border-radius:11px;background:${m.col}18;display:flex;align-items:center;justify-content:center;font-size:20px">${m.ico}</div>
+            <span style="font-size:8.5px;font-family:'IBM Plex Mono',monospace;font-weight:600;padding:2px 8px;border-radius:99px;background:rgba(0,229,160,.1);color:var(--em);border:1px solid rgba(0,229,160,.2)">● LIVE</span>
+          </div>
+          <div style="font-size:13.5px;font-weight:700;color:var(--ink0);margin-bottom:5px">${m.name}</div>
+          <div style="font-size:12px;color:var(--ink2);line-height:1.6;margin-bottom:13px">${m.desc}</div>
+          <div style="display:flex;gap:5px">${m.chips.map(c=>`<span style="font-size:9.5px;font-family:'IBM Plex Mono',monospace;color:var(--ink3);background:var(--l3);border:1px solid var(--rim);border-radius:4px;padding:2px 7px">${c}</span>`).join('')}</div>
+        </div>`).join('')}
+      </div>
+    </div>
+  </div>`;
 }
 
-// ══ AGENTS ══
+// ══ ROSTER PAGE ══════════════════════════
+function buildRosterPage(){
+  document.getElementById('pg-roster').innerHTML=`
+  <div class="mbar">
+    <div class="bc"><span class="bc-h" onclick="go('home')">🏠</span><span class="bc-s">›</span><span class="bc-c">📅 Roster Generator</span></div>
+    <div style="margin-left:auto;display:flex;gap:6px">
+      <button class="btn btn-ghost" style="font-size:12px" onclick="openHolidayMgr()">🗓 Holidays (${HOLIDAYS.length})</button>
+    </div>
+  </div>
+  <div class="rsh">
+    <aside class="cp">
+      <div class="cs">
+        <div class="cl">Schedule Period</div>
+        <div class="c2">
+          <div><label class="fl" style="font-size:10.5px;color:var(--ink2)">Month</label>
+          <select class="ctrl" id="selM">${MN.map((m,i)=>`<option value="${i}"${i===2?' selected':''}>${m}</option>`).join('')}</select></div>
+          <div><label class="fl" style="font-size:10.5px;color:var(--ink2)">Year</label>
+          <input type="number" class="ctrl" id="selY" value="2026" min="2020" max="2035"></div>
+        </div>
+        <label class="fl" style="font-size:10.5px;color:var(--ink2)">WO Saturdays</label>
+        <select class="ctrl" id="selS">
+          <option value="1,3">2nd & 4th Saturday</option>
+          <option value="0,2">1st & 3rd Saturday</option>
+          <option value="0,3">1st & Last Saturday</option>
+        </select>
+        <div id="holBadge" style="margin-top:7px;font-size:11.5px;color:var(--hol-c)"></div>
+      </div>
+      <div class="cs" style="flex:1;overflow-y:auto">
+        <div class="cl">Team Agents <span id="agCnt" style="color:var(--ink4)"></span></div>
+        <div id="agHead" style="display:grid;grid-template-columns:54px 1fr 44px ${can('roster','editAgents')?'24px':''};gap:4px;padding:4px 2px;font-family:'IBM Plex Mono',monospace;font-size:8.5px;color:var(--ink4);border-bottom:1px solid var(--rim);margin-bottom:3px">
+          <span>Emp#</span><span>Name</span><span>Lvl</span>${can('roster','editAgents')?'<span></span>':''}
+        </div>
+        <div id="agList"></div>
+        ${can('roster','editAgents')?`<button style="width:100%;padding:6px;margin-top:6px;background:none;border:1px dashed var(--rim2);border-radius:6px;color:var(--ink3);font-size:11px;cursor:pointer;transition:all .15s" onmouseover="this.style.borderColor='var(--cyan)';this.style.color='var(--cyan)'" onmouseout="this.style.borderColor='';this.style.color=''" onclick="addAgent()">+ Add Agent</button>`:''}
+      </div>
+      <div class="cs">
+        <div id="rAB"></div>
+        <button class="btn-gen" id="btnGen" onclick="generate()" ${!can('roster','generate')?'disabled':''}>
+          <span id="btnT">⚡ Generate Roster</span>
+          <div class="sp" id="btnSp" style="display:none;border-top-color:var(--bg)"></div>
+        </button>
+        ${can('roster','export')?`<div class="exp-row" id="expRow" style="display:none">
+          <button class="btn-sm" onclick="doCSV()">⬇ CSV</button>
+          <button class="btn-sm" onclick="doXLSX()">⬇ XLSX</button>
+          <button class="btn-sm" onclick="window.print()">🖨</button>
+        </div>`:''}
+        ${can('roster','save')?`<button class="btn-save" id="btnSv" style="display:none" onclick="saveR()">💾 Save Roster</button>`:''}
+      </div>
+    </aside>
+    <div class="ro" id="rOut">
+      <div class="empty" id="emDiv">
+        <div class="empty-ico">📅</div>
+        <div class="empty-h">Ready to Generate</div>
+        <div class="empty-p">Configure period, review agents and holidays, then click Generate.</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:20px;max-width:420px;text-align:left">
+          ${[['RULE 01','All Sundays → Universal WO'],['RULE 02','2 WO Saturdays → Universal WO'],['RULE 03','Holidays → special WO day'],['RULE 04','No 3+ consecutive WOs'],['RULE 05','Max 2 agents on WO/day'],['RULE 06','L0↔L0 · L1-3↔L4-7'],['RULE 07','Equal WOs all agents'],['RULE 08','Min 1 L0 always working']].map(([n,t])=>`
+          <div style="background:var(--l1);border:1px solid var(--rim);border-radius:6px;padding:8px 10px">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--cyan);margin-bottom:2px">${n}</div>
+            <div style="font-size:12px;color:var(--ink2)">${t}</div>
+          </div>`).join('')}
+        </div>
+      </div>
+      <div id="resDiv" style="display:none" class="fu">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px">
+          <div><div style="font-size:18px;font-weight:800;color:var(--ink0);letter-spacing:-.5px" id="rTi">—</div>
+          <div style="font-size:11px;color:var(--ink3);margin-top:2px;font-family:'IBM Plex Mono',monospace" id="rSu">—</div></div>
+        </div>
+        <div class="sr">
+          <div class="sc"><div class="scl">Target WOs</div><div class="scv" id="s1">—</div><div class="scs">per agent</div></div>
+          <div class="sc"><div class="scl">Team Size</div><div class="scv" id="s2">—</div><div class="scs">agents</div></div>
+          <div class="sc"><div class="scl">Pair Days</div><div class="scv" id="s3">—</div><div class="scs">extra WO days</div></div>
+          <div class="sc"><div class="scl">Holidays</div><div class="scv" id="s4">—</div><div class="scs">this month</div></div>
+        </div>
+        <div class="tab-row">
+          <button class="tb on" onclick="swTab('cal',this)">📅 Calendar</button>
+          <button class="tb" onclick="swTab('pairs',this)">🔗 WO Pairs</button>
+          <button class="tb" onclick="swTab('sum',this)">📊 Summary</button>
+        </div>
+        <div id="tab-cal">
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;font-size:12px">
+            <span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;padding:2px 7px;border-radius:4px;background:var(--sun-bg);color:var(--sun-c);font-size:9px;font-family:'IBM Plex Mono',monospace">SUN</span> Sunday</span>
+            <span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;padding:2px 7px;border-radius:4px;background:var(--sat-bg);color:var(--sat-c);font-size:9px;font-family:'IBM Plex Mono',monospace">SAT★</span> WO Sat</span>
+            <span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;padding:2px 7px;border-radius:4px;background:var(--hol-bg);color:var(--hol-c);font-size:9px;font-family:'IBM Plex Mono',monospace">HOL</span> Holiday</span>
+            <span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;padding:2px 7px;border-radius:4px;background:var(--wo-bg);color:var(--wo);font-size:9px;font-family:'IBM Plex Mono',monospace">WO</span> Extra WO</span>
+            <span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;padding:2px 7px;border-radius:4px;background:var(--roi-bg);color:var(--roi);font-size:9px;font-family:'IBM Plex Mono',monospace">ROI</span> Working</span>
+          </div>
+          <div class="tbox"><table class="rtb" id="calT"></table></div>
+        </div>
+        <div id="tab-pairs" style="display:none"><div class="tbox" style="max-height:none"><table class="ptb" id="pairT"></table></div></div>
+        <div id="tab-sum" style="display:none"><div class="tbox" style="max-height:none"><table class="ptb" id="sumT"></table></div></div>
+      </div>
+    </div>
+  </div>`;
+  renderAG();
+  updateHolBadge();
+}
+
+function updateHolBadge(){
+  const yr=+(document.getElementById('selY')?.value||2026),mo=+(document.getElementById('selM')?.value||2);
+  const mhols=HOLIDAYS.filter(h=>{const d=new Date(h.date);return d.getFullYear()===yr&&d.getMonth()===mo});
+  const el=document.getElementById('holBadge');
+  if(el) el.textContent=mhols.length?`🟢 ${mhols.length} holiday${mhols.length>1?'s':''} this month: ${mhols.map(h=>h.name).join(', ')}`:'';
+}
+
+// ── HOLIDAYS ─────────────────────────────
+let _tmpHols=[];
+function openHolidayMgr(){
+  _tmpHols=[...HOLIDAYS];
+  renderHolList();
+  openM('mHoliday');
+}
+function renderHolList(){
+  document.getElementById('holList').innerHTML=_tmpHols.length?_tmpHols.map((h,i)=>`
+    <div class="hol-item">
+      <span style="font-size:16px">🗓</span>
+      <div style="flex:1">
+        <div class="hd-name">${x(h.name)}</div>
+        <div class="hd-date">${h.date} (${DF[new Date(h.date).getDay()]})</div>
+      </div>
+      <button class="hd-rm" onclick="_tmpHols.splice(${i},1);renderHolList()">✕</button>
+    </div>`).join(''):`<div style="color:var(--ink3);font-size:13px;padding:10px 0">No holidays added yet.</div>`;
+}
+function addHoliday(){
+  const n=document.getElementById('hn').value.trim(),d=document.getElementById('hd').value;
+  if(!n||!d){alert('Enter name and date');return}
+  if(_tmpHols.find(h=>h.date===d)){alert('Already added');return}
+  _tmpHols.push({name:n,date:d});_tmpHols.sort((a,b)=>a.date.localeCompare(b.date));
+  document.getElementById('hn').value='';document.getElementById('hd').value='';
+  renderHolList();
+}
+async function saveHolidays(){
+  await api('PUT','/api/holidays',_tmpHols);
+  HOLIDAYS=_tmpHols;closeM('mHoliday');
+  updateHolBadge();
+  document.querySelectorAll('[onclick*="openHolidayMgr"]').forEach(b=>b.textContent=`🗓 Holidays (${HOLIDAYS.length})`);
+}
+
+// ── AGENTS ───────────────────────────────
 function renderAG(){
-  document.getElementById('agCnt').textContent=`(${AG.length})`;
-  const ed=ME.role==='admin';
-  document.getElementById('agList').innerHTML=AG.map((a,i)=>`
-    <div class="ag-r">
-      <input class="ai" value="${x(a.emp)}" oninput="AG[${i}].emp=this.value" style="font-family:var(--m);font-size:10px" ${ed?'':'readonly'}>
-      <input class="ai" value="${x(a.name)}" oninput="AG[${i}].name=this.value" ${ed?'':'readonly'}>
-      <select class="as" onchange="AG[${i}].level=+this.value" ${ed?'':'disabled'}>
+  const el=document.getElementById('agCnt');if(el)el.textContent=`(${AG.length})`;
+  const ed=can('roster','editAgents');
+  const list=document.getElementById('agList');
+  if(!list) return;
+  list.innerHTML=AG.map((a,i)=>`
+    <div style="display:grid;grid-template-columns:54px 1fr 44px ${ed?'24px':''};gap:4px;padding:3px;border-radius:5px;align-items:center;margin-bottom:2px" onmouseover="this.style.background='var(--l2)'" onmouseout="this.style.background=''">
+      <input style="background:var(--l2);border:1px solid var(--rim);border-radius:4px;padding:3px 5px;color:var(--ink1);font-size:10.5px;outline:none;width:100%;font-family:'IBM Plex Mono',monospace" value="${x(a.emp)}" oninput="AG[${i}].emp=this.value" ${ed?'':'readonly'}>
+      <input style="background:var(--l2);border:1px solid var(--rim);border-radius:4px;padding:3px 5px;color:var(--ink1);font-size:11.5px;outline:none;width:100%" value="${x(a.name)}" oninput="AG[${i}].name=this.value" ${ed?'':'readonly'}>
+      <select style="background:var(--l2);border:1px solid var(--rim);border-radius:4px;padding:3px;color:var(--ink1);font-family:'IBM Plex Mono',monospace;font-size:10.5px;outline:none;width:100%;appearance:none" onchange="AG[${i}].level=+this.value" ${ed?'':'disabled'}>
         ${[0,1,2,3,4,5,6,7].map(l=>`<option value="${l}"${l===a.level?' selected':''}>L${l}</option>`).join('')}
       </select>
-      ${ed?`<button class="ad" onclick="rmAg(${i})">✕</button>`:'<span></span>'}
+      ${ed?`<button style="background:none;border:none;cursor:pointer;color:var(--ink4);font-size:12px;padding:2px;border-radius:3px;line-height:1" onmouseover="this.style.color='var(--rose)'" onmouseout="this.style.color=''" onclick="rmAg(${i})">✕</button>`:''}
     </div>`).join('');
 }
-function addAgent(){AG.push({emp:'EP'+(Math.floor(Math.random()*900)+100),name:'New Agent',level:1,dept:'Customer Service',loc:'Gurgaon-US'});renderAG();if(ME.role==='admin')syncAG()}
-function rmAg(i){AG.splice(i,1);renderAG();if(ME.role==='admin')syncAG()}
+function addAgent(){AG.push({emp:'EP'+(Math.floor(Math.random()*900)+100),name:'New Agent',level:1,dept:'Customer Service',loc:'Gurgaon-US'});renderAG();syncAG()}
+function rmAg(i){AG.splice(i,1);renderAG();syncAG()}
 async function syncAG(){try{await api('PUT','/api/agents',AG)}catch{}}
 
-// ══ PAIRING ══
-function vPair(a,b){const la=a.level,lb=b.level;if(la===0&&lb===0)return true;if(la===0||lb===0)return false;const S=new Set([1,2,3]),J=new Set([4,5,6,7]);return(S.has(la)&&J.has(lb))||(J.has(la)&&S.has(lb))}
+// ── PAIRING ──────────────────────────────
+function vPair(a,b){
+  if(RULES.pairingRule==='any') return true;
+  const la=a.level,lb=b.level;
+  if(la===0&&lb===0) return true;
+  if(la===0||lb===0) return false;
+  const S=new Set([1,2,3]),J=new Set([4,5,6,7]);
+  return (S.has(la)&&J.has(lb))||(J.has(la)&&S.has(lb));
+}
 
-// ══ GENERATE ══
+// ── GENERATE ─────────────────────────────
 function generate(){
   const btn=document.getElementById('btnGen'),sp=document.getElementById('btnSp'),tx=document.getElementById('btnT');
   btn.disabled=true;sp.style.display='block';tx.textContent='Generating…';
   setTimeout(()=>{
-    try{ROSTER=compute();renderAll(ROSTER);rAlert('✓ Roster generated — all 8 rules satisfied.','ok');const ce=ME.role==='admin'||ME.canExportRoster;document.getElementById('expRow').style.display=ce?'flex':'none'}
+    try{ROSTER=compute();renderAll(ROSTER);rAlert('✓ Roster generated — all rules satisfied.','ok');if(can('roster','export'))document.getElementById('expRow').style.display='flex';if(can('roster','save'))document.getElementById('btnSv').style.display='block'}
     catch(e){rAlert('⚠ '+e.message,'err')}
     btn.disabled=false;sp.style.display='none';tx.textContent='⚡ Generate Roster';
   },60);
 }
+
 function compute(){
   const yr=+document.getElementById('selY').value,mo=+document.getElementById('selM').value;
   const si=document.getElementById('selS').value.split(',').map(Number);
-  if(AG.length<2)throw new Error('Need at least 2 agents.');
+  if(AG.length<2) throw new Error('Need at least 2 agents.');
+  const R=RULES;
   const dim=new Date(yr,mo+1,0).getDate(),days=Array.from({length:dim},(_,i)=>i+1);
   const dow={};days.forEach(d=>dow[d]=new Date(yr,mo,d).getDay());
   const suns=days.filter(d=>dow[d]===0),sats=days.filter(d=>dow[d]===6);
-  const wos=si.map(i=>sats[i]).filter(Boolean),uSet=new Set([...suns,...wos]);
-  const tgt=8+(suns.length>=5?1:0),ex=tgt-uSet.size;
-  if(ex<0)throw new Error('Target WOs less than universal WO days.');
-  const wd=days.filter(d=>!uSet.has(d));
-  const blk=d=>{const p1=uSet.has(d-1),p2=uSet.has(d-2),n1=uSet.has(d+1),n2=uSet.has(d+2);return(p1&&p2)||(n1&&n2)||(p1&&n1)};
+  const woSats=si.map(i=>sats[i]).filter(Boolean);
+  // Get holidays for this month
+  const mhols=HOLIDAYS.filter(h=>{const dt=new Date(h.date);return dt.getFullYear()===yr&&dt.getMonth()===mo});
+  const holDays=new Set(mhols.map(h=>new Date(h.date).getDate()));
+  const uSet=new Set([...suns,...woSats]);
+  const tgt=(R.targetWOBase||8)+(suns.length>=5&&R.extraWOIfFifthSunday?1:0);
+  const ex=tgt-uSet.size;
+  if(ex<0) throw new Error('Target WOs less than universal WO days.');
+  const maxPD=R.maxAgentsOnWOPerDay||2;
+  // Working days = not in uSet and not holiday (holidays are separate)
+  const wd=days.filter(d=>!uSet.has(d)&&!holDays.has(d));
+  const blk=d=>{const p1=uSet.has(d-1)||holDays.has(d-1),p2=uSet.has(d-2)||holDays.has(d-2),n1=uSet.has(d+1)||holDays.has(d+1),n2=uSet.has(d+2)||holDays.has(d+2);return(p1&&p2)||(n1&&n2)||(p1&&n1)};
+  // Holiday adjacent rule: only 1 WO allowed next to holiday, max 2 agents
+  const isHolAdj=d=>(holDays.has(d-1)||holDays.has(d+1));
   const safe=wd.filter(d=>!blk(d));
-  if(safe.length*2<ex*AG.length)throw new Error(`Not enough safe days (${safe.length}) for ${ex} extra WOs/agent.`);
-  const qt={},ew={},cu={};AG.forEach(a=>{qt[a.name]=ex;ew[a.name]=[];cu[a.name]=false});const asn={};
-  const hadj=(a,d)=>{const idx=days.indexOf(d);for(const di of[idx-1,idx+1]){if(di>=0&&di<days.length){const nd=days[di];if(!uSet.has(nd)&&ew[a.name].includes(nd))return true}}return false};
-  const w3=(a,d)=>{const s=new Set([...ew[a.name],d]);for(const x of s)if(s.has(x+1)&&s.has(x+2))return true;return false};
-  const can=(a,d)=>ew[a.name].length<qt[a.name]&&!w3(a,d)&&!(hadj(a,d)&&cu[a.name]);
+  if(safe.length<1) throw new Error('Not enough safe working days after applying rules.');
+  const qt={},ew={},cu={};
+  AG.forEach(a=>{qt[a.name]=ex;ew[a.name]=[];cu[a.name]=false});
+  const asn={};
+  const dayWOCount={};
+  const hadj=(a,d)=>{const idx=days.indexOf(d);for(const di of[idx-1,idx+1]){if(di>=0&&di<days.length){const nd=days[di];if(!uSet.has(nd)&&!holDays.has(nd)&&ew[a.name].includes(nd))return true}}return false};
+  const w3=(a,d)=>{const s=new Set([...ew[a.name],d]);for(const xd of s)if(s.has(xd+1)&&s.has(xd+2))return true;return false};
+  const can2=(a,d)=>ew[a.name].length<qt[a.name]&&!w3(a,d)&&!(hadj(a,d)&&cu[a.name]);
+
   for(const day of safe){
-    if(AG.every(a=>ew[a.name].length>=qt[a.name]))continue;
-    const el=AG.filter(a=>can(a,day)),pr=[];
+    if(AG.every(a=>ew[a.name].length>=qt[a.name])) continue;
+    const maxPair=isHolAdj(day)?Math.min(R.holidayMaxAgents||2,maxPD):maxPD;
+    const curCount=dayWOCount[day]||0;
+    if(curCount>=maxPair) continue;
+    const el=AG.filter(a=>can2(a,day));
+    let pr=[];
     for(let i=0;i<el.length;i++)for(let j=i+1;j<el.length;j++)if(vPair(el[i],el[j]))pr.push([el[i],el[j]]);
-    if(!pr.length)continue;
-    pr.sort((p,q)=>{const sp=(qt[p[0].name]-ew[p[0].name].length)+(qt[p[1].name]-ew[p[1].name].length)-(hadj(p[0],day)?10:0)-(hadj(p[1],day)?10:0);const sq=(qt[q[0].name]-ew[q[0].name].length)+(qt[q[1].name]-ew[q[1].name].length)-(hadj(q[0],day)?10:0)-(hadj(q[1],day)?10:0);return sq-sp});
-    const ch=pr.find(([a,b])=>ew[a.name].length<qt[a.name]&&ew[b.name].length<qt[b.name]);if(!ch)continue;
-    const[a1,a2]=ch;ew[a1.name].push(day);ew[a2.name].push(day);asn[day]=[a1,a2];
+    if(!pr.length) continue;
+    // Holiday adj: only 1 WO pair allowed
+    const holAdjLimit=isHolAdj(day)?(R.holidayMaxWO||1):Infinity;
+    if((asn[day]||[]).length>=holAdjLimit) continue;
+    pr.sort((p,q)=>{
+      const sp=(qt[p[0].name]-ew[p[0].name].length)+(qt[p[1].name]-ew[p[1].name].length)-(hadj(p[0],day)?8:0)-(hadj(p[1],day)?8:0);
+      const sq=(qt[q[0].name]-ew[q[0].name].length)+(qt[q[1].name]-ew[q[1].name].length)-(hadj(q[0],day)?8:0)-(hadj(q[1],day)?8:0);
+      return sq-sp;
+    });
+    const ch=pr.find(([a,b])=>ew[a.name].length<qt[a.name]&&ew[b.name].length<qt[b.name]);
+    if(!ch) continue;
+    const[a1,a2]=ch;
+    ew[a1.name].push(day);ew[a2.name].push(day);
+    asn[day]=asn[day]||[];asn[day].push([a1,a2]);
+    dayWOCount[day]=(dayWOCount[day]||0)+2;
     for(const a of[a1,a2])if(hadj(a,day))cu[a.name]=true;
   }
-  const sh=AG.filter(a=>ew[a.name].length<qt[a.name]);if(sh.length)throw new Error(`Could not assign all WOs to: ${sh.map(a=>a.name).join(', ')}.`);
-  const sc={};AG.forEach(a=>{sc[a.name]={};days.forEach(d=>{sc[a.name][d]=uSet.has(d)?'UWO':ew[a.name].includes(d)?'WO':'ROI'})});
-  const dt={};days.forEach(d=>{dt[d]=suns.includes(d)?'SUN':wos.includes(d)?'SAT':'WORK'});
-  return{yr,mo,days,dow,suns,wos,uSet,tgt,ex,safe,asn,sc,dt,agents:[...AG]};
+  const sh=AG.filter(a=>ew[a.name].length<qt[a.name]);
+  if(sh.length) throw new Error(`Could not assign all WOs to: ${sh.map(a=>a.name).join(', ')}. Try adjusting rules.`);
+  const sc={};
+  AG.forEach(a=>{sc[a.name]={};days.forEach(d=>{sc[a.name][d]=uSet.has(d)?'UWO':holDays.has(d)?'HOL':ew[a.name].includes(d)?'WO':'ROI'})});
+  const dt={};days.forEach(d=>{dt[d]=suns.includes(d)?'SUN':woSats.includes(d)?'SAT':holDays.has(d)?'HOL':'WORK'});
+  return{yr,mo,days,dow,suns,wos:woSats,holDays:[...holDays],holNames:mhols,uSet,tgt,ex,asn,sc,dt,agents:[...AG]};
 }
 
 function renderAll(r){
@@ -769,134 +946,650 @@ function renderAll(r){
   document.getElementById('resDiv').style.display='block';
   const mn=MN[r.mo];
   document.getElementById('rTi').textContent=`${mn} ${r.yr} — WO Roster`;
-  document.getElementById('rSu').textContent=`${r.agents.length} agents · ${r.tgt} WOs each · ${Object.keys(r.asn).length} extra pair-days`;
-  const pc=Object.keys(r.asn).length,wdc=r.days.filter(d=>!r.uSet.has(d)).length;
+  const pairs=Object.values(r.asn).flat().length;
+  document.getElementById('rSu').textContent=`${r.agents.length} agents · ${r.tgt} WOs each · ${pairs} extra pair-days`;
   document.getElementById('s1').textContent=r.tgt;
   document.getElementById('s2').textContent=r.agents.length;
-  document.getElementById('s3').textContent=pc;
-  document.getElementById('s4').textContent=((wdc*r.agents.length-pc*2)/wdc).toFixed(1);
+  document.getElementById('s3').textContent=pairs;
+  document.getElementById('s4').textContent=r.holNames?.length||0;
   bCal(r);bPairs(r);bSum(r);
 }
+
 function lb(l){const c=LC[l]||LC[0];return`<span class="lbdg" style="background:${c.bg};color:${c.fg};border:1px solid ${c.b}">L${l}</span>`}
+
 function bCal(r){
-  const mn=MN[r.mo];let h='<thead><tr>';
-  h+=`<th class="th-a">${mn} ${r.yr}</th><th class="th-l">LVL</th>`;
-  r.days.forEach(d=>{const dw=r.dow[d];h+=`<th class="${dw===0?'d-sun':dw===6?'d-sat':''}">${DS[dw]}<br><span style="font-size:9px">${d}</span></th>`});
+  const mn=MN[r.mo];let h=`<thead><tr>`;
+  const hSet=new Set(r.holDays||[]);
+  h+=`<th class="th-a">${mn} ${r.yr}</th>`;
+  r.days.forEach(d=>{const dw=r.dow[d];
+    const col=dw===0?'style="color:var(--sun-c)"':dw===6&&r.wos.includes(d)?'style="color:var(--sat-c)"':hSet.has(d)?'style="color:var(--hol-c)"':'';
+    h+=`<th ${col}>${DS[dw]}<br><span style="font-size:8.5px">${d}</span></th>`});
   h+=`<th class="th-t">WO</th></tr></thead><tbody>`;
   r.agents.forEach(a=>{
     const c=LC[a.level]||LC[0];h+='<tr>';
-    h+=`<td class="td-a" style="border-left:3px solid ${c.fg}"><span style="color:var(--ink0);font-size:12px;font-weight:600">${x(a.name)}</span><span style="display:block;font-size:9.5px;color:var(--ink4);font-family:var(--m)">${x(a.emp)}</span></td><td class="td-l">${lb(a.level)}</td>`;
-    let tot=0;r.days.forEach(d=>{const s=r.sc[a.name][d],t=r.dt[d];let chip;if(t==='SUN'){chip=`<span class="chip c-sun">SUN</span>`;tot++}else if(t==='SAT'){chip=`<span class="chip c-sat">SAT</span>`;tot++}else if(s==='WO'){chip=`<span class="chip c-wo">WO</span>`;tot++}else{chip=`<span class="chip c-roi">ROI</span>`}h+=`<td>${chip}</td>`});
+    h+=`<td class="td-a" style="border-left:3px solid ${c.fg}"><span style="color:var(--ink0);font-size:12px;font-weight:600">${x(a.name)}</span><span style="display:block;font-size:9px;color:var(--ink4);font-family:'IBM Plex Mono',monospace">${x(a.emp)}</span></td>`;
+    let tot=0;
+    r.days.forEach(d=>{
+      const s=r.sc[a.name][d],t=r.dt[d];
+      let chip='';
+      if(t==='SUN'){chip=`<span style="display:inline-block;padding:2px 5px;border-radius:3px;background:var(--sun-bg);color:var(--sun-c);font-size:8.5px;font-family:'IBM Plex Mono',monospace">SUN</span>`;tot++}
+      else if(t==='SAT'){chip=`<span style="display:inline-block;padding:2px 5px;border-radius:3px;background:var(--sat-bg);color:var(--sat-c);font-size:8.5px;font-family:'IBM Plex Mono',monospace">SAT</span>`;tot++}
+      else if(t==='HOL'){chip=`<span style="display:inline-block;padding:2px 5px;border-radius:3px;background:var(--hol-bg);color:var(--hol-c);font-size:8.5px;font-family:'IBM Plex Mono',monospace">HOL</span>`;tot++}
+      else if(s==='WO'){chip=`<span style="display:inline-block;padding:2px 5px;border-radius:3px;background:var(--wo-bg);color:var(--wo);font-size:8.5px;font-family:'IBM Plex Mono',monospace">WO</span>`;tot++}
+      else{chip=`<span style="display:inline-block;padding:2px 5px;border-radius:3px;background:var(--roi-bg);color:var(--roi);font-size:8.5px;font-family:'IBM Plex Mono',monospace">ROI</span>`}
+      h+=`<td>${chip}</td>`;
+    });
     h+=`<td class="td-t"><b>${tot}</b></td></tr>`;
-  });h+='</tbody>';document.getElementById('calT').innerHTML=h;
+  });
+  h+='</tbody>';document.getElementById('calT').innerHTML=h;
 }
+
 function bPairs(r){
-  const mn=MN[r.mo];let h=`<thead><tr><th>Date</th><th>Day</th><th>Type</th><th>Agent 1</th><th>LVL</th><th>Agent 2</th><th>LVL</th></tr></thead><tbody>`;
+  const mn=MN[r.mo];const hSet=new Set(r.holDays||[]);
+  let h=`<thead><tr><th>Date</th><th>Day</th><th>Type</th><th>WO Pairs</th></tr></thead><tbody>`;
   r.days.forEach(d=>{
-    const dn=DF[r.dow[d]],t=r.dt[d],p=r.asn[d];let tc,body;
-    if(t==='SUN'){tc=`<span class="chip c-sun">Sunday</span>`;body=`<td colspan="4" style="color:var(--ink3);font-style:italic;font-size:12px">All agents — Universal WO</td>`}
-    else if(t==='SAT'){tc=`<span class="chip c-sat">WO Saturday</span>`;body=`<td colspan="4" style="color:var(--ink3);font-style:italic;font-size:12px">All agents — Universal WO</td>`}
-    else if(p){const[a1,a2]=p;tc=`<span class="chip c-wo">WO Day</span>`;body=`<td style="font-weight:600;color:var(--ink0)">${x(a1.name)}</td><td>${lb(a1.level)}</td><td style="font-weight:600;color:var(--ink0)">${x(a2.name)}</td><td>${lb(a2.level)}</td>`}
-    else{tc=`<span class="chip c-roi">All ROI</span>`;body=`<td colspan="4" style="color:var(--ink3);font-style:italic;font-size:12px">All agents working</td>`}
-    h+=`<tr${t!=='WORK'?' style="background:rgba(255,255,255,.01)"':''}><td style="font-family:var(--m);font-size:11px;color:var(--ink2);font-weight:500">${mn.slice(0,3)} ${String(d).padStart(2,'0')}</td><td style="color:var(--ink3)">${dn.slice(0,3)}</td><td>${tc}</td>${body}</tr>`;
-  });h+='</tbody>';document.getElementById('pairT').innerHTML=h;
+    const dn=DF[r.dow[d]],t=r.dt[d],pairs=r.asn[d];
+    let tc,body;
+    if(t==='SUN'){tc=`<span class="chip" style="background:var(--sun-bg);color:var(--sun-c)">Sunday</span>`;body=`<td style="color:var(--ink3);font-size:11.5px;font-style:italic">All agents — Universal WO</td>`}
+    else if(t==='SAT'){tc=`<span class="chip" style="background:var(--sat-bg);color:var(--sat-c)">WO Saturday</span>`;body=`<td style="color:var(--ink3);font-size:11.5px;font-style:italic">All agents — Universal WO</td>`}
+    else if(t==='HOL'){const hn=r.holNames?.find(h2=>new Date(h2.date).getDate()===d)?.name||'Holiday';tc=`<span class="chip" style="background:var(--hol-bg);color:var(--hol-c)">Holiday</span>`;body=`<td style="color:var(--hol-c);font-size:11.5px;font-style:italic">🗓 ${x(hn)} — Company Holiday (All Off)</td>`}
+    else if(pairs?.length){tc=`<span class="chip" style="background:var(--wo-bg);color:var(--wo)">WO Day</span>`;body=`<td>${pairs.map(([a1,a2])=>`<span style="font-weight:600;color:var(--ink0)">${x(a1.name)}</span>${lb(a1.level)} + <span style="font-weight:600;color:var(--ink0)">${x(a2.name)}</span>${lb(a2.level)}`).join('<br>')}</td>`}
+    else{tc=`<span class="chip" style="background:var(--roi-bg);color:var(--roi)">All ROI</span>`;body=`<td style="color:var(--ink3);font-size:11.5px;font-style:italic">All agents working</td>`}
+    h+=`<tr><td style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--ink2)">${mn.slice(0,3)} ${String(d).padStart(2,'0')}</td><td style="color:var(--ink3)">${dn.slice(0,3)}</td><td>${tc}</td>${body}</tr>`;
+  });
+  h+='</tbody>';document.getElementById('pairT').innerHTML=h;
 }
+
 function bSum(r){
-  let h=`<thead><tr><th>Emp#</th><th>Name</th><th>Level</th><th>Role</th><th>Univ WO</th><th>Extra WO</th><th>Total WO</th><th>Working Days</th></tr></thead><tbody>`;
+  let h=`<thead><tr><th>Emp#</th><th>Name</th><th>Level</th><th>Role</th><th>Univ WO</th><th>Holiday</th><th>Extra WO</th><th>Total WO</th><th>Working Days</th></tr></thead><tbody>`;
   r.agents.forEach(a=>{
-    const tot=r.days.filter(d=>r.sc[a.name][d]!=='ROI').length,univ=r.days.filter(d=>r.sc[a.name][d]==='UWO').length,ext=r.days.filter(d=>r.sc[a.name][d]==='WO').length,wk=r.days.length-tot;
-    h+=`<tr><td style="font-family:var(--m);font-size:10.5px;color:var(--ink3)">${x(a.emp)}</td><td style="font-weight:600;color:var(--ink0)">${x(a.name)}</td><td>${lb(a.level)}</td><td style="color:var(--ink3)">${LN[a.level]||''}</td><td style="text-align:center;font-family:var(--m);color:var(--ink2)">${univ}</td><td style="text-align:center;font-family:var(--m);color:var(--rose);font-weight:600">${ext}</td><td style="text-align:center;font-family:var(--m);color:var(--cyan);font-weight:700;font-size:15px">${tot}</td><td style="text-align:center;font-family:var(--m);color:var(--roi)">${wk}</td></tr>`;
-  });h+='</tbody>';document.getElementById('sumT').innerHTML=h;
+    const univ=r.days.filter(d=>r.sc[a.name][d]==='UWO').length;
+    const hol=r.days.filter(d=>r.sc[a.name][d]==='HOL').length;
+    const ext=r.days.filter(d=>r.sc[a.name][d]==='WO').length;
+    const tot=univ+hol+ext,wk=r.days.length-tot;
+    h+=`<tr><td style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink3)">${x(a.emp)}</td><td style="font-weight:600;color:var(--ink0)">${x(a.name)}</td><td>${lb(a.level)}</td><td style="color:var(--ink3)">${LN[a.level]||''}</td><td style="text-align:center;font-family:'IBM Plex Mono',monospace;color:var(--ink2)">${univ}</td><td style="text-align:center;font-family:'IBM Plex Mono',monospace;color:var(--hol-c)">${hol}</td><td style="text-align:center;font-family:'IBM Plex Mono',monospace;color:var(--rose);font-weight:600">${ext}</td><td style="text-align:center;font-family:'IBM Plex Mono',monospace;color:var(--cyan);font-weight:700;font-size:14px">${tot}</td><td style="text-align:center;font-family:'IBM Plex Mono',monospace;color:var(--roi)">${wk}</td></tr>`;
+  });
+  h+='</tbody>';document.getElementById('sumT').innerHTML=h;
 }
+
 function swTab(id,el){['cal','pairs','sum'].forEach(t=>document.getElementById('tab-'+t).style.display=t===id?'block':'none');document.querySelectorAll('.tb').forEach(b=>b.classList.remove('on'));el.classList.add('on')}
 
-// ══ SAVE / LOAD ROSTERS ══
+// ── SAVE / LOAD ROSTERS ──────────────────
 async function saveR(){
-  if(!ROSTER)return rAlert('Generate a roster first.','warn');
+  if(!ROSTER) return rAlert('Generate a roster first.','warn');
   const r=ROSTER,mn=MN[r.mo];
-  const pl={title:`${mn} ${r.yr}`,month:r.mo,year:r.yr,agentCount:r.agents.length,targetWO:r.tgt,
-    days:r.days,dowSer:Object.entries(r.dow),sundays:r.suns,woSats:r.wos,univSetSer:[...r.uSet],
-    target:r.tgt,extra:r.ex,asgnSer:Object.entries(r.asn).map(([d,p])=>[+d,p.map(a=>a.name)]),
-    schedSer:Object.entries(r.sc),dtypeSer:Object.entries(r.dt),agents:r.agents};
+  const pl={
+    title:`${mn} ${r.yr}`,month:r.mo,year:r.yr,agentCount:r.agents.length,targetWO:r.tgt,
+    days:r.days,dowSer:Object.entries(r.dow).map(([k,v])=>[+k,v]),
+    sundays:r.suns,woSats:r.wos,univSetSer:[...r.uSet],holDays:r.holDays||[],holNames:r.holNames||[],
+    target:r.tgt,extra:r.ex,
+    asgnSer:Object.entries(r.asn).map(([d,prs])=>[+d,prs.map(pair=>pair.map(a=>a.name))]),
+    schedSer:Object.entries(r.sc).map(([n,v])=>[n,v]),
+    dtypeSer:Object.entries(r.dt).map(([k,v])=>[+k,v]),agents:r.agents
+  };
   try{await api('POST','/api/rosters',pl);rAlert('✓ Roster saved!','ok')}catch(e){rAlert('⚠ '+e.message,'err')}
 }
-async function loadSaved(){
-  const el=document.getElementById('savedL');el.innerHTML='<div style="color:var(--ink3);font-size:13px">Loading…</div>';
+
+// ── XLSX EXPORT ──────────────────────────
+async function doXLSX(){
+  if(!ROSTER){rAlert('Generate a roster first.','warn');return}
+  await saveR();
+  // get the last saved id
   try{
     const ls=await api('GET','/api/rosters');
-    if(!ls.length){el.innerHTML='<div style="color:var(--ink3);font-size:13px;padding:20px 0">No saved rosters yet. Generate one and click Save Roster.</div>';return}
-    el.innerHTML=ls.map(r=>`<div class="si" onclick="loadR(${r.id})"><div style="font-size:22px">📅</div><div class="si-info"><div class="si-t">${x(r.title)}</div><div class="si-s">${r.agentCount} agents · ${r.targetWO} WOs each · ${new Date(r.savedAt).toLocaleDateString()} · by ${x(r.savedBy)}</div></div>${ME.role==='admin'?`<button class="si-d" onclick="event.stopPropagation();delR(${r.id})">🗑</button>`:''}</div>`).join('');
-  }catch(e){el.innerHTML=`<div style="color:var(--rose)">Error: ${e.message}</div>`}
+    if(!ls.length){rAlert('Save first then export.','warn');return}
+    const resp=await fetch('/api/rosters/export/xlsx',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({rosterId:ls[0].id})});
+    if(!resp.ok){const e=await resp.json();rAlert('⚠ '+e.error,'err');return}
+    const blob=await resp.blob();
+    dl(blob,`Roster_${MN[ROSTER.mo]}_${ROSTER.yr}.xlsx`);
+  }catch(e){rAlert('⚠ '+e.message,'err')}
 }
-async function loadR(id){
-  try{
-    const d=await api('GET',`/api/rosters/${id}`);
-    const dow={};d.dowSer.forEach(([k,v])=>dow[+k]=v);
-    const uSet=new Set(d.univSetSer);const asn={};
-    d.asgnSer.forEach(([day,names])=>{asn[day]=names.map(n=>d.agents.find(a=>a.name===n)).filter(Boolean)});
-    const sc={};d.schedSer.forEach(([name,entries])=>{sc[name]={};Object.entries(entries).forEach(([dd,v])=>sc[name][+dd]=v)});
-    const dt={};d.dtypeSer.forEach(([k,v])=>dt[+k]=v);
-    ROSTER={yr:d.year,mo:d.month,days:d.days,dow,suns:d.sundays,wos:d.woSats,uSet,tgt:d.target,ex:d.extra,asn,sc,dt,agents:d.agents};
-    AG=d.agents;go('roster');renderAG();renderAll(ROSTER);
-    const ce=ME.role==='admin'||ME.canExportRoster;document.getElementById('expRow').style.display=ce?'flex':'none';
-  }catch(e){alert('Failed to load: '+e.message)}
-}
-async function delR(id){if(!confirm('Delete this roster?'))return;try{await api('DELETE',`/api/rosters/${id}`);loadSaved()}catch(e){alert('Error: '+e.message)}}
 
-// ══ EXPORTS ══
-function doCSV(){if(!ROSTER)return;const r=ROSTER,mn=MN[r.mo];let csv=`Emp#,Name,Level,Role,${r.days.map(d=>`${mn.slice(0,3)}-${d}`).join(',')},Total WO\n`;r.agents.forEach(a=>{const row=r.days.map(d=>r.sc[a.name][d]==='UWO'?'WO':r.sc[a.name][d]);csv+=`${a.emp},"${a.name}",L${a.level},"${LN[a.level]||''}",${row.join(',')},${row.filter(v=>v==='WO').length}\n`});dl(new Blob([csv],{type:'text/csv'}),`Roster_${mn}_${r.yr}.csv`)}
-function doXLS(){if(!ROSTER)return;const r=ROSTER,mn=MN[r.mo];let h=`<html><head><meta charset="UTF-8"></head><body><table border="1"><tr><th>Emp#</th><th>Name</th><th>Level</th><th>Role</th>${r.days.map(d=>`<th>${mn.slice(0,3)}-${d}</th>`).join('')}<th>Total WO</th></tr>`;r.agents.forEach(a=>{const row=r.days.map(d=>r.sc[a.name][d]==='UWO'?'WO':r.sc[a.name][d]);h+=`<tr><td>${a.emp}</td><td>${a.name}</td><td>L${a.level}</td><td>${LN[a.level]||''}</td>`;row.forEach(v=>{const bg=v==='WO'?'#FF3D5A':'#FFFFFF',fg=v==='WO'?'#fff':'#000';h+=`<td style="background:${bg};color:${fg}">${v}</td>`});h+=`<td>${row.filter(v=>v==='WO').length}</td></tr>`});h+='</table></body></html>';dl(new Blob([h],{type:'application/vnd.ms-excel'}),`Roster_${mn}_${r.yr}.xls`)}
+function doCSV(){
+  if(!ROSTER) return;
+  const r=ROSTER,mn=MN[r.mo];
+  let csv=`Emp#,Name,Level,Role,${r.days.map(d=>`${mn.slice(0,3)}-${d}`).join(',')},Total WO\n`;
+  r.agents.forEach(a=>{
+    const row=r.days.map(d=>r.sc[a.name][d]==='UWO'?'WO':r.sc[a.name][d]==='HOL'?'H':r.sc[a.name][d]==='WO'?'WO':'ROI');
+    csv+=`${a.emp},"${a.name}",L${a.level},"${LN[a.level]||''}",${row.join(',')},${row.filter(v=>v!=='ROI').length}\n`;
+  });
+  dl(new Blob([csv],{type:'text/csv'}),`Roster_${mn}_${r.yr}.csv`);
+}
+
 function dl(blob,name){const u=URL.createObjectURL(blob);Object.assign(document.createElement('a'),{href:u,download:name}).click();URL.revokeObjectURL(u)}
 
-// ══ ADMIN ══
+// ══ SHORT LEAVE PAGE ═════════════════════
+function buildSLPage(){
+  document.getElementById('pg-shortleave').innerHTML=`
+  <div class="mbar">
+    <div class="bc"><span class="bc-h" onclick="go('home')">🏠</span><span class="bc-s">›</span><span class="bc-c">🕐 Short Leave Management</span></div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+      <div class="sl-tabs" id="slTabs">
+        ${can('shortleave','dashboard')?`<button class="sl-tab on" onclick="swSL('dash',this)">📊 Dashboard</button>`:''}
+        ${can('shortleave','apply')?`<button class="sl-tab ${!can('shortleave','dashboard')?'on':''}" onclick="swSL('my',this)">My Requests</button>`:''}
+        ${(can('shortleave','approve')||can('shortleave','reject'))?`<button class="sl-tab" onclick="swSL('all',this)">All Requests</button>`:''}
+      </div>
+      ${can('shortleave','apply')?`<button class="btn btn-prim" onclick="openApplySL()" style="font-size:12px">+ Apply Short Leave</button>`:''}
+    </div>
+  </div>
+  <div class="sl-shell">
+    <div class="sl-body">
+      <div id="sl-dash" style="display:${can('shortleave','dashboard')?'block':'none'}"></div>
+      <div id="sl-my" style="display:none"></div>
+      <div id="sl-all" style="display:none"></div>
+    </div>
+  </div>`;
+}
+
+function swSL(tab,el){
+  ['dash','my','all'].forEach(t=>document.getElementById('sl-'+t).style.display='none');
+  document.getElementById('sl-'+tab).style.display='block';
+  document.querySelectorAll('.sl-tab').forEach(b=>b.classList.remove('on'));
+  if(el)el.classList.add('on');
+  if(tab==='dash') renderSLDash();
+  if(tab==='my') renderSLMy();
+  if(tab==='all') renderSLAll();
+}
+
+async function loadSLPage(){
+  try{SLS=await api('GET','/api/shortleaves')}catch{SLS=[]}
+  updateSLBadge();
+  // render whichever sub-tab is visible
+  if(document.getElementById('sl-dash')?.style.display!=='none') renderSLDash();
+  if(document.getElementById('sl-my')?.style.display!=='none') renderSLMy();
+  if(document.getElementById('sl-all')?.style.display!=='none') renderSLAll();
+}
+
+function updateSLBadge(){
+  const pend=SLS.filter(s=>s.status==='Pending').length;
+  const dot=document.getElementById('notifDot'),bdg=document.getElementById('slBadge');
+  if(dot) dot.style.display=pend&&(ME.role==='admin'||ME.role==='superadmin')?'block':'none';
+  if(bdg){bdg.style.display=pend?'inline-block':'none';bdg.textContent=pend}
+}
+
+function renderSLDash(){
+  const el=document.getElementById('sl-dash');if(!el) return;
+  // Filter controls
+  const yr=new Date().getFullYear();
+  // Stats
+  const total=SLS.length,appr=SLS.filter(s=>s.status==='Approved').length;
+  const reje=SLS.filter(s=>s.status==='Rejected').length,canc=SLS.filter(s=>s.status==='Cancelled').length;
+  const pend=SLS.filter(s=>s.status==='Pending').length;
+  // Agent summary
+  const agents={};SLS.forEach(sl=>{
+    if(!agents[sl.agentName])agents[sl.agentName]={name:sl.agentName,total:0,appr:0,reje:0,canc:0,pend:0};
+    agents[sl.agentName].total++;
+    agents[sl.agentName][{Approved:'appr',Rejected:'reje',Cancelled:'canc',Pending:'pend'}[sl.status]||'pend']++;
+  });
+  const lim=RULES.shortLeaveMonthlyLimit||3;
+  const now=new Date();const curMon=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  el.innerHTML=`
+  <div style="margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+    <span style="font-size:11px;color:var(--ink3)">Filter by month:</span>
+    <select class="filter-sel" id="slDashFilter" onchange="renderSLDash()">
+      <option value="">All Time</option>
+      ${[...new Set(SLS.map(s=>s.shortLeaveDate.slice(0,7)))].sort().reverse().map(m=>`<option value="${m}">${m}</option>`).join('')}
+    </select>
+  </div>
+  <div class="kpi-row">
+    <div class="kpi"><div class="kpi-val">${total}</div><div class="kpi-lbl">Total Requests</div></div>
+    <div class="kpi"><div class="kpi-val" style="color:var(--em)">${appr}</div><div class="kpi-lbl">Approved</div></div>
+    <div class="kpi"><div class="kpi-val" style="color:var(--rose)">${reje}</div><div class="kpi-lbl">Rejected</div></div>
+    <div class="kpi"><div class="kpi-val" style="color:var(--ink2)">${canc}</div><div class="kpi-lbl">Cancelled</div></div>
+    <div class="kpi"><div class="kpi-val" style="color:var(--amber)">${pend}</div><div class="kpi-lbl">Pending</div></div>
+  </div>
+  <div style="font-size:13.5px;font-weight:700;color:var(--ink0);margin-bottom:10px;display:flex;align-items:center;gap:7px"><span style="width:3px;height:15px;background:var(--cyan);border-radius:2px;display:inline-block"></span>Agent-wise Summary</div>
+  <div style="background:var(--l1);border:1px solid var(--rim);border-radius:10px;overflow:auto;margin-bottom:18px">
+  <table class="tbl">
+    <thead><tr><th>Agent</th><th>Total</th><th>Approved</th><th>Rejected</th><th>Cancelled</th><th>Pending</th><th>Current Month Used</th><th>Balance (${lim}/month)</th></tr></thead>
+    <tbody>${Object.values(agents).map(a=>{
+      const curUsed=SLS.filter(sl=>sl.agentName===a.name&&sl.shortLeaveDate.slice(0,7)===curMon&&sl.status!=='Cancelled').length;
+      const bal=Math.max(0,lim-curUsed);
+      return`<tr><td style="font-weight:600;color:var(--ink0)">${x(a.name)}</td><td style="text-align:center">${a.total}</td><td style="text-align:center;color:var(--em)">${a.appr}</td><td style="text-align:center;color:var(--rose)">${a.reje}</td><td style="text-align:center;color:var(--ink2)">${a.canc}</td><td style="text-align:center;color:var(--amber)">${a.pend}</td><td style="text-align:center">${curUsed}</td><td style="text-align:center;font-weight:700;color:${bal===0?'var(--rose)':'var(--em)'}">${bal}</td></tr>`;
+    }).join('')||'<tr><td colspan="8" style="text-align:center;color:var(--ink3);padding:20px">No data</td></tr>'}</tbody>
+  </table></div>
+  <div style="font-size:13.5px;font-weight:700;color:var(--ink0);margin-bottom:10px;display:flex;align-items:center;gap:7px"><span style="width:3px;height:15px;background:var(--cyan);border-radius:2px;display:inline-block"></span>Detailed Log</div>
+  ${renderSLTable(SLS)}`;
+}
+
+function renderSLMy(){
+  const el=document.getElementById('sl-my');if(!el) return;
+  const my=SLS.filter(s=>s.agentId===ME.id);
+  const lim=RULES.shortLeaveMonthlyLimit||3;
+  const now=new Date();const curMon=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const used=my.filter(s=>s.shortLeaveDate.slice(0,7)===curMon&&s.status!=='Cancelled').length;
+  const bal=Math.max(0,lim-used);
+  el.innerHTML=`
+  <div class="kpi-row" style="grid-template-columns:repeat(3,1fr);max-width:400px;margin-bottom:16px">
+    <div class="kpi"><div class="kpi-val">${my.length}</div><div class="kpi-lbl">My Total Requests</div></div>
+    <div class="kpi"><div class="kpi-val">${used}</div><div class="kpi-lbl">Used This Month</div></div>
+    <div class="kpi"><div class="kpi-val kpi-bal" style="color:${bal===0?'var(--rose)':'var(--em)'}">${bal}</div><div class="kpi-lbl">Balance This Month</div></div>
+  </div>
+  ${bal===0?`<div class="alrt a-err" style="max-width:500px;margin-bottom:12px">⚠ You have used all ${lim} short leave(s) for this month. New requests cannot be submitted.</div>`:''}
+  ${renderSLTable(my,true)}`;
+}
+
+function renderSLAll(){
+  const el=document.getElementById('sl-all');if(!el) return;
+  el.innerHTML=`
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center">
+    <select class="filter-sel" id="slFStatus" onchange="renderSLAll()"><option value="">All Status</option><option>Pending</option><option>Approved</option><option>Rejected</option><option>Cancelled</option></select>
+    <select class="filter-sel" id="slFType" onchange="renderSLAll()"><option value="">All Types</option><option>Planned</option><option>Unplanned</option></select>
+    <select class="filter-sel" id="slFMon" onchange="renderSLAll()"><option value="">All Months</option>${[...new Set(SLS.map(s=>s.shortLeaveDate.slice(0,7)))].sort().reverse().map(m=>`<option value="${m}">${m}</option>`).join('')}</select>
+  </div>
+  <div id="slAllTable">${renderSLTable(SLS,false,true)}</div>`;
+}
+
+function renderSLTable(list,showCancel=false,withFilters=false){
+  let filtered=list;
+  if(withFilters){
+    const st=document.getElementById('slFStatus')?.value,tp=document.getElementById('slFType')?.value,mn=document.getElementById('slFMon')?.value;
+    if(st) filtered=filtered.filter(s=>s.status===st);
+    if(tp) filtered=filtered.filter(s=>s.type===tp);
+    if(mn) filtered=filtered.filter(s=>s.shortLeaveDate.slice(0,7)===mn);
+  }
+  if(!filtered.length) return `<div style="color:var(--ink3);font-size:13px;padding:20px 0">No records found.</div>`;
+  const adm=ME.role==='superadmin'||ME.role==='admin';
+  return`<div style="background:var(--l1);border:1px solid var(--rim);border-radius:10px;overflow:auto">
+  <table class="tbl">
+    <thead><tr><th>Agent</th><th>Request Date</th><th>Leave Date</th><th>Type</th><th>Status</th><th>Reason</th><th>Remarks</th><th>Actions</th></tr></thead>
+    <tbody>${filtered.sort((a,b)=>b.createdAt.localeCompare(a.createdAt)).map(sl=>{
+      const isMine=sl.agentId===ME.id;
+      const acts=[];
+      if(adm&&sl.status==='Pending'){acts.push(`<button class="btn btn-em" style="font-size:11px;padding:4px 9px" onclick="openSLAct(${sl.id},'approve')">✓ Approve</button>`);acts.push(`<button class="btn btn-rose" style="font-size:11px;padding:4px 9px" onclick="openSLAct(${sl.id},'reject')">✗ Reject</button>`)}
+      if(isMine&&sl.status==='Pending') acts.push(`<button class="btn btn-ghost" style="font-size:11px;padding:4px 9px" onclick="openSLAct(${sl.id},'cancel')">Cancel</button>`);
+      if(adm&&sl.status==='Approved') acts.push(`<button class="btn btn-rose" style="font-size:11px;padding:4px 9px" onclick="openSLAct(${sl.id},'cancel')">Cancel</button>`);
+      return`<tr>
+        <td style="font-weight:600;color:var(--ink0)">${x(sl.agentName)}</td>
+        <td style="font-family:'IBM Plex Mono',monospace;font-size:10.5px">${sl.requestDate}</td>
+        <td style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:600">${sl.shortLeaveDate}</td>
+        <td><span class="chip ${sl.type==='Planned'?'c-plan':'c-unpl'}">${sl.type||'—'}</span></td>
+        <td><span class="chip ${sl.status==='Pending'?'c-pend':sl.status==='Approved'?'c-appr':sl.status==='Rejected'?'c-reje':'c-canc'}">${sl.status}</span></td>
+        <td style="color:var(--ink2);font-size:12px">${x(sl.reason||'—')}</td>
+        <td style="color:var(--ink2);font-size:12px">${x(sl.remarks||'—')}</td>
+        <td><div style="display:flex;gap:4px;flex-wrap:wrap">${acts.join('')}</div></td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table></div>`;
+}
+
+async function openApplySL(){
+  const lim=RULES.shortLeaveMonthlyLimit||3;
+  const now=new Date();const curMon=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const used=SLS.filter(s=>s.agentId===ME.id&&s.shortLeaveDate.slice(0,7)===curMon&&s.status!=='Cancelled').length;
+  const bal=Math.max(0,lim-used);
+  document.getElementById('slInfo').textContent=`Monthly limit: ${lim} · Used: ${used} · Balance: ${bal}`;
+  document.getElementById('slDate').value='';document.getElementById('slReason').value='';
+  document.getElementById('slErr').classList.remove('show');
+  if(bal===0){document.getElementById('slErr').textContent='⚠ No balance remaining for this month.';document.getElementById('slErr').classList.add('show')}
+  openM('mApplySL');
+}
+async function submitSL(){
+  const d=document.getElementById('slDate').value,r=document.getElementById('slReason').value;
+  document.getElementById('slErr').classList.remove('show');
+  try{await api('POST','/api/shortleaves',{shortLeaveDate:d,reason:r});closeM('mApplySL');await loadSLPage();swSL('my',null)}
+  catch(e){document.getElementById('slErr').textContent='⚠ '+e.message;document.getElementById('slErr').classList.add('show')}
+}
+function openSLAct(id,type){
+  document.getElementById('slActId').value=id;
+  document.getElementById('slActType').value=type;
+  const titles={approve:'✓ Approve Request',reject:'✗ Reject Request',cancel:'Cancel Request'};
+  document.getElementById('mActSLh').textContent=titles[type]||'Action';
+  const btn=document.getElementById('slActBtn');
+  btn.className='btn '+(type==='approve'?'btn-em':type==='cancel'?'btn-ghost':'btn-rose');
+  document.getElementById('slRemarks').value='';
+  document.getElementById('slActErr').classList.remove('show');
+  openM('mActSL');
+}
+async function doSLAct(){
+  const id=document.getElementById('slActId').value,type=document.getElementById('slActType').value;
+  const remarks=document.getElementById('slRemarks').value;
+  try{
+    await api('PUT',`/api/shortleaves/${id}/${type}`,{remarks});
+    closeM('mActSL');await loadSLPage();
+    const active=['all','my','dash'].find(t=>document.getElementById('sl-'+t)?.style.display!=='none');
+    if(active) swSL(active,null);
+  }catch(e){document.getElementById('slActErr').textContent='⚠ '+e.message;document.getElementById('slActErr').classList.add('show')}
+}
+async function pollSL(){
+  try{SLS=await api('GET','/api/shortleaves');updateSLBadge()}catch{}
+  setTimeout(pollSL,60000);
+}
+
+// ══ RULES PAGE ═══════════════════════════
+function buildRulesPage(){
+  const el=document.getElementById('pg-rules');
+  const rules=[
+    {key:'targetWOBase',name:'Base WO Target',desc:'Base number of Weekly Offs per agent per month',type:'num',min:1,max:15},
+    {key:'extraWOIfFifthSunday',name:'Extra WO for 5th Sunday',desc:'Add 1 extra WO when month has 5 Sundays',type:'bool'},
+    {key:'maxAgentsOnWOPerDay',name:'Max Agents on WO Per Day',desc:'Maximum number of agents allowed on WO on any working day',type:'num',min:1,max:6},
+    {key:'maxConsecutiveWO',name:'Max Consecutive WOs',desc:'Maximum consecutive WO days allowed (violation prevention)',type:'num',min:2,max:5},
+    {key:'maxConsecExtraWOPerAgent',name:'Max Consecutive Extra WOs Per Agent',desc:'Max times an agent can have two extra WOs back-to-back',type:'num',min:0,max:3},
+    {key:'pairingRule',name:'WO Pairing Rule',desc:'How WO pairs are formed',type:'select',opts:[{v:'senior_junior',l:'Senior + Junior (L0↔L0, L1-3↔L4-7)'},{v:'any',l:'Any two agents'}]},
+    {key:'minL0Working',name:'Min 1 Team Leader Working',desc:'Ensure at least one L0 (Team Leader) is always working',type:'bool'},
+    {key:'holidayMaxWO',name:'Max WO Pairs Adjacent to Holiday',desc:'Maximum WO pair assignments on days immediately before/after a holiday',type:'num',min:0,max:3},
+    {key:'holidayMaxAgents',name:'Max Agents on WO Adjacent to Holiday',desc:'Maximum agents on WO on days next to a holiday',type:'num',min:0,max:4},
+    {key:'allowL0OnHolidayWO',name:'Allow L0 on Holiday-Adjacent WO',desc:'Allow Team Leaders to be assigned WO on days adjacent to holidays',type:'bool'},
+    {key:'shortLeaveMonthlyLimit',name:'Short Leave Monthly Limit',desc:'Maximum short leaves an agent can apply per month',type:'num',min:1,max:10},
+  ];
+  el.innerHTML=`
+  <div class="mbar"><div class="bc"><span class="bc-h" onclick="go('home')">🏠</span><span class="bc-s">›</span><span class="bc-c">📋 Rules Manager</span></div></div>
+  <div style="flex:1;overflow-y:auto;padding:20px 28px">
+    <div class="a-h">Scheduling Rules</div>
+    <div class="a-s">Define rules that control how rosters and short leaves are generated and validated.</div>
+    <div id="rulesBody">${rules.map((r,i)=>`
+    <div class="rule-card">
+      <div class="rule-top"><div class="rule-num">${String(i+1).padStart(2,'0')}</div><div><div class="rule-name">${r.name}</div><div class="rule-desc">${r.desc}</div></div></div>
+      <div class="rule-ctrl">
+        ${r.type==='bool'?`<label class="tog-w"><input type="checkbox" id="rl_${r.key}" ${RULES[r.key]?' checked':''}><span class="tog-sl"></span></label><span style="font-size:13px;color:var(--ink1)">${RULES[r.key]?'Enabled':'Disabled'}</span>`:
+          r.type==='num'?`<input type="number" class="num-input" id="rl_${r.key}" value="${RULES[r.key]||1}" min="${r.min}" max="${r.max}">`:
+          `<select class="ctrl" id="rl_${r.key}" style="max-width:280px">${r.opts.map(o=>`<option value="${o.v}"${RULES[r.key]===o.v?' selected':''}>${o.l}</option>`).join('')}</select>`}
+      </div>
+    </div>`).join('')}
+    <div style="margin-top:16px;display:flex;gap:8px">
+      <button class="btn btn-prim" onclick="saveRules()">💾 Save Rules</button>
+      <button class="btn btn-ghost" onclick="loadRulesPage()">↺ Reset</button>
+    </div>
+  </div>`;
+}
+async function saveRules(){
+  const keys=['targetWOBase','extraWOIfFifthSunday','maxAgentsOnWOPerDay','maxConsecutiveWO','maxConsecExtraWOPerAgent','pairingRule','minL0Working','holidayMaxWO','holidayMaxAgents','allowL0OnHolidayWO','shortLeaveMonthlyLimit'];
+  const out={};
+  keys.forEach(k=>{
+    const el=document.getElementById('rl_'+k);if(!el)return;
+    if(el.type==='checkbox') out[k]=el.checked;
+    else if(el.tagName==='SELECT') out[k]=el.value;
+    else out[k]=+el.value;
+  });
+  try{await api('PUT','/api/rules',out);RULES={...RULES,...out};alert('✓ Rules saved!');}catch(e){alert('Error: '+e.message)}
+}
+function loadRulesPage(){api('GET','/api/rules').then(r=>{RULES=r;buildRulesPage()})}
+
+// ══ FORMAT PAGE ══════════════════════════
+function buildFormatPage(){
+  const el=document.getElementById('pg-format');
+  el.innerHTML=`
+  <div class="mbar"><div class="bc"><span class="bc-h" onclick="go('home')">🏠</span><span class="bc-s">›</span><span class="bc-c">🗂 Roster Format</span></div></div>
+  <div style="flex:1;overflow-y:auto;padding:20px 28px">
+    <div class="a-h">Roster Output Format</div>
+    <div class="a-s">Customise which columns appear in the exported roster and what text appears in cells.</div>
+    <div class="fmt-card">
+      <div class="ac-t" style="margin-bottom:12px">Visible Columns</div>
+      ${[['showEmp','Show Emp#','Employee ID column'],['showLevel','Show Level','Agent level (L0-L7)'],['showRole','Show Role','Role name (Team Leader, Sr. L1, etc.)'],['showDept','Show Department','Department name']].map(([k,n,d])=>`
+      <div class="fmt-row">
+        <div><div class="fmt-label">${n}</div><div class="fmt-sub">${d}</div></div>
+        <label class="tog-w"><input type="checkbox" id="fmt_${k}" ${RFMT[k]?' checked':''}><span class="tog-sl"></span></label>
+      </div>`).join('')}
+    </div>
+    <div class="fmt-card">
+      <div class="ac-t" style="margin-bottom:12px">Cell Labels</div>
+      ${[['cellWO','WO Cell Label','Text shown for Weekly Off days','WO'],['cellROI','ROI Cell Label','Text shown for working days','ROI'],['cellHoliday','Holiday Cell Label','Text shown for holidays','H'],['cellSunday','Sunday Cell Label','Text for Sundays in export','WO'],['cellSaturday','Saturday WO Label','Text for WO Saturdays','WO']].map(([k,n,d,ph])=>`
+      <div class="fmt-row">
+        <div><div class="fmt-label">${n}</div><div class="fmt-sub">${d}</div></div>
+        <input type="text" class="fi" id="fmt_${k}" value="${x(RFMT[k]||ph)}" style="background:var(--l2);border-color:var(--rim);width:90px;text-align:center">
+      </div>`).join('')}
+    </div>
+    <div style="margin-top:14px;display:flex;gap:8px">
+      <button class="btn btn-prim" onclick="saveFmt()">💾 Save Format</button>
+      <button class="btn btn-ghost" onclick="buildFormatPage()">↺ Reset</button>
+    </div>
+  </div>`;
+}
+async function saveFmt(){
+  const keys=['showEmp','showLevel','showRole','showDept','cellWO','cellROI','cellHoliday','cellSunday','cellSaturday'];
+  const out={};
+  keys.forEach(k=>{const el=document.getElementById('fmt_'+k);if(!el)return;out[k]=el.type==='checkbox'?el.checked:el.value.trim()||k});
+  try{await api('PUT','/api/rosterformat',out);RFMT={...RFMT,...out};alert('✓ Format saved!');}catch(e){alert('Error: '+e.message)}
+}
+
+// ══ USERS PAGE ═══════════════════════════
+function buildUsersPage(){
+  const el=document.getElementById('pg-users');
+  el.innerHTML=`
+  <div class="mbar"><div class="bc"><span class="bc-h" onclick="go('home')">🏠</span><span class="bc-s">›</span><span class="bc-c">👥 User Management</span></div></div>
+  <div class="asc">
+    <div class="a-h">User Management</div>
+    <div class="a-s">Create and manage Admin and Operator accounts with fine-grained permissions.</div>
+    <div style="margin-bottom:12px;display:flex;gap:8px">
+      <button class="btn btn-prim" onclick="openAddUser()">+ Add User</button>
+    </div>
+    <div style="background:var(--l1);border:1px solid var(--rim);border-radius:11px;overflow:auto">
+      <table class="tbl"><thead><tr><th>Name</th><th>Username</th><th>Role</th><th>Roster Perms</th><th>Short Leave Perms</th><th>Actions</th></tr></thead>
+      <tbody id="uTbl"><tr><td colspan="6" style="text-align:center;color:var(--ink3);padding:20px">Loading…</td></tr></tbody></table>
+    </div>
+    <div class="acard" style="margin-top:16px;max-width:400px">
+      <div class="ac-t">🔑 Change My Password</div>
+      <div class="fg" style="margin-bottom:8px"><label class="fl">New Password</label><input class="fi" type="password" id="np1" style="background:var(--l2);border-color:var(--rim)"></div>
+      <div class="fg" style="margin-bottom:8px"><label class="fl">Confirm Password</label><input class="fi" type="password" id="np2" style="background:var(--l2);border-color:var(--rim)"></div>
+      <div id="pwdM" style="margin-bottom:8px"></div>
+      <button class="btn btn-prim" style="width:100%" onclick="chgPwd()">Update Password</button>
+    </div>
+  </div>`;
+}
 async function loadUsers(){
   try{
-    const us=await api('GET','/api/admin/users');
-    document.getElementById('uTbl').innerHTML=us.map(u=>`<tr><td style="font-weight:600;color:var(--ink0)">${x(u.name)}</td><td style="font-family:var(--m);font-size:11px;color:var(--ink2)">${x(u.username)}</td><td><span class="rb ${u.role==='admin'?'rb-a':'rb-o'}">${u.role.toUpperCase()}</span></td><td style="font-size:12px;color:var(--ink2)">${(u.allowedModules||[]).join(', ')||'—'}</td><td style="text-align:center">${u.canSaveRoster?'✓':'—'}</td><td style="text-align:center">${u.canExportRoster?'✓':'—'}</td><td style="display:flex;gap:5px"><button class="btn-e" onclick="openEdit(${u.id},'${x(u.name)}','${x(u.role)}',${u.canSaveRoster||false},${u.canExportRoster||false})">Edit</button>${u.username!=='admin'?`<button class="btn-d" onclick="delUser(${u.id})">Delete</button>`:''}</td></tr>`).join('');
-  }catch{}
+    const us=await api('GET','/api/users');
+    document.getElementById('uTbl').innerHTML=us.map(u=>{
+      const rp=u.permissions?.roster||{},slp=u.permissions?.shortleave||{};
+      const rPerms=[rp.view&&'View',rp.generate&&'Gen',rp.save&&'Save',rp.export&&'Export',rp.editAgents&&'Agents',rp.editRules&&'Rules'].filter(Boolean).join(', ')||'—';
+      const slPerms=[slp.view&&'View',slp.apply&&'Apply',slp.approve&&'Approve',slp.reject&&'Reject',slp.cancel&&'Cancel',slp.dashboard&&'Dash'].filter(Boolean).join(', ')||'—';
+      const roleCls={superadmin:'rb-sa',admin:'rb-a',operator:'rb-o'}[u.role]||'rb-o';
+      return`<tr><td style="font-weight:600;color:var(--ink0)">${x(u.name)}</td>
+        <td style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink2)">${x(u.username)}</td>
+        <td><span class="rb ${roleCls}">${u.role.toUpperCase()}</span></td>
+        <td style="font-size:11px;color:var(--ink2)">${rPerms}</td>
+        <td style="font-size:11px;color:var(--ink2)">${slPerms}</td>
+        <td style="display:flex;gap:5px">
+          <button class="btn btn-ghost" style="font-size:11px;padding:4px 9px" onclick="openEditUser(${JSON.stringify(u).replace(/"/g,'&quot;')})">Edit</button>
+          ${u.username!=='superadmin'?`<button class="btn btn-rose" style="font-size:11px;padding:4px 9px" onclick="delUser(${u.id})">Delete</button>`:''}
+        </td></tr>`;
+    }).join('');
+  }catch(e){document.getElementById('uTbl').innerHTML=`<tr><td colspan="6" style="color:var(--rose)">${e.message}</td></tr>`}
 }
-async function loadAccess(){
-  try{
-    const ac=await api('GET','/api/admin/access');
-    document.getElementById('modToggles').innerHTML=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><label class="tog-w"><input type="checkbox" id="tog_roster" ${ac.roster?'checked':''}><span class="tog-sl"></span></label><span style="font-size:13px;color:var(--ink1)">📅 Roster Generator</span></div>`;
-  }catch{}
+function openAddUser(){
+  ['an','au','ae','ap'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=''});
+  document.getElementById('ar').value='operator';
+  document.getElementById('addErr').classList.remove('show');
+  openM('mAddUser');
 }
-async function saveAccess(){
-  const ac={roster:document.getElementById('tog_roster')?.checked||false};
-  try{await api('PUT','/api/admin/access',ac);MACCESS=ac;buildGrid();alert('✓ Access settings saved!')}catch(e){alert('Error: '+e.message)}
-}
-function openAdd(){document.getElementById('an').value='';document.getElementById('au').value='';document.getElementById('ap').value='';document.getElementById('ar').value='operator';document.getElementById('addErr').classList.remove('show');openM('mAdd')}
 async function createUser(){
   const n=document.getElementById('an').value.trim(),u=document.getElementById('au').value.trim(),p=document.getElementById('ap').value,r=document.getElementById('ar').value;
-  if(!n||!u||!p){showME('addErr','All fields required');return}if(p.length<6){showME('addErr','Password must be 6+ characters');return}
-  try{await api('POST','/api/admin/users',{name:n,username:u,password:p,role:r});closeM('mAdd');loadUsers()}catch(e){showME('addErr',e.message)}
+  if(!n||!u||!p){showME('addErr','All fields required');return}
+  if(p.length<6){showME('addErr','Password must be 6+ characters');return}
+  const defPerms={operator:{roster:{view:true,export:true},shortleave:{view:true,apply:true,dashboard:false}},admin:{roster:{view:true,generate:true,save:true,export:true,editAgents:true,editRules:false},shortleave:{view:true,approve:true,reject:true,cancel:true,dashboard:true}}};
+  try{await api('POST','/api/users',{name:n,username:u,password:p,role:r,permissions:defPerms[r]||{}});closeM('mAddUser');loadUsers()}catch(e){showME('addErr',e.message)}
 }
-function openEdit(id,name,role,cs,ce){document.getElementById('eid').value=id;document.getElementById('en').value=name;document.getElementById('epw').value='';document.getElementById('er').value=role;document.getElementById('ecs').checked=cs;document.getElementById('ece').checked=ce;document.getElementById('editErr').classList.remove('show');openM('mEdit')}
+function openEditUser(u){
+  document.getElementById('eid').value=u.id;
+  document.getElementById('en').value=u.name;
+  document.getElementById('er').value=u.role;
+  document.getElementById('epw').value='';
+  const rp=u.permissions?.roster||{},slp=u.permissions?.shortleave||{};
+  [['ep_r_view',rp.view],['ep_r_gen',rp.generate],['ep_r_save',rp.save],['ep_r_export',rp.export],['ep_r_editag',rp.editAgents],['ep_r_editrules',rp.editRules],
+   ['ep_sl_view',slp.view],['ep_sl_apply',slp.apply],['ep_sl_approve',slp.approve],['ep_sl_reject',slp.reject],['ep_sl_cancel',slp.cancel],['ep_sl_dash',slp.dashboard]]
+  .forEach(([id,v])=>{const el=document.getElementById(id);if(el)el.checked=!!v});
+  document.getElementById('editErr').classList.remove('show');
+  openM('mEditUser');
+}
 async function updUser(){
-  const id=document.getElementById('eid').value,n=document.getElementById('en').value.trim(),pw=document.getElementById('epw').value,r=document.getElementById('er').value,cs=document.getElementById('ecs').checked,ce=document.getElementById('ece').checked;
-  const pl={name:n,role:r,canSaveRoster:cs,canExportRoster:ce};if(pw){if(pw.length<6){showME('editErr','Password must be 6+ characters');return}pl.password=pw}
-  try{await api('PUT',`/api/admin/users/${id}`,pl);closeM('mEdit');loadUsers()}catch(e){showME('editErr',e.message)}
+  const id=document.getElementById('eid').value,n=document.getElementById('en').value.trim(),pw=document.getElementById('epw').value,r=document.getElementById('er').value;
+  const perms={roster:{view:$cb('ep_r_view'),generate:$cb('ep_r_gen'),save:$cb('ep_r_save'),export:$cb('ep_r_export'),editAgents:$cb('ep_r_editag'),editRules:$cb('ep_r_editrules')},shortleave:{view:$cb('ep_sl_view'),apply:$cb('ep_sl_apply'),approve:$cb('ep_sl_approve'),reject:$cb('ep_sl_reject'),cancel:$cb('ep_sl_cancel'),dashboard:$cb('ep_sl_dash')}};
+  const pl={name:n,role:r,permissions:perms};if(pw){if(pw.length<6){showME('editErr','Password must be 6+ characters');return}pl.password=pw}
+  try{await api('PUT',`/api/users/${id}`,pl);closeM('mEditUser');loadUsers()}catch(e){showME('editErr',e.message)}
 }
-async function delUser(id){if(!confirm('Delete this user?'))return;try{await api('DELETE',`/api/admin/users/${id}`);loadUsers()}catch(e){alert('Error: '+e.message)}}
+async function delUser(id){if(!confirm('Delete this user?'))return;try{await api('DELETE',`/api/users/${id}`);loadUsers()}catch(e){alert('Error: '+e.message)}}
 async function chgPwd(){
   const p1=document.getElementById('np1').value,p2=document.getElementById('np2').value,el=document.getElementById('pwdM');
   if(!p1||!p2){el.innerHTML='<div class="alrt a-warn">Fill both fields.</div>';return}
   if(p1!==p2){el.innerHTML='<div class="alrt a-err">Passwords do not match.</div>';return}
   if(p1.length<6){el.innerHTML='<div class="alrt a-err">Min 6 characters.</div>';return}
-  try{await api('PUT',`/api/admin/users/${ME.id}`,{password:p1});el.innerHTML='<div class="alrt a-ok">✓ Password updated!</div>';document.getElementById('np1').value='';document.getElementById('np2').value='';setTimeout(()=>el.innerHTML='',3000)}catch(e){el.innerHTML=`<div class="alrt a-err">${e.message}</div>`}
+  try{await api('PUT',`/api/users/${ME.id}/password`,{password:p1});el.innerHTML='<div class="alrt a-ok">✓ Password updated!</div>';document.getElementById('np1').value='';document.getElementById('np2').value='';setTimeout(()=>el.innerHTML='',4000)}catch(e){el.innerHTML=`<div class="alrt a-err">${e.message}</div>`}
+}
+function $cb(id){return document.getElementById(id)?.checked||false}
+
+// ══ BACKUP PAGE ══════════════════════════
+function buildBackupPage(){
+  document.getElementById('pg-backup').innerHTML=`
+  <div class="mbar"><div class="bc"><span class="bc-h" onclick="go('home')">🏠</span><span class="bc-s">›</span><span class="bc-c">💾 Backup & Restore</span></div></div>
+  <div class="asc">
+    <div class="a-h">Backup & Restore</div>
+    <div class="a-s">Create backups of all data and restore from any backup point. Auto-backup runs every 24 hours.</div>
+    <div class="agrid">
+      <div class="acard">
+        <div class="ac-t">Create Backup</div>
+        <p style="font-size:12.5px;color:var(--ink3);margin-bottom:12px">Create a snapshot of all current data: agents, rosters, users, short leaves, rules, and settings.</p>
+        <button class="btn btn-prim" style="width:100%" onclick="createBackup()">📦 Create Backup Now</button>
+        <div id="bkMsg" style="margin-top:8px"></div>
+      </div>
+      <div class="acard">
+        <div class="ac-t">Auto Backup</div>
+        <p style="font-size:12.5px;color:var(--ink3)">The system automatically creates a backup every 24 hours. Up to 30 backups are retained.</p>
+        <div class="alrt a-ok" style="margin-top:10px;font-size:12px">✓ Auto backup is enabled</div>
+      </div>
+      <div class="acard full">
+        <div class="ac-t" style="justify-content:space-between">Backup Files <button class="btn btn-ghost" style="font-size:11.5px;margin-left:auto" onclick="loadBackups()">↺ Refresh</button></div>
+        <div id="bkList"><div style="color:var(--ink3);font-size:13px">Loading…</div></div>
+      </div>
+    </div>
+  </div>`;
+}
+async function createBackup(){
+  try{const r=await api('POST','/api/backup');document.getElementById('bkMsg').innerHTML=`<div class="alrt a-ok">✓ Backup created: ${r.file} (${(r.size/1024).toFixed(1)} KB)</div>`;loadBackups()}catch(e){document.getElementById('bkMsg').innerHTML=`<div class="alrt a-err">⚠ ${e.message}</div>`}
+}
+async function loadBackups(){
+  try{
+    const bks=await api('GET','/api/backups');
+    const el=document.getElementById('bkList');
+    if(!el) return;
+    if(!bks.length){el.innerHTML='<div style="color:var(--ink3);font-size:13px">No backups yet. Create one above.</div>';return}
+    el.innerHTML=bks.map(b=>`<div class="bk-item">
+      <div class="bk-ico">📦</div>
+      <div class="bk-info">
+        <div class="bk-name">${x(b.name)}</div>
+        <div class="bk-size">${(b.size/1024).toFixed(1)} KB · ${new Date(b.created).toLocaleString()}</div>
+      </div>
+      <div class="bk-acts">
+        <a class="btn btn-ghost" style="font-size:11px;padding:4px 9px;text-decoration:none" href="/api/backups/${encodeURIComponent(b.name)}/download">⬇ Download</a>
+        ${ME.role==='superadmin'?`<button class="btn btn-em" style="font-size:11px;padding:4px 9px" onclick="confirmRestore('${b.name}')">↺ Restore</button>`:''}
+        ${ME.role==='superadmin'?`<button class="btn btn-rose" style="font-size:11px;padding:4px 9px" onclick="delBackup('${b.name}')">🗑</button>`:''}
+      </div>
+    </div>`).join('');
+  }catch{}
+}
+function confirmRestore(name){document.getElementById('restoreName').textContent=name;openM('mRestoreConfirm')}
+async function doRestore(){
+  const name=document.getElementById('restoreName').textContent;
+  try{await api('POST',`/api/backups/${encodeURIComponent(name)}/restore`);closeM('mRestoreConfirm');alert('✓ Data restored! Reloading…');location.reload()}catch(e){alert('Error: '+e.message)}
+}
+async function delBackup(name){if(!confirm(`Delete backup ${name}?`))return;try{await api('DELETE',`/api/backups/${encodeURIComponent(name)}`);loadBackups()}catch(e){alert('Error: '+e.message)}}
+
+// ══ SETTINGS PAGE ════════════════════════
+function buildSettingsPage(){
+  document.getElementById('pg-settings').innerHTML=`
+  <div class="mbar"><div class="bc"><span class="bc-h" onclick="go('home')">🏠</span><span class="bc-s">›</span><span class="bc-c">⚙️ Settings</span></div></div>
+  <div class="asc">
+    <div class="a-h">Application Settings</div>
+    <div class="a-s">Configure organisation details and email notifications.</div>
+    <div class="agrid">
+      <div class="acard">
+        <div class="ac-t">Organisation</div>
+        <div class="fg"><label class="fl">App Name</label><input class="fi" type="text" id="set_app" style="background:var(--l2);border-color:var(--rim)" placeholder="C-Serv.AI"></div>
+        <div class="fg"><label class="fl">Organisation Name</label><input class="fi" type="text" id="set_org" style="background:var(--l2);border-color:var(--rim)" placeholder="Customer Service Team"></div>
+        <button class="btn btn-prim" onclick="saveSettings()">Save</button>
+      </div>
+      <div class="acard">
+        <div class="ac-t">Email Notifications</div>
+        <div class="fg"><label class="fl">SMTP Host</label><input class="fi" type="text" id="set_eh" style="background:var(--l2);border-color:var(--rim)" placeholder="smtp.gmail.com"></div>
+        <div class="fg"><label class="fl">SMTP Port</label><input class="fi" type="number" id="set_ep" style="background:var(--l2);border-color:var(--rim)" placeholder="587"></div>
+        <div class="fg"><label class="fl">Email User</label><input class="fi" type="email" id="set_eu" style="background:var(--l2);border-color:var(--rim)" placeholder="noreply@company.com"></div>
+        <div class="fg"><label class="fl">Email Password</label><input class="fi" type="password" id="set_epass" style="background:var(--l2);border-color:var(--rim)"></div>
+        <div class="fg"><label class="fl">Admin Emails <span style="color:var(--ink3);font-size:10px">(comma separated)</span></label><input class="fi" type="text" id="set_admemails" style="background:var(--l2);border-color:var(--rim)" placeholder="admin@co.com,manager@co.com"></div>
+        <button class="btn btn-prim" onclick="saveSettings()">Save Email Settings</button>
+        <div class="alrt a-info" style="margin-top:10px;font-size:12px">📧 Email is used for Short Leave notifications. Leave blank to disable.</div>
+      </div>
+      <div class="acard full">
+        <div class="ac-t">Themes</div>
+        <p style="font-size:12.5px;color:var(--ink3);margin-bottom:12px">Choose a theme for your dashboard. Theme is saved per browser.</p>
+        <div class="theme-grid" id="themeGridSettings"></div>
+      </div>
+    </div>
+  </div>`;
+  // Load settings
+  api('GET','/api/settings').then(s=>{
+    if(document.getElementById('set_app'))document.getElementById('set_app').value=s.appName||'';
+    if(document.getElementById('set_org'))document.getElementById('set_org').value=s.orgName||'';
+    if(document.getElementById('set_eh'))document.getElementById('set_eh').value=s.emailHost||'';
+    if(document.getElementById('set_ep'))document.getElementById('set_ep').value=s.emailPort||587;
+    if(document.getElementById('set_eu'))document.getElementById('set_eu').value=s.emailUser||'';
+    if(document.getElementById('set_admemails'))document.getElementById('set_admemails').value=(s.adminEmails||[]).join(', ');
+  }).catch(()=>{});
+  const tg=document.getElementById('themeGridSettings');
+  if(tg){tg.innerHTML=THEMES.map(t=>`<button class="theme-btn${(localStorage.getItem('cserv_theme')||'dark')===t.id?' on':''}" data-theme="${t.id}" onclick="setTheme('${t.id}')" style="padding:10px;border-radius:9px">
+    <span style="display:block;width:100%;height:18px;border-radius:5px;margin-bottom:5px;background:linear-gradient(90deg,${t.swatch})"></span>${t.name}</button>`).join('')}
+}
+async function saveSettings(){
+  const s={appName:document.getElementById('set_app')?.value||'C-Serv.AI',orgName:document.getElementById('set_org')?.value||'',emailHost:document.getElementById('set_eh')?.value||'',emailPort:+(document.getElementById('set_ep')?.value||587),emailUser:document.getElementById('set_eu')?.value||'',emailPass:document.getElementById('set_epass')?.value||'',adminEmails:(document.getElementById('set_admemails')?.value||'').split(',').map(e=>e.trim()).filter(Boolean)};
+  try{await api('PUT','/api/settings',s);alert('✓ Settings saved!')}catch(e){alert('Error: '+e.message)}
 }
 
-// ══ MODALS + UTILS ══
+// ══ SAVED ROSTERS PAGE ═══════════════════
+function buildSavedPage(){
+  document.getElementById('pg-saved').innerHTML=`
+  <div class="mbar"><div class="bc"><span class="bc-h" onclick="go('home')">🏠</span><span class="bc-s">›</span><span class="bc-c">🗄 Saved Rosters</span></div></div>
+  <div style="flex:1;overflow-y:auto;padding:20px 26px">
+    <div style="font-size:19px;font-weight:800;color:var(--ink0);margin-bottom:3px">Saved Rosters</div>
+    <div style="font-size:13px;color:var(--ink3);margin-bottom:16px">Click a roster to load it back into the generator.</div>
+    <div id="savedL"><div style="color:var(--ink3);font-size:13px">Loading…</div></div>
+  </div>`;
+}
+async function loadSavedData(){
+  try{
+    const ls=await api('GET','/api/rosters');
+    const el=document.getElementById('savedL');
+    if(!ls.length){el.innerHTML='<div style="color:var(--ink3);font-size:13px;padding:20px 0">No saved rosters. Generate one and click Save.</div>';return}
+    el.innerHTML=ls.map(r=>`<div style="background:var(--l1);border:1px solid var(--rim);border-radius:9px;padding:12px 16px;margin-bottom:7px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .15s" onmouseover="this.style.borderColor='var(--cyan)'" onmouseout="this.style.borderColor=''" onclick="loadSavedR(${r.id})">
+      <div style="font-size:22px">📅</div>
+      <div style="flex:1"><div style="font-size:13.5px;font-weight:600;color:var(--ink0)">${x(r.title)}</div>
+      <div style="font-size:11px;color:var(--ink3);font-family:'IBM Plex Mono',monospace;margin-top:2px">${r.agentCount} agents · ${r.targetWO} WOs · ${new Date(r.savedAt).toLocaleDateString()} · by ${x(r.savedBy)}</div></div>
+      ${(ME.role==='superadmin'||ME.role==='admin')?`<button class="btn btn-rose" style="font-size:11px;padding:4px 9px" onclick="event.stopPropagation();delR(${r.id})">🗑</button>`:''}
+    </div>`).join('');
+  }catch(e){document.getElementById('savedL').innerHTML=`<div style="color:var(--rose)">${e.message}</div>`}
+}
+async function loadSavedR(id){
+  try{
+    const d=await api('GET',`/api/rosters/${id}`);
+    const dow={};(d.dowSer||[]).forEach(([k,v])=>dow[+k]=v);
+    const uSet=new Set(d.univSetSer||[]);
+    const asn={};(d.asgnSer||[]).forEach(([day,pairs])=>{asn[day]=pairs.map(names=>names.map(n=>d.agents.find(a=>a.name===n)).filter(Boolean))});
+    const sc={};(d.schedSer||[]).forEach(([name,entries])=>{sc[name]={};Object.entries(entries).forEach(([dd,v])=>sc[name][+dd]=v)});
+    const dt={};(d.dtypeSer||[]).forEach(([k,v])=>dt[+k]=v);
+    ROSTER={yr:d.year,mo:d.month,days:d.days,dow,suns:d.sundays||[],wos:d.woSats||[],holDays:d.holDays||[],holNames:d.holNames||[],uSet,tgt:d.target,ex:d.extra,asn,sc,dt,agents:d.agents};
+    AG=d.agents;go('roster');renderAG();renderAll(ROSTER);
+    if(can('roster','export'))document.getElementById('expRow').style.display='flex';
+    if(can('roster','save'))document.getElementById('btnSv').style.display='block';
+  }catch(e){alert('Failed to load: '+e.message)}
+}
+async function delR(id){if(!confirm('Delete this roster?'))return;try{await api('DELETE',`/api/rosters/${id}`);loadSavedData()}catch(e){alert('Error: '+e.message)}}
+
+// ══ UTILITIES ════════════════════════════
+function rAlert(msg,t){const b=document.getElementById('rAB');if(b){b.innerHTML=`<div class="alrt a-${t}">${msg}</div>`;setTimeout(()=>b.innerHTML='',7000)}}
 function openM(id){document.getElementById(id).classList.add('show')}
 function closeM(id){document.getElementById(id).classList.remove('show')}
-function showME(id,msg){const e=document.getElementById(id);e.textContent='⚠ '+msg;e.classList.add('show')}
-function rAlert(msg,t){const b=document.getElementById('rAB');b.innerHTML=`<div class="alrt a-${t}">${msg}</div>`;setTimeout(()=>b.innerHTML='',6000)}
+function showME(id,msg){const e=document.getElementById(id);if(e){e.textContent='⚠ '+msg;e.classList.add('show')}}
 function x(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 
-// ══ BOOTSTRAP ══
+// Close modals on backdrop click
+document.querySelectorAll('.modal-bg').forEach(bg=>bg.addEventListener('click',e=>{if(e.target===bg)bg.classList.remove('show')}));
+
+// Bootstrap
 window.addEventListener('DOMContentLoaded',async()=>{
-  try{const d=await api('GET','/api/me');ME=d.user;MACCESS=d.moduleAccess||{};await loadAG();initApp()}
-  catch{/* show login */}
+  try{
+    const d=await api('GET','/api/me');
+    ME=d.user;MACCESS=d.moduleAccess||{};RULES=d.rules||{};RFMT=d.rosterFormat||{};
+    await Promise.all([loadAG(),loadHolidays()]);
+    initApp();
+  }catch{/* show login */}
+  setRole('admin',document.querySelectorAll('.l-tab')[1]);
 });
 </script>
 </body>
