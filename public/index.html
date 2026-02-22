@@ -146,15 +146,15 @@ input,select,button,textarea{font-family:'Outfit',sans-serif}
 .tbox{background:var(--l1);border:1px solid var(--rim);border-radius:10px;overflow:auto}
 .rtb{border-collapse:collapse;min-width:100%}
 .rtb th{background:var(--l1);color:var(--ink3);padding:5px 3px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:8px;font-weight:600;white-space:nowrap;border-right:1px solid var(--rim);border-bottom:2px solid var(--rim2);position:sticky;top:0;z-index:10;line-height:1.3}
-.rtb th.tha{text-align:left;padding-left:10px;min-width:170px;position:sticky;left:36px;z-index:20;border-right:2px solid var(--rim2)}
-.rtb th.thsno{width:32px;font-size:7px;position:sticky;left:0;z-index:21;background:var(--l1)}
+.rtb th.tha{text-align:left;padding-left:10px;min-width:170px;width:170px;position:sticky;left:28px;z-index:20;border-right:2px solid var(--rim2)}
+.rtb th.thsno{width:28px;min-width:28px;max-width:28px;font-size:7px;position:sticky;left:0;z-index:21;background:var(--l1)}
 .rtb th.tht{color:var(--cyan);border-left:2px solid var(--rim2);background:rgba(0,212,255,.05);font-weight:700;min-width:38px}
 .rtb th.thsun{color:var(--sun-c);background:var(--sun-bg)}
 .rtb th.thsat{color:var(--sat-c);background:var(--sat-bg)}
 .rtb th.thhol{color:var(--hol-c);background:var(--hol-bg)}
 .rtb td{padding:3px 1px;text-align:center;border-bottom:1px solid rgba(30,45,69,.3);border-right:1px solid rgba(30,45,69,.2);font-size:9px;font-family:'IBM Plex Mono',monospace;font-weight:700}
-.rtb td.tda{text-align:left;padding:4px 10px;position:sticky;left:36px;z-index:5;background:var(--l1);border-right:2px solid var(--rim2);white-space:nowrap;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600}
-.rtb td.tdsno{text-align:center;position:sticky;left:0;z-index:6;background:var(--l1);border-right:1px solid var(--rim);font-size:9px;color:var(--ink3);font-family:'IBM Plex Mono',monospace;padding:3px 2px}
+.rtb td.tda{text-align:left;padding:4px 10px;position:sticky;left:28px;z-index:5;background:var(--l1);border-right:2px solid var(--rim2);white-space:nowrap;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;min-width:170px;width:170px}
+.rtb td.tdsno{text-align:center;position:sticky;left:0;z-index:6;background:var(--l1);border-right:1px solid var(--rim);font-size:9px;color:var(--ink3);font-family:'IBM Plex Mono',monospace;padding:3px 2px;width:28px;min-width:28px;max-width:28px}
 .rtb td.tdt{border-left:2px solid var(--rim2);font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--cyan);font-size:13px}
 .rtb tr:hover td{filter:brightness(1.1)}
 .tab-row{display:flex;gap:2px;background:var(--l1);border:1px solid var(--rim);border-radius:8px;padding:3px;width:fit-content;margin-bottom:13px}
@@ -845,7 +845,8 @@ function generate(){
   const btn=document.getElementById('btnGen'),sp=document.getElementById('btnSp'),tx=document.getElementById('btnT');
   btn.disabled=true;sp.style.display='block';tx.textContent='Generating…';
   setTimeout(()=>{
-    try{ROSTER=compute();renderAll(ROSTER);rAlert('✓ Roster generated successfully.','ok');
+    try{
+      ROSTER=compute();renderAll(ROSTER);
       document.getElementById('expRow').style.display='flex';
       if(can('roster','save'))document.getElementById('btnSv').style.display='inline-flex';
       if(can('roster','approve'))document.getElementById('btnApprove').style.display='inline-flex';
@@ -908,10 +909,16 @@ function compute(){
   });
 
   // Extra weekday WOs needed per agent = tgtBase - suns.length - agentSatWOs.size
+  // Also cap quota by how many available weekdays the agent actually has (accounting for leaves)
+  const allWeekdays=days.filter(d=>dow[d]!==0&&dow[d]!==6&&!holDays.has(d));
   const qt={};
   AG.forEach(a=>{
     const universalWOCount=suns.length+agSatWO[a.name].size;
-    qt[a.name]=Math.max(0,tgtBase-universalWOCount);
+    const rawQuota=Math.max(0,tgtBase-universalWOCount);
+    // Count available non-leave weekdays for this agent
+    const availWeekdays=allWeekdays.filter(d=>!agLv[a.name].has(d)).length;
+    // Cap quota to available days (can't assign more WO than available days, also cap at maxPD*days/agents)
+    qt[a.name]=Math.min(rawQuota,availWeekdays);
   });
 
   const ew={};AG.forEach(a=>ew[a.name]=[]);
@@ -949,8 +956,9 @@ function compute(){
     asn[day]=(asn[day]||[]);asn[day].push([a1,a2]);dWO[day]=(dWO[day]||0)+2;
   }
 
+  // Agents who couldn't reach full quota (due to leave days / pairing constraints)
   const sh=AG.filter(a=>ew[a.name].length<qt[a.name]);
-  if(sh.length)throw new Error(`Could not assign all extra WOs to: ${sh.map(a=>a.name).join(', ')}. Try reducing target or relaxing rules.`);
+  const warnings=sh.length?[`⚠ Fewer WOs assigned for: ${sh.map(a=>`${a.name} (${suns.length+agSatWO[a.name].size+ew[a.name].length} of ${tgtBase})`).join(', ')} — leave days reduced available slots.`]:[];
 
   // Build schedule per agent per day:
   // Sunday     → WO (universal)
@@ -971,7 +979,7 @@ function compute(){
     else                          sc[a.name][d]='ROI';  // Working day
   })});
   const dt={};days.forEach(d=>{dt[d]=dow[d]===0?'SUN':dow[d]===6?'SAT':holDays.has(d)?'HOL':'WORK'});
-  return{yr,mo,days,dow,suns,wos:sats,holDays:[...holDays],holNames:mhols,uSet,tgt:tgtBase,ex:0,asn,sc,dt,agents:[...AG],blockDay2,agSatWO:Object.fromEntries(AG.map(a=>[a.name,[...agSatWO[a.name]]]))};
+  return{yr,mo,days,dow,suns,wos:sats,holDays:[...holDays],holNames:mhols,uSet,tgt:tgtBase,ex:0,asn,sc,dt,agents:[...AG],blockDay2,warnings,agSatWO:Object.fromEntries(AG.map(a=>[a.name,[...agSatWO[a.name]]]))};
 }
 
 // RENDER ALL
@@ -979,10 +987,18 @@ function renderAll(r){
   document.getElementById('emDiv').style.display='none';document.getElementById('resDiv').style.display='block';
   document.getElementById('rTi').textContent=`${MN[r.mo]} ${r.yr} — WO Roster`;
   const pairs=Object.values(r.asn).flat().length;
-  document.getElementById('rSu').textContent=`${r.agents.length} agents · ${r.tgt} WOs each · ${pairs} extra pair-days${r.blockDay2?' · ⚠ Day-2 boundary rule applied':''}`;
+  document.getElementById('rSu').textContent=`${r.agents.length} agents · ${r.tgt} WOs target · ${pairs} extra pair-days${r.blockDay2?' · ⚠ Day-2 boundary rule applied':''}`;
   document.getElementById('s1').textContent=r.tgt;document.getElementById('s2').textContent=r.agents.length;
   document.getElementById('s3').textContent=pairs;document.getElementById('s4').textContent=r.holNames?.length||0;
   document.getElementById('approveStatus').innerHTML=r.savedId?`<span class="chip ${r.approvedBy?'cappr':'cpend'}">${r.approvedBy?'✓ Approved':'Draft'}</span>`:'';
+  // Show any soft warnings (e.g. leave-reduced WO counts)
+  const rAB=document.getElementById('rAB');
+  if(r.warnings&&r.warnings.length){
+    rAB.innerHTML=r.warnings.map(w=>`<div class="alrt awarn" style="margin-bottom:6px;font-size:12px">${w}</div>`).join('');
+  } else {
+    rAB.innerHTML='<div class="alrt aok" style="margin-bottom:6px;font-size:12px">✓ Roster generated successfully.</div>';
+    setTimeout(()=>{if(rAB)rAB.innerHTML=''},5000);
+  }
   bCal(r,'calT');bPairs(r,'pairT');bSum(r,'sumT');
 }
 function lb(l){const c=LC[l]||LC[0];return`<span class="lbdg" style="background:${c.bg};color:${c.fg};border:1px solid ${c.b}">L${l}</span>`}
