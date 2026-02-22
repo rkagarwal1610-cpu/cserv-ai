@@ -982,13 +982,14 @@ function compute(){
         if(agLv[a.name].has(day))continue;
         if(ew[a.name].includes(day))continue;
         if(w3(a,day))continue;
+        if((dWO[day]||0)>=maxPD)continue;
         ew[a.name].push(day);dWO[day]=(dWO[day]||0)+1;
-        // Add solo entry to asn for pairs view (single agent)
         if(!asn[day])asn[day]=[];
-        // Only add to asn if not already recorded
-  // Agents who couldn't reach full quota (due to leave days / pairing constraints)
-  const sh=AG.filter(a=>ew[a.name].length<qt[a.name]);
-  const warnings=sh.length?[`⚠ Fewer WOs assigned for: ${sh.map(a=>`${a.name} (${suns.length+agSatWO[a.name].size+ew[a.name].length} of ${tgtBase})`).join(', ')} — leave days reduced available slots.`]:[];
+      }
+    }
+  }
+
+  // Agents who couldn't reach full quota (after both passes)
   const sh=AG.filter(a=>ew[a.name].length<qt[a.name]);
   const warnings=sh.length?[`⚠ Fewer WOs assigned for: ${sh.map(a=>`${a.name} (${suns.length+agSatWO[a.name].size+ew[a.name].length} of ${tgtBase})`).join(', ')} — leave days reduced available slots.`]:[];
 
