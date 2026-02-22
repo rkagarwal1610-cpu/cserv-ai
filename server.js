@@ -220,75 +220,194 @@ app.delete('/api/rosters/:id', isAdm, (req,res)=>{
 // ── XLSX EXPORT ───────────────────────────────────────────────────────
 app.post('/api/rosters/export/xlsx', perm('roster','export'), async (req,res)=>{
   try{
-    const {rosterId}=req.body; const d=load();
+    const {rosterId}=req.body;
+    const d=load();
     const rData=d.rosters.find(x=>x.id==rosterId);
     if(!rData) return res.status(404).json({error:'Not found'});
-    const fmt=d.rosterFormat;
+
     const MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
     const DS=['Su','Mo','Tu','We','Th','Fr','Sa'];
-    const wb=new ExcelJS.Workbook(); wb.creator='C-Serv.AI'; wb.created=new Date();
-    const ws=wb.addWorksheet(`${MN[rData.month]} ${rData.year}`);
-    const fixedCols=[];
-    fixedCols.push({header:'S.No',key:'sno',width:6});
-    if(fmt.showEmp) fixedCols.push({header:'Emp ID',key:'emp',width:10});
-    fixedCols.push({header:'Name',key:'name',width:22});
-    if(fmt.showLevel) fixedCols.push({header:'Desig.',key:'level',width:8});
-    // Total WO at end
+
+    // Rebuild schedule & day-type maps from serialised data
     const dow={};(rData.dowSer||[]).forEach(([k,v])=>dow[+k]=v);
-    const dayCols=rData.days.map(d2=>({header:`${DS[dow[d2]??0]}\n${d2}`,key:`d${d2}`,width:5}));
-    ws.columns=[...fixedCols,{header:'Total\nWO',key:'two',width:8},...dayCols];
-    ws.getRow(1).height=30;
+    const dt={};(rData.dtypeSer||[]).forEach(([k,v])=>dt[+k]=v);
+    const schedMap={};(rData.schedSer||[]).forEach(([n,v])=>schedMap[n]=v);
+
+    // Role label helper (same logic as frontend)
+    const roleLabel=ag=>{
+      const l=ag.level;
+      if(l===0)return'TL';
+      if(l<=3)return`Sr.L${l}`;
+      if(l<=6)return`Jr.L${l}`;
+      return'Trainee';
+    };
+
+    const wb=new ExcelJS.Workbook();
+    wb.creator='C-Serv.AI'; wb.created=new Date();
+    const ws=wb.addWorksheet(`${MN[rData.month]} ${rData.year}`);
+
+    // ── Column definitions ─────────────────────────────────────────────
+    // Fixed: Emp#(A), Name(B), Level(C), Role(D), Total WO(E)
+    // Then day columns: day 1-N, then extra "Su" summary col at end
+    const days=rData.days||[];
+    const totalCols=5+days.length+1; // fixed(5) + days + summary
+
+    // Set column widths
+    ws.getColumn(1).width=10;   // Emp#
+    ws.getColumn(2).width=22;   // Name
+    ws.getColumn(3).width=7;    // Level
+    ws.getColumn(4).width=14;   // Role
+    ws.getColumn(5).width=9;    // Total WO
+    for(let i=6;i<=5+days.length;i++) ws.getColumn(i).width=5;
+    ws.getColumn(5+days.length+1).width=6; // Su summary col
+
+    // ── ROW 1: Header row ──────────────────────────────────────────────
+    // Emp#, Name, Level, Role, Total WO, 1, 2, 3 ... N, Su
+    const hdrValues=['Emp#','Name','Level','Role','Total WO',
+      ...days.map(d=>String(d)),
+      'Su'
+    ];
     const hRow=ws.getRow(1);
-    hRow.eachCell(cell=>{
+    hRow.height=20;
+    hdrValues.forEach((v,i)=>{
+      const cell=hRow.getCell(i+1);
+      cell.value=v;
       cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF0D1526'}};
       cell.font={bold:true,color:{argb:'FF00D4FF'},size:9};
-      cell.alignment={horizontal:'center',vertical:'middle',wrapText:true};
-      cell.border={bottom:{style:'thin',color:{argb:'FF1e2d45'}}};
+      cell.alignment={horizontal:'center',vertical:'middle',wrapText:false};
     });
-    const dt={};(rData.dtypeSer||[]).forEach(([k,v])=>dt[+k]=v);
-    const fixLen=fixedCols.length;
+
+    // ── ROW 2: Day-of-week numbers row ────────────────────────────────
+    // Cols A-D empty, Col E = 1, Col F = 2 (week day numbers 1=Sun..7=Sat)
+    // Matching the sample: row2 has blank A-D, then 1,2,3... for weekday number
+    const r2=ws.getRow(2);
+    r2.height=14;
+    // A-E blank
+    [1,2,3,4].forEach(i=>{r2.getCell(i).value='';});
+    // Day-of-week numbers: the sample shows 1,2,3... which are the dow numbers
+    // (1=Sun, 2=Mon, 3=Tue, 4=Wed, 5=Thu, 6=Fri, 7=Sat in Excel convention)
+    // From the sample: day1 is Sun, col E2=1 (Sun=1 in 1-indexed)
+    days.forEach((d,i)=>{
+      const dowVal=dow[d]; // 0=Sun,1=Mon...6=Sat (JS)
+      const xlDow=dowVal===0?1:dowVal+1; // convert to Excel 1-indexed (Sun=1)
+      const cell=r2.getCell(5+i+1); // starts at col F (6)
+      cell.value=xlDow;
+      // Color Saturdays amber, Sundays red, rest default
+      if(dowVal===0){cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF2D0A0F'}};cell.font={color:{argb:'FFffb830'},size:8}}
+      else if(dowVal===6){cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF2D1F00'}};cell.font={color:{argb:'FFf59e0b'},size:8}}
+      else{cell.font={color:{argb:'FF4a6080'},size:8}}
+      cell.alignment={horizontal:'center',vertical:'middle'};
+    });
+    // Last "Su" col row2 blank
+    r2.getCell(5+days.length+1).value='';
+
+    // Color Saturday header cols in row 1 too
+    days.forEach((d,i)=>{
+      const dowVal=dow[d];
+      const hCell=hRow.getCell(6+i);
+      if(dowVal===0){// Sunday
+        hCell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF2D0A0F'}};
+        hCell.font={bold:true,color:{argb:'FFffb830'},size:9};
+      } else if(dowVal===6){// Saturday
+        hCell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF2D1F00'}};
+        hCell.font={bold:true,color:{argb:'FFf59e0b'},size:9};
+      } else if(dt[d]==='HOL'){
+        hCell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF0D2D1E'}};
+        hCell.font={bold:true,color:{argb:'FF00e5a0'},size:9};
+      }
+    });
+
+    // ── Agent rows (Row 3+) ───────────────────────────────────────────
     rData.agents.forEach((ag,ri)=>{
-      const sc=(rData.schedSer||[]).find(([n])=>n===ag.name)?.[1]||{};
-      const rowData={sno:ri+1,emp:ag.emp,name:ag.name,level:`L${ag.level}`};
-      let woCount=0;
-      rData.days.forEach(d2=>{
-        const t=dt[d2]||'WORK',s=sc[d2]||'ROI';
-        let val='ROI';
-        if(t==='SUN'||t==='SAT'||t==='HOL'||s==='WO') val='WO';
-        if(val==='WO') woCount++;
-        rowData[`d${d2}`]=val;
-      });
-      rowData.two=woCount;
-      const row=ws.addRow(rowData);
-      row.height=16;
-      // Style fixed columns
-      for(let i=1;i<=fixLen;i++){
-        const c=row.getCell(i);
-        c.fill={type:'pattern',pattern:'solid',fgColor:{argb:ri%2===0?'FF0D1526':'FF080E1A'}};
+      const sc=schedMap[ag.name]||{};
+      const row=ws.addRow([]);
+      row.height=18;
+      const rowIdx=ri+3; // rows start at 3
+
+      // Agent info cols A-D: dark navy bg
+      const agBg='FF0D1526';
+      [[1,ag.emp],[2,ag.name],[3,`L${ag.level}`],[4,roleLabel(ag)]].forEach(([col,val])=>{
+        const c=row.getCell(col);
+        c.value=val;
+        c.fill={type:'pattern',pattern:'solid',fgColor:{argb:agBg}};
         c.font={color:{argb:'FFbccde0'},size:9};
         c.alignment={vertical:'middle'};
-        if(i===1) c.alignment={horizontal:'center',vertical:'middle'};
-      }
-      // Total WO column (after fixed, before day cols)
-      const twoCell=row.getCell(fixLen+1);
-      twoCell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF0a1e38'}};
-      twoCell.font={bold:true,color:{argb:'FF00D4FF'},size:10};
-      twoCell.alignment={horizontal:'center',vertical:'middle'};
-      // Day cells
-      rData.days.forEach((d2,ci)=>{
-        const t=dt[d2]||'WORK',s=sc[d2]||'ROI';
-        const cell=row.getCell(fixLen+2+ci);
-        const isWO=(t==='SUN'||t==='SAT'||t==='HOL'||s==='WO');
-        cell.value=isWO?'WO':'ROI';
-        cell.alignment={horizontal:'center',vertical:'middle'};
-        if(t==='SUN'){cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF2D1F00'}};cell.font={bold:true,color:{argb:'FFffb830'},size:8}}
-        else if(t==='SAT'){cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF1A1540'}};cell.font={bold:true,color:{argb:'FFa78bfa'},size:8}}
-        else if(t==='HOL'){cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF0D2D1E'}};cell.font={bold:true,color:{argb:'FF00e5a0'},size:8}}
-        else if(s==='WO'){cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF2D0A0F'}};cell.font={bold:true,color:{argb:'FFff3d5a'},size:8}}
-        else{cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:ri%2===0?'FF060E1A':'FF040A14'}};cell.font={color:{argb:'FF4a6080'},size:8}}
+        if(col===1||col===3) c.alignment={horizontal:'center',vertical:'middle'};
       });
+
+      // Total WO col (E): count WO + HOL days
+      let woCount=0;
+      days.forEach(d=>{
+        const s=sc[d]||'ROI';
+        const t=dt[d]||'WORK';
+        if(s==='WO'||s==='HOL'||t==='HOL') woCount++;
+      });
+      const twoCell=row.getCell(5);
+      twoCell.value=woCount;
+      twoCell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF2D1F00'}};
+      twoCell.font={bold:true,color:{argb:'FFffb830'},size:9};
+      twoCell.alignment={horizontal:'center',vertical:'middle'};
+
+      // Day cells
+      days.forEach((d,ci)=>{
+        const s=sc[d]||'ROI';
+        const t=dt[d]||'WORK';
+        const dowVal=dow[d]; // 0=Sun,6=Sat
+        const cell=row.getCell(6+ci);
+        cell.alignment={horizontal:'center',vertical:'middle'};
+        cell.font={bold:true,size:8};
+
+        // Determine cell value and color:
+        // Sunday     → WO, red tint  FF2D0A0F / FFffb830
+        // Saturday WO → WO, amber tint FF2D1F00 / FFf59e0b
+        // Saturday ROI (agent works) → ROI, amber tint FF2D1F00 / FF888
+        // Holiday    → H, green tint FF0D2D1E / FF00e5a0
+        // Extra WO   → WO, purple tint FF1A1540 / FFa78bfa
+        // Leave      → LV, rose FF2D0A0F / FFff3d5a
+        // ROI        → ROI, dark bg / dim text
+
+        if(dowVal===0){// Sunday
+          cell.value='WO';
+          cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF2D0A0F'}};
+          cell.font={bold:true,color:{argb:'FFffb830'},size:8};
+        } else if(t==='HOL'){// Holiday
+          cell.value='H';
+          cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF0D2D1E'}};
+          cell.font={bold:true,color:{argb:'FF00e5a0'},size:8};
+        } else if(dowVal===6){// Saturday
+          if(s==='WO'){
+            cell.value='WO';
+            cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF2D1F00'}};
+            cell.font={bold:true,color:{argb:'FFf59e0b'},size:8};
+          } else {
+            cell.value='ROI';
+            cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF2D1F00'}};
+            cell.font={bold:false,color:{argb:'FF8a7040'},size:8};
+          }
+        } else if(s==='LV'){// Leave
+          cell.value='LV';
+          cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF2D0A0F'}};
+          cell.font={bold:true,color:{argb:'FFff3d5a'},size:8};
+        } else if(s==='WO'){// Extra weekday WO
+          cell.value='WO';
+          cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF1A1540'}};
+          cell.font={bold:true,color:{argb:'FFa78bfa'},size:8};
+        } else {// ROI
+          cell.value='ROI';
+          cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:ri%2===0?'FF060E1A':'FF040A14'}};
+          cell.font={bold:false,color:{argb:'FF4a6080'},size:8};
+        }
+      });
+
+      // Last "Su" summary col - blank with agent bg
+      const lastCell=row.getCell(6+days.length);
+      lastCell.value='';
+      lastCell.fill={type:'pattern',pattern:'solid',fgColor:{argb:agBg}};
     });
-    ws.views=[{state:'frozen',xSplit:fixLen+1,ySplit:1}];
+
+    // Freeze panes: freeze first 4 cols (A-D) and header row
+    ws.views=[{state:'frozen',xSplit:5,ySplit:1}];
+
     res.setHeader('Content-Type','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.setHeader('Content-Disposition',`attachment; filename="Roster_${MN[rData.month]}_${rData.year}.xlsx"`);
     await wb.xlsx.write(res); res.end();

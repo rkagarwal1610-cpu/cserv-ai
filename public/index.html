@@ -441,6 +441,8 @@ function closeM(id){document.getElementById(id).classList.remove('on')}
 function showErr(id,msg){const e=document.getElementById(id);if(e){e.textContent='⚠ '+msg;e.className='auth-err on'}}
 function rAlert(msg,t){const b=document.getElementById('rAB');if(b){b.innerHTML=`<div class="alrt ${t==='ok'?'aok':t==='err'?'aerr':'awarn'}">${msg}</div>`;setTimeout(()=>b.innerHTML='',7000)}}
 function $cb(id){return!!document.getElementById(id)?.checked}
+// Timezone-safe date helpers — parse YYYY-MM-DD as LOCAL date, not UTC
+function parseLocalDate(s){if(!s)return new Date();const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)}
 function fmtDT(iso){if(!iso)return'—';const d=new Date(iso);return d.toLocaleDateString()+' '+d.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'})}
 document.querySelectorAll('.mbg').forEach(bg=>bg.addEventListener('click',e=>{if(e.target===bg)bg.classList.remove('on')}));
 
@@ -662,20 +664,20 @@ function deserR(d){
 // HOLIDAYS
 let _tmpHols=[];
 function openHolMgr(){_tmpHols=[...HOLIDAYS];renderHolList();openM('m-holiday')}
-function renderHolList(){document.getElementById('hol-list').innerHTML=_tmpHols.length?_tmpHols.map((h,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 8px;background:var(--l2);border:1px solid var(--rim);border-radius:6px;margin-bottom:5px;font-size:12.5px"><span>🗓</span><div style="flex:1"><div style="color:var(--ink1)">${x(h.name)}</div><div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--hol-c)">${h.date} (${DF[new Date(h.date).getDay()]})</div></div><button style="background:none;border:none;cursor:pointer;color:var(--ink4);font-size:13px" onmouseover="this.style.color='var(--rose)'" onmouseout="this.style.color=''" onclick="_tmpHols.splice(${i},1);renderHolList()">✕</button></div>`).join(''):'<div style="color:var(--ink3);font-size:13px;padding:8px 0">No holidays added.</div>'}
+function renderHolList(){document.getElementById('hol-list').innerHTML=_tmpHols.length?_tmpHols.map((h,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 8px;background:var(--l2);border:1px solid var(--rim);border-radius:6px;margin-bottom:5px;font-size:12.5px"><span>🗓</span><div style="flex:1"><div style="color:var(--ink1)">${x(h.name)}</div><div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--hol-c)">${h.date} (${DF[parseLocalDate(h.date).getDay()]})</div></div><button style="background:none;border:none;cursor:pointer;color:var(--ink4);font-size:13px" onmouseover="this.style.color='var(--rose)'" onmouseout="this.style.color=''" onclick="_tmpHols.splice(${i},1);renderHolList()">✕</button></div>`).join(''):'<div style="color:var(--ink3);font-size:13px;padding:8px 0">No holidays added.</div>'}
 function addHoliday(){const n=document.getElementById('hn').value.trim(),d=document.getElementById('hd').value;if(!n||!d){toast('Enter name and date','warn');return}if(_tmpHols.find(h=>h.date===d)){toast('Already added','warn');return}_tmpHols.push({name:n,date:d});_tmpHols.sort((a,b)=>a.date.localeCompare(b.date));document.getElementById('hn').value='';document.getElementById('hd').value='';renderHolList()}
 async function saveHolidays(){await api('PUT','/api/holidays',_tmpHols);HOLIDAYS=_tmpHols;closeM('m-holiday');updateHolBadge();toast('Holidays saved','ok')}
 function updateHolBadge(){
   const yr=+(document.getElementById('selY')?.value||new Date().getFullYear()),mo=+(document.getElementById('selM')?.value||new Date().getMonth());
-  const mh=HOLIDAYS.filter(h=>{const d=new Date(h.date);return d.getFullYear()===yr&&d.getMonth()===mo});
+  const mh=HOLIDAYS.filter(h=>{const d=parseLocalDate(h.date);return d.getFullYear()===yr&&d.getMonth()===mo});
   const el=document.getElementById('hol-badge');if(el)el.textContent=mh.length?`🟢 ${mh.length} holiday${mh.length>1?'s':''}: ${mh.map(h=>h.name).join(', ')}`:'';
   // Boundary rule check
   const bm=document.getElementById('boundary-msg');if(bm){
     const prevD=new Date(yr,mo,0);const prevMo=prevD.getMonth(),prevYr=prevD.getFullYear(),prevDt=prevD.getDate();
     const prevDow=new Date(prevYr,prevMo,prevDt).getDay();
-    const prevIsWO=prevDow===0||prevDow===6||HOLIDAYS.find(h=>{const dt=new Date(h.date);return dt.getFullYear()===prevYr&&dt.getMonth()===prevMo&&dt.getDate()===prevDt});
+    const prevIsWO=prevDow===0||prevDow===6||HOLIDAYS.find(h=>{const dt=parseLocalDate(h.date);return dt.getFullYear()===prevYr&&dt.getMonth()===prevMo&&dt.getDate()===prevDt});
     const firstDow=new Date(yr,mo,1).getDay();
-    const firstIsWO=firstDow===0||firstDow===6||mh.find(h=>new Date(h.date).getDate()===1);
+    const firstIsWO=firstDow===0||firstDow===6||mh.find(h=>parseLocalDate(h.date).getDate()===1);
     bm.textContent=(prevIsWO&&firstIsWO)?'⚠ Boundary rule: prev month ends on WO/HOL and this month starts WO/HOL — Day 2 extra WO blocked':'';
   }
 }
@@ -726,7 +728,7 @@ function openDP(mode,agentName,monthKey,yr,mo){
   const allSats=days.filter(d=>new Date(yr,mo,d).getDay()===6);
   function agSatWOSet(){const sc=agObj.satConfig||'all';if(sc==='all')return new Set(allSats);if(sc==='1st3rd')return new Set([allSats[0],allSats[2]].filter(d=>d!=null));if(sc==='2nd4th')return new Set([allSats[1],allSats[3]].filter(d=>d!=null));return new Set();}
   const agentSatWOs=agSatWOSet();
-  const mholDays=new Set(HOLIDAYS.filter(h=>{const dt=new Date(h.date);return dt.getFullYear()===yr&&dt.getMonth()===mo}).map(h=>new Date(h.date).getDate()));
+  const mholDays=new Set(HOLIDAYS.filter(h=>{const dt=parseLocalDate(h.date);return dt.getFullYear()===yr&&dt.getMonth()===mo}).map(h=>parseLocalDate(h.date).getDate()));
   if(mode==='leave'){
     document.getElementById('dp-title').textContent=`Set Leave Days — ${agentName} · ${MN[mo]} ${yr}`;
     document.getElementById('dp-info').textContent='Click days to mark as LEAVE. Agent will not be assigned WO on leave days.';
@@ -860,8 +862,8 @@ function compute(){
   const dow={};days.forEach(d=>dow[d]=new Date(yr,mo,d).getDay());
   const suns=days.filter(d=>dow[d]===0);
   const sats=days.filter(d=>dow[d]===6); // all sats in order: [sat1, sat2, sat3, sat4, sat5?]
-  const mhols=HOLIDAYS.filter(h=>{const dt=new Date(h.date);return dt.getFullYear()===yr&&dt.getMonth()===mo});
-  const holDays=new Set(mhols.map(h=>new Date(h.date).getDate()));
+  const mhols=HOLIDAYS.filter(h=>{const dt=parseLocalDate(h.date);return dt.getFullYear()===yr&&dt.getMonth()===mo});
+  const holDays=new Set(mhols.map(h=>parseLocalDate(h.date).getDate()));
 
   // Per-agent Saturday WO set:
   // satConfig: 'all' = all sats are WO, '1st3rd' = 1st & 3rd sat are WO, '2nd4th' = 2nd & 4th sat are WO, 'none' = no sat WO
@@ -887,13 +889,13 @@ function compute(){
   // Base target is total WOs per month (e.g. 14), we subtract per-agent universal (Sun + their Sat WOs)
   const tgtBase=(R.targetWOBase||8)+(suns.length>=5&&R.extraWOIfFifthSunday?1:0);
 
-  const maxPD=R.maxAgentsOnWOPerDay||2;
+  const maxPD=Math.min(2,R.maxAgentsOnWOPerDay||2); // max 2 agents WO per day
   const monthKey=`${yr}-${String(mo+1).padStart(2,'0')}`;
 
   // Boundary rule
   const prevD=new Date(yr,mo,0);const prevMo=prevD.getMonth(),prevYr=prevD.getFullYear(),prevDt=prevD.getDate();
   const prevDow2=new Date(prevYr,prevMo,prevDt).getDay();
-  const prevIsWO=prevDow2===0||prevDow2===6||HOLIDAYS.find(h=>{const dt=new Date(h.date);return dt.getFullYear()===prevYr&&dt.getMonth()===prevMo&&dt.getDate()===prevDt});
+  const prevIsWO=prevDow2===0||prevDow2===6||HOLIDAYS.find(h=>{const dt=parseLocalDate(h.date);return dt.getFullYear()===prevYr&&dt.getMonth()===prevMo&&dt.getDate()===prevDt});
   const firstIsWO=dow[1]===0||dow[1]===6||holDays.has(1);
   const blockDay2=!!(prevIsWO&&firstIsWO);
 
@@ -1030,7 +1032,7 @@ function bPairs(r,tid){
     const dn=DF[r.dow[d]],t=r.dt[d],pairs=r.asn[d];let tc,body;
     if(t==='SUN'){tc=`<span class="chip" style="background:var(--sun-bg);color:var(--sun-c)">Sunday</span>`;body=`<td style="color:var(--ink3);font-size:11.5px;font-style:italic">All agents — Universal WO</td>`}
     else if(t==='SAT'){tc=`<span class="chip" style="background:var(--sat-bg);color:var(--sat-c)">Saturday</span>`;body=`<td style="color:var(--ink3);font-size:11.5px;font-style:italic">All agents — Universal WO</td>`}
-    else if(t==='HOL'){const hn=r.holNames?.find(h2=>new Date(h2.date).getDate()===d)?.name||'Holiday';tc=`<span class="chip" style="background:#F9CB9C;color:#7D4E00">Holiday</span>`;body=`<td style="color:#7D4E00">🗓 ${x(hn)} — All agents on Holiday</td>`}
+    else if(t==='HOL'){const hn=r.holNames?.find(h2=>parseLocalDate(h2.date).getDate()===d)?.name||'Holiday';tc=`<span class="chip" style="background:#F9CB9C;color:#7D4E00">Holiday</span>`;body=`<td style="color:#7D4E00">🗓 ${x(hn)} — All agents on Holiday</td>`}
     else if(pairs?.length){tc=`<span class="chip" style="background:#C9B8E8;color:#4A2587">WO Day</span>`;body=`<td>${pairs.map(([a1,a2])=>`<b style="color:var(--ink0)">${x(a1.name)}</b>${lb(a1.level)} + <b style="color:var(--ink0)">${x(a2.name)}</b>${lb(a2.level)}`).join('<br>')}</td>`}
     else{tc=`<span class="chip" style="background:var(--roi-bg);color:var(--roi)">All ROI</span>`;body=`<td style="color:var(--ink3);font-size:11.5px;font-style:italic">All working</td>`}
     const note=r.blockDay2&&d===2?' <span style="font-size:9px;color:var(--amber)">(boundary rule)</span>':'';
@@ -1244,13 +1246,28 @@ async function doSLAct(){
 // RULES PAGE
 function buildRulesPage(){
   const R=RULES;
+  const satOpts=[
+    {v:'all',   l:'All Saturdays = WO (everyone)'},
+    {v:'1st3rd',l:'1st & 3rd Sat = WO (works 2nd & 4th)'},
+    {v:'2nd4th',l:'2nd & 4th Sat = WO (works 1st & 3rd)'},
+    {v:'none',  l:'No Saturday WO (works all Sats)'},
+    {v:'custom',l:'Custom per-agent (set in agent list)'},
+  ];
   document.getElementById('pg-rules').innerHTML=`<div class="mbar"><div class="bc"><span class="bch" onclick="go('home')">🏠</span><span class="bcs">›</span><span class="bcc">📋 Rules Manager</span></div></div>
   <div class="asc"><div class="ah">Rules Manager</div><div class="as">Configure scheduling rules for roster generation.</div>
   <div class="agrid">
     <div class="acard"><div class="act">WO Targets</div>
-      <div class="fg"><label class="fl">Base WO per agent/month</label><input class="fi ctrl" type="number" id="r-tgt" value="${R.targetWOBase||8}" min="4" max="15" style="background:var(--l2)"></div>
+      <div class="fg"><label class="fl">Base WO per agent / month</label><input class="fi ctrl" type="number" id="r-tgt" value="${R.targetWOBase||8}" min="4" max="20" style="background:var(--l2)"></div>
       <label class="perm-item" style="margin-bottom:8px"><input type="checkbox" id="r-fifth" ${R.extraWOIfFifthSunday?'checked':''}> Extra WO if 5th Sunday</label>
-      <div class="fg"><label class="fl">Max agents on WO per day</label><input class="fi ctrl" type="number" id="r-mpd" value="${R.maxAgentsOnWOPerDay||2}" min="1" max="6" style="background:var(--l2)"></div>
+      <div class="fg"><label class="fl">Max agents on WO per day</label><input class="fi ctrl" type="number" id="r-mpd" value="${R.maxAgentsOnWOPerDay||2}" min="1" max="2" style="background:var(--l2)"></div>
+    </div>
+    <div class="acard"><div class="act">📅 Saturday Working Config</div>
+      <div class="as" style="margin-bottom:10px;font-size:11.5px">Apply one Saturday WO pattern to <b>all agents</b>. Choose "Custom" to set individually per agent in the agent list.</div>
+      ${satOpts.map(o=>`<label class="perm-item" style="margin-bottom:7px;align-items:flex-start">
+        <input type="radio" name="globalSat" value="${o.v}" ${(R.globalSatConfig||'all')===o.v?'checked':''}> 
+        <span style="font-size:12px;line-height:1.4">${o.l}</span>
+      </label>`).join('')}
+      <button class="btn btn-g" style="width:100%;margin-top:8px;font-size:11px" onclick="applyGlobalSat()">↺ Apply to All Agents Now</button>
     </div>
     <div class="acard"><div class="act">Pairing Rule</div>
       <div class="fg"><label class="fl">Pairing Strategy</label><select class="ctrl" id="r-pair"><option value="senior_junior" ${R.pairingRule==='senior_junior'?'selected':''}>Senior + Junior</option><option value="any" ${R.pairingRule==='any'?'selected':''}>Any pair</option></select></div>
@@ -1266,8 +1283,24 @@ function buildRulesPage(){
   <button class="btn btn-p" style="margin-top:16px" onclick="saveRules()">💾 Save Rules</button>
   </div>`;
 }
+async function applyGlobalSat(){
+  const gsc=document.querySelector('input[name="globalSat"]:checked')?.value||'all';
+  if(gsc==='custom'){toast('Custom mode: set Saturday config per agent in the agent list','warn');return}
+  AG.forEach(a=>a.satConfig=gsc);
+  try{await api('PUT','/api/agents',AG);renderAG();toast('Saturday config applied to all agents','ok')}catch(e){toast(e.message,'err')}
+}
 async function saveRules(){
-  const R={targetWOBase:+document.getElementById('r-tgt').value,extraWOIfFifthSunday:document.getElementById('r-fifth').checked,maxAgentsOnWOPerDay:+document.getElementById('r-mpd').value,pairingRule:document.getElementById('r-pair').value,minL0Working:document.getElementById('r-l0').checked,holidayMaxAgents:+document.getElementById('r-hmax').value,shortLeaveMonthlyLimit:+document.getElementById('r-slm').value};
+  const gsc=document.querySelector('input[name="globalSat"]:checked')?.value||'all';
+  const R={
+    targetWOBase:+document.getElementById('r-tgt').value,
+    extraWOIfFifthSunday:document.getElementById('r-fifth').checked,
+    maxAgentsOnWOPerDay:+document.getElementById('r-mpd').value,
+    pairingRule:document.getElementById('r-pair').value,
+    minL0Working:document.getElementById('r-l0').checked,
+    holidayMaxAgents:+document.getElementById('r-hmax').value,
+    shortLeaveMonthlyLimit:+document.getElementById('r-slm').value,
+    globalSatConfig:gsc,
+  };
   try{await api('PUT','/api/rules',R);RULES={...RULES,...R};toast('Rules saved','ok')}catch(e){toast(e.message,'err')}
 }
 
