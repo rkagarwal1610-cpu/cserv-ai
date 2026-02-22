@@ -6,72 +6,20 @@
 <title>C-Serv.AI</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root,[data-theme="dark"]{
-  --bg:#04060d;--base:#080e1a;--l1:#0d1526;--l2:#111d33;--l3:#172340;
-  --rim:#1e2d45;--rim2:#263549;
-  --ink0:#f2f8ff;--ink1:#bccde0;--ink2:#7a9bbf;--ink3:#4a6080;--ink4:#2d3f5a;
-  --cyan:#00d4ff;--cyan2:#0099cc;--cdim:rgba(0,212,255,.07);
-  --em:#00e5a0;--amber:#ffb830;--rose:#ff3d5a;--violet:#a78bfa;
-  --wo:#ff3d5a;--wo-bg:rgba(255,61,90,.12);
-  --roi:#00e5a0;--roi-bg:rgba(0,229,160,.08);
-  --sun-c:#ffb830;--sun-bg:rgba(255,184,48,.1);
-  --sat-c:#a78bfa;--sat-bg:rgba(167,139,250,.1);
-  --hol-c:#00e5a0;--hol-bg:rgba(0,229,160,.1);
-  --shadow:0 24px 60px rgba(0,0,0,.6);
-}
-[data-theme="light"]{
-  --bg:#f0f4f8;--base:#fff;--l1:#f7f9fc;--l2:#edf2f7;--l3:#e2e8f0;
-  --rim:#cbd5e0;--rim2:#b2bfcc;
-  --ink0:#0d1526;--ink1:#2d3f5a;--ink2:#4a6080;--ink3:#7a9bbf;--ink4:#bccde0;
-  --cyan:#0077cc;--cyan2:#005fa3;--cdim:rgba(0,119,204,.07);
-  --em:#007a42;--amber:#b07600;--rose:#cc1122;--violet:#6d28d9;
-  --wo:#cc1122;--wo-bg:rgba(204,17,34,.1);--roi:#007a42;--roi-bg:rgba(0,122,66,.08);
-  --sun-c:#b07600;--sun-bg:rgba(176,118,0,.1);--sat-c:#6d28d9;--sat-bg:rgba(109,40,217,.08);
-  --hol-c:#007a42;--hol-bg:rgba(0,122,66,.1);
-  --shadow:0 12px 40px rgba(0,0,0,.12);
-}
-[data-theme="ocean"]{
-  --bg:#050f1f;--base:#071428;--l1:#091830;--l2:#0d2040;--l3:#102850;
-  --rim:#1a3060;--rim2:#1e3a70;
-  --ink0:#e8f4ff;--ink1:#a0c8e8;--ink2:#5090b8;--ink3:#306080;--ink4:#204060;
-  --cyan:#40c8ff;--cyan2:#1890cc;--cdim:rgba(64,200,255,.07);
-  --em:#40ffc0;--amber:#ffc840;--rose:#ff4060;--violet:#c080ff;
-  --wo:#ff4060;--wo-bg:rgba(255,64,96,.12);--roi:#40ffc0;--roi-bg:rgba(64,255,192,.08);
-  --sun-c:#ffc840;--sun-bg:rgba(255,200,64,.1);--sat-c:#c080ff;--sat-bg:rgba(192,128,255,.1);
-  --hol-c:#40ffc0;--hol-bg:rgba(64,255,192,.1);--shadow:0 24px 60px rgba(0,0,0,.7);
-}
-[data-theme="forest"]{
-  --bg:#050e08;--base:#06110a;--l1:#081610;--l2:#0b1e14;--l3:#0e2618;
-  --rim:#163824;--rim2:#1a422a;
-  --ink0:#e8f5ec;--ink1:#a0c8aa;--ink2:#508060;--ink3:#306040;--ink4:#204030;
-  --cyan:#40e080;--cyan2:#28a858;--cdim:rgba(64,224,128,.07);
-  --em:#80ff40;--amber:#ffd040;--rose:#ff4040;--violet:#a080ff;
-  --wo:#ff4040;--wo-bg:rgba(255,64,64,.12);--roi:#80ff40;--roi-bg:rgba(128,255,64,.08);
-  --sun-c:#ffd040;--sun-bg:rgba(255,208,64,.1);--sat-c:#a080ff;--sat-bg:rgba(160,128,255,.1);
-  --hol-c:#80ff40;--hol-bg:rgba(128,255,64,.1);--shadow:0 24px 60px rgba(0,0,0,.7);
-}
-[data-theme="sunset"]{
-  --bg:#0f0808;--base:#160a0a;--l1:#1e0e0e;--l2:#281414;--l3:#321a1a;
-  --rim:#4a2828;--rim2:#582e2e;
-  --ink0:#fff0e8;--ink1:#e0b8a0;--ink2:#b07858;--ink3:#805040;--ink4:#603830;
-  --cyan:#ff8040;--cyan2:#cc5520;--cdim:rgba(255,128,64,.07);
-  --em:#ffc040;--amber:#ffdd60;--rose:#ff2040;--violet:#e060ff;
-  --wo:#ff2040;--wo-bg:rgba(255,32,64,.12);--roi:#ffc040;--roi-bg:rgba(255,192,64,.08);
-  --sun-c:#ffdd60;--sun-bg:rgba(255,221,96,.1);--sat-c:#e060ff;--sat-bg:rgba(224,96,255,.1);
-  --hol-c:#ffc040;--hol-bg:rgba(255,192,64,.1);--shadow:0 24px 60px rgba(0,0,0,.7);
-}
+:root,[data-theme="dark"]{--bg:#04060d;--base:#080e1a;--l1:#0d1526;--l2:#111d33;--l3:#172340;--rim:#1e2d45;--rim2:#263549;--ink0:#f2f8ff;--ink1:#bccde0;--ink2:#7a9bbf;--ink3:#4a6080;--ink4:#2d3f5a;--cyan:#00d4ff;--cyan2:#0099cc;--cdim:rgba(0,212,255,.07);--em:#00e5a0;--amber:#ffb830;--rose:#ff3d5a;--violet:#a78bfa;--wo:#ff3d5a;--wo-bg:rgba(255,61,90,.12);--roi:#00e5a0;--roi-bg:rgba(0,229,160,.08);--sun-c:#ffb830;--sun-bg:rgba(255,184,48,.1);--sat-c:#a78bfa;--sat-bg:rgba(167,139,250,.1);--hol-c:#00e5a0;--hol-bg:rgba(0,229,160,.1);--shadow:0 24px 60px rgba(0,0,0,.6)}
+[data-theme="light"]{--bg:#f0f4f8;--base:#fff;--l1:#f7f9fc;--l2:#edf2f7;--l3:#e2e8f0;--rim:#cbd5e0;--rim2:#b2bfcc;--ink0:#0d1526;--ink1:#2d3f5a;--ink2:#4a6080;--ink3:#7a9bbf;--ink4:#bccde0;--cyan:#0077cc;--cyan2:#005fa3;--cdim:rgba(0,119,204,.07);--em:#007a42;--amber:#b07600;--rose:#cc1122;--violet:#6d28d9;--wo:#cc1122;--wo-bg:rgba(204,17,34,.1);--roi:#007a42;--roi-bg:rgba(0,122,66,.08);--sun-c:#b07600;--sun-bg:rgba(176,118,0,.1);--sat-c:#6d28d9;--sat-bg:rgba(109,40,217,.08);--hol-c:#007a42;--hol-bg:rgba(0,122,66,.1);--shadow:0 12px 40px rgba(0,0,0,.12)}
+[data-theme="ocean"]{--bg:#050f1f;--base:#071428;--l1:#091830;--l2:#0d2040;--l3:#102850;--rim:#1a3060;--rim2:#1e3a70;--ink0:#e8f4ff;--ink1:#a0c8e8;--ink2:#5090b8;--ink3:#306080;--ink4:#204060;--cyan:#40c8ff;--cyan2:#1890cc;--cdim:rgba(64,200,255,.07);--em:#40ffc0;--amber:#ffc840;--rose:#ff4060;--violet:#c080ff;--wo:#ff4060;--wo-bg:rgba(255,64,96,.12);--roi:#40ffc0;--roi-bg:rgba(64,255,192,.08);--sun-c:#ffc840;--sun-bg:rgba(255,200,64,.1);--sat-c:#c080ff;--sat-bg:rgba(192,128,255,.1);--hol-c:#40ffc0;--hol-bg:rgba(64,255,192,.1);--shadow:0 24px 60px rgba(0,0,0,.7)}
+[data-theme="forest"]{--bg:#050e08;--base:#06110a;--l1:#081610;--l2:#0b1e14;--l3:#0e2618;--rim:#163824;--rim2:#1a422a;--ink0:#e8f5ec;--ink1:#a0c8aa;--ink2:#508060;--ink3:#306040;--ink4:#204030;--cyan:#40e080;--cyan2:#28a858;--cdim:rgba(64,224,128,.07);--em:#80ff40;--amber:#ffd040;--rose:#ff4040;--violet:#a080ff;--wo:#ff4040;--wo-bg:rgba(255,64,64,.12);--roi:#80ff40;--roi-bg:rgba(128,255,64,.08);--sun-c:#ffd040;--sun-bg:rgba(255,208,64,.1);--sat-c:#a080ff;--sat-bg:rgba(160,128,255,.1);--hol-c:#80ff40;--hol-bg:rgba(128,255,64,.1);--shadow:0 24px 60px rgba(0,0,0,.7)}
+[data-theme="sunset"]{--bg:#0f0808;--base:#160a0a;--l1:#1e0e0e;--l2:#281414;--l3:#321a1a;--rim:#4a2828;--rim2:#582e2e;--ink0:#fff0e8;--ink1:#e0b8a0;--ink2:#b07858;--ink3:#805040;--ink4:#603830;--cyan:#ff8040;--cyan2:#cc5520;--cdim:rgba(255,128,64,.07);--em:#ffc040;--amber:#ffdd60;--rose:#ff2040;--violet:#e060ff;--wo:#ff2040;--wo-bg:rgba(255,32,64,.12);--roi:#ffc040;--roi-bg:rgba(255,192,64,.08);--sun-c:#ffdd60;--sun-bg:rgba(255,221,96,.1);--sat-c:#e060ff;--sat-bg:rgba(224,96,255,.1);--hol-c:#ffc040;--hol-bg:rgba(255,192,64,.1);--shadow:0 24px 60px rgba(0,0,0,.7)}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--ink1);font-size:14px;line-height:1.5;height:100%}
 ::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-thumb{background:var(--rim2);border-radius:99px}
 input,select,button,textarea{font-family:'Outfit',sans-serif}
-
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes pulse2{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
 @keyframes slideIn{from{transform:translateX(120%);opacity:0}to{transform:none;opacity:1}}
 @keyframes slideOut{to{transform:translateX(120%);opacity:0}}
-
-/* ── LOGIN / REGISTER ── */
 #AUTH{position:fixed;inset:0;z-index:1000;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px}
 .auth-bg{position:absolute;inset:0;overflow:hidden}
 .auth-bg::before{content:'';position:absolute;top:-30%;left:-20%;width:80%;height:80%;background:radial-gradient(ellipse,rgba(0,212,255,.07),transparent 65%)}
@@ -85,29 +33,23 @@ input,select,button,textarea{font-family:'Outfit',sans-serif}
 .auth-mode{display:flex;gap:3px;background:var(--l2);border:1px solid var(--rim);border-radius:9px;padding:3px;margin-bottom:20px}
 .auth-mode-btn{flex:1;padding:8px;border:none;background:none;color:var(--ink3);font-size:13px;font-weight:500;border-radius:7px;cursor:pointer;transition:all .15s}
 .auth-mode-btn.on{background:var(--l3);color:var(--ink0)}
-.fg{margin-bottom:12px}
-.fl{display:block;font-size:11px;color:var(--ink2);margin-bottom:4px;font-weight:500}
+.fg{margin-bottom:12px}.fl{display:block;font-size:11px;color:var(--ink2);margin-bottom:4px;font-weight:500}
 .fi{width:100%;padding:9px 11px;background:var(--l2);border:1px solid var(--rim2);border-radius:8px;color:var(--ink0);font-size:14px;outline:none;transition:all .15s}
-.fi:focus{border-color:var(--cyan);box-shadow:0 0 0 3px var(--cdim)}
-.fi::placeholder{color:var(--ink4)}
+.fi:focus{border-color:var(--cyan);box-shadow:0 0 0 3px var(--cdim)}.fi::placeholder{color:var(--ink4)}
 .auth-err{background:rgba(255,61,90,.07);border:1px solid rgba(255,61,90,.2);border-radius:8px;padding:8px 11px;color:#ff8099;font-size:12px;margin-bottom:10px;display:none}
 .auth-err.on{display:block}
 .auth-ok{background:rgba(0,229,160,.07);border:1px solid rgba(0,229,160,.2);border-radius:8px;padding:8px 11px;color:var(--em);font-size:12px;margin-bottom:10px;display:none}
 .auth-ok.on{display:block}
 .btn-auth{width:100%;padding:11px;background:linear-gradient(135deg,var(--cyan),var(--cyan2));color:var(--bg);border:none;border-radius:9px;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s}
-.btn-auth:hover{transform:translateY(-1px);opacity:.92}
-.btn-auth:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-auth:hover{transform:translateY(-1px);opacity:.92}.btn-auth:disabled{opacity:.5;cursor:not-allowed;transform:none}
 .sp{width:14px;height:14px;border-radius:50%;border:2px solid transparent;border-top-color:currentColor;animation:spin .65s linear infinite;flex-shrink:0}
-
-/* ── APP SHELL ── */
 #APP{display:none;height:100vh;flex-direction:column;overflow:hidden}
 #APP.on{display:flex}
 .topbar{height:54px;background:var(--base);border-bottom:1px solid var(--rim);display:flex;align-items:center;flex-shrink:0;z-index:200;position:relative}
 .brand{width:230px;display:flex;align-items:center;gap:8px;padding:0 14px;height:100%;border-right:1px solid var(--rim);flex-shrink:0;cursor:pointer;transition:background .15s}
 .brand:hover{background:var(--cdim)}
 .brand-ico{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--cyan),var(--cyan2));display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 0 10px rgba(0,212,255,.3);flex-shrink:0}
-.bn{font-size:15px;font-weight:800;color:var(--ink0);letter-spacing:-.4px}
-.bn em{color:var(--cyan);font-style:normal}
+.bn{font-size:15px;font-weight:800;color:var(--ink0);letter-spacing:-.4px}.bn em{color:var(--cyan);font-style:normal}
 .bs{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink3)}
 .tb-mid{flex:1;padding:0 14px;display:flex;align-items:center;gap:8px}
 .lpill{display:flex;align-items:center;gap:5px;font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--em);background:rgba(0,229,160,.06);border:1px solid rgba(0,229,160,.18);border-radius:99px;padding:3px 10px}
@@ -117,44 +59,35 @@ input,select,button,textarea{font-family:'Outfit',sans-serif}
 .ib:hover{border-color:var(--cyan);color:var(--cyan);background:var(--cdim)}
 .upill{display:flex;align-items:center;gap:6px;padding:3px 8px 3px 4px;background:var(--l1);border:1px solid var(--rim);border-radius:7px;cursor:default}
 .uav{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;background:linear-gradient(135deg,#1a5cb8,var(--cyan2))}
-.uav.sa{background:linear-gradient(135deg,#6d28d9,#a78bfa)}
-.uav.adm{background:linear-gradient(135deg,#0077cc,var(--cyan))}
-.un{font-size:11.5px;font-weight:600;color:var(--ink0);line-height:1.1}
-.ur{font-size:9.5px;color:var(--ink3);font-family:'IBM Plex Mono',monospace}
+.uav.sa{background:linear-gradient(135deg,#6d28d9,#a78bfa)}.uav.adm{background:linear-gradient(135deg,#0077cc,var(--cyan))}
+.un{font-size:11.5px;font-weight:600;color:var(--ink0);line-height:1.1}.ur{font-size:9.5px;color:var(--ink3);font-family:'IBM Plex Mono',monospace}
 .rb{font-size:8px;font-family:'IBM Plex Mono',monospace;font-weight:600;padding:2px 6px;border-radius:99px;flex-shrink:0}
 .rb-sa{background:rgba(167,139,250,.12);color:var(--violet);border:1px solid rgba(167,139,250,.25)}
 .rb-a{background:rgba(0,212,255,.1);color:var(--cyan);border:1px solid rgba(0,212,255,.2)}
 .rb-o{background:rgba(0,229,160,.08);color:var(--em);border:1px solid rgba(0,229,160,.18)}
-/* notif bell */
 .notif-wrap{position:relative}
-.notif-cnt{position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;border-radius:99px;background:var(--rose);color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 3px;display:none}
+.notif-cnt{position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;border-radius:99px;background:var(--rose);color:#fff;font-size:9px;font-weight:700;display:none;align-items:center;justify-content:center;padding:0 3px}
 .notif-cnt.on{display:flex}
-/* notif dropdown */
 .notif-dd{position:absolute;top:42px;right:0;width:340px;background:var(--l1);border:1px solid var(--rim2);border-radius:12px;box-shadow:var(--shadow);z-index:400;display:none;overflow:hidden}
 .notif-dd.on{display:block;animation:fadeUp .18s ease}
 .notif-hd{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--rim);font-size:13px;font-weight:700;color:var(--ink0)}
 .notif-hd button{font-size:11px;background:none;border:none;color:var(--cyan);cursor:pointer;font-family:'Outfit',sans-serif}
 .notif-list{max-height:340px;overflow-y:auto}
 .notif-item{display:flex;gap:10px;padding:11px 14px;border-bottom:1px solid rgba(30,45,69,.4);cursor:pointer;transition:background .12s}
-.notif-item:hover{background:var(--l2)}
-.notif-item.unread{background:var(--cdim)}
+.notif-item:hover{background:var(--l2)}.notif-item.unread{background:var(--cdim)}
 .notif-ico{font-size:18px;flex-shrink:0;margin-top:1px}
 .notif-msg{font-size:12.5px;color:var(--ink1);line-height:1.5}
 .notif-time{font-size:10px;color:var(--ink4);font-family:'IBM Plex Mono',monospace;margin-top:2px}
 .notif-empty{padding:28px;text-align:center;color:var(--ink3);font-size:13px}
-
-/* ── SHELL ── */
 .shell{display:flex;flex:1;overflow:hidden}
 .sidenav{width:230px;min-width:230px;background:var(--base);border-right:1px solid var(--rim);display:flex;flex-direction:column;overflow-y:auto;height:calc(100vh - 54px);transition:transform .22s}
-.ng{padding:10px 7px 3px}
-.ngl{font-size:8.5px;font-family:'IBM Plex Mono',monospace;letter-spacing:2px;text-transform:uppercase;color:var(--ink4);padding:0 8px;margin-bottom:5px;display:flex;align-items:center;gap:6px}
+.ng{padding:10px 7px 3px}.ngl{font-size:8.5px;font-family:'IBM Plex Mono',monospace;letter-spacing:2px;text-transform:uppercase;color:var(--ink4);padding:0 8px;margin-bottom:5px;display:flex;align-items:center;gap:6px}
 .ngl::after{content:'';flex:1;height:1px;background:var(--rim)}
 .nl{display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:7px;cursor:pointer;transition:all .14s;color:var(--ink3);font-size:13px;font-weight:500;margin-bottom:1px;position:relative;user-select:none}
 .nl:hover{background:var(--l1);color:var(--ink1)}
 .nl.on{background:var(--cdim);color:var(--cyan);border:1px solid rgba(0,212,255,.1)}
 .nl.on::before{content:'';position:absolute;left:-7px;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--cyan);border-radius:0 3px 3px 0;box-shadow:0 0 8px rgba(0,212,255,.4)}
-.ni{font-size:15px;width:19px;text-align:center;flex-shrink:0}
-.nt{flex:1}
+.ni{font-size:15px;width:19px;text-align:center;flex-shrink:0}.nt{flex:1}
 .nbadge{font-size:8px;font-family:'IBM Plex Mono',monospace;font-weight:600;padding:2px 6px;border-radius:99px}
 .nb-live{background:rgba(0,229,160,.1);color:var(--em);border:1px solid rgba(0,229,160,.2)}
 .nd{height:1px;background:var(--rim);margin:5px 10px}
@@ -162,21 +95,13 @@ input,select,button,textarea{font-family:'Outfit',sans-serif}
 .theme-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
 .th-btn{width:26px;height:26px;border-radius:6px;border:2px solid var(--rim);cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;font-size:11px;background:var(--l2)}
 .th-btn.on{border-color:var(--cyan);box-shadow:0 0 6px rgba(0,212,255,.4)}
-.th-btn:hover{border-color:var(--rim2)}
-
-/* ── CONTENT ── */
 .content{flex:1;overflow:hidden;display:flex;flex-direction:column}
-.pg{display:none;flex:1;flex-direction:column;overflow:hidden}
-.pg.on{display:flex}
+.pg{display:none;flex:1;flex-direction:column;overflow:hidden}.pg.on{display:flex}
 .mbar{display:flex;align-items:center;padding:0 16px;height:43px;min-height:43px;background:var(--base);border-bottom:1px solid var(--rim);flex-shrink:0;gap:8px}
 .bc{display:flex;align-items:center;gap:6px;font-size:12px;flex:1;flex-wrap:wrap}
-.bch{color:var(--ink3);cursor:pointer;transition:color .14s}
-.bch:hover{color:var(--cyan)}
-.bcs{color:var(--ink4);font-size:10px}
-.bcc{color:var(--ink1);font-weight:600}
-
-/* ── COMMON UI ── */
-.ctrl{width:100%;padding:8px 10px;background:var(--l2);border:1px solid var(--rim);border-radius:7px;color:var(--ink1);font-size:13px;outline:none;transition:border-color .14s;appearance:none}
+.bch{color:var(--ink3);cursor:pointer;transition:color .14s}.bch:hover{color:var(--cyan)}
+.bcs{color:var(--ink4);font-size:10px}.bcc{color:var(--ink1);font-weight:600}
+.ctrl{width:100%;padding:8px 10px;background:var(--l2);border:1px solid var(--rim);border-radius:7px;color:var(--ink1);font-size:13px;outline:none;appearance:none}
 .ctrl:focus{border-color:var(--cyan);box-shadow:0 0 0 3px var(--cdim)}
 .alrt{padding:9px 12px;border-radius:7px;font-size:12.5px;margin-bottom:9px;line-height:1.5}
 .aok{background:rgba(0,229,160,.07);border:1px solid rgba(0,229,160,.2);color:var(--em)}
@@ -184,20 +109,11 @@ input,select,button,textarea{font-family:'Outfit',sans-serif}
 .awarn{background:rgba(255,184,48,.07);border:1px solid rgba(255,184,48,.2);color:#ffd06b}
 .ainfo{background:var(--cdim);border:1px solid rgba(0,212,255,.2);color:var(--ink1)}
 .btn{padding:7px 14px;border:none;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;transition:all .14s;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
-.btn:hover{opacity:.88;transform:translateY(-1px)}
-.btn:active{transform:none}
-.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
-.btn-p{background:var(--cyan);color:var(--bg)}
-.btn-g{background:var(--l2);color:var(--ink2);border:1px solid var(--rim2)}
+.btn:hover{opacity:.88;transform:translateY(-1px)}.btn:active{transform:none}.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn-p{background:var(--cyan);color:var(--bg)}.btn-g{background:var(--l2);color:var(--ink2);border:1px solid var(--rim2)}
 .btn-r{background:rgba(255,61,90,.1);color:var(--rose);border:1px solid rgba(255,61,90,.2)}
 .btn-e{background:rgba(0,229,160,.1);color:var(--em);border:1px solid rgba(0,229,160,.2)}
 .btn-a{background:rgba(255,184,48,.1);color:var(--amber);border:1px solid rgba(255,184,48,.2)}
-.tog{position:relative;display:inline-block;width:36px;height:20px;flex-shrink:0}
-.tog input{opacity:0;width:0;height:0}
-.tog-sl{position:absolute;inset:0;background:var(--rim2);border-radius:99px;cursor:pointer;transition:all .2s}
-.tog-sl::before{content:'';position:absolute;width:14px;height:14px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:all .2s}
-.tog input:checked+.tog-sl{background:var(--cyan)}
-.tog input:checked+.tog-sl::before{transform:translateX(16px)}
 .chip{display:inline-block;padding:2px 8px;border-radius:5px;font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:500;white-space:nowrap}
 .cpend{background:rgba(255,184,48,.1);color:var(--amber);border:1px solid rgba(255,184,48,.2)}
 .cappr{background:rgba(0,229,160,.1);color:var(--em);border:1px solid rgba(0,229,160,.2)}
@@ -209,17 +125,14 @@ input,select,button,textarea{font-family:'Outfit',sans-serif}
 .tbl th{background:var(--base);color:var(--ink3);padding:8px 11px;text-align:left;font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:1px;text-transform:uppercase;border-bottom:2px solid var(--rim);white-space:nowrap}
 .tbl td{padding:9px 11px;border-bottom:1px solid rgba(30,45,69,.4);vertical-align:middle;font-size:13px}
 .tbl tr:hover td{background:rgba(255,255,255,.02)}
-/* modal */
 .mbg{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:500;display:none;align-items:center;justify-content:center;padding:16px}
 .mbg.on{display:flex}
-.mc{background:var(--l1);border:1px solid var(--rim2);border-radius:14px;padding:24px;width:100%;max-width:440px;box-shadow:var(--shadow);animation:fadeUp .2s ease;max-height:90vh;overflow-y:auto}
-.mc.wide{max-width:620px}
+.mc{background:var(--l1);border:1px solid var(--rim2);border-radius:14px;padding:24px;width:100%;max-width:460px;box-shadow:var(--shadow);animation:fadeUp .2s ease;max-height:90vh;overflow-y:auto}
+.mc.wide{max-width:640px}.mc.xl{max-width:860px}
 .mh{font-size:16px;font-weight:700;color:var(--ink0);margin-bottom:16px;display:flex;align-items:center;gap:8px}
 .mft{display:flex;gap:7px;margin-top:16px;justify-content:flex-end}
-
-/* ── ROSTER STYLES ── */
 .rsh{display:flex;flex:1;overflow:hidden}
-.cp{width:276px;min-width:276px;background:var(--base);border-right:1px solid var(--rim);display:flex;flex-direction:column;overflow-y:auto}
+.cp{width:290px;min-width:290px;background:var(--base);border-right:1px solid var(--rim);display:flex;flex-direction:column;overflow-y:auto}
 .cs{padding:12px;border-bottom:1px solid var(--rim)}
 .cl{font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:2px;text-transform:uppercase;color:var(--ink4);margin-bottom:8px}
 .c2{display:grid;grid-template-columns:1fr 1fr;gap:7px}
@@ -229,27 +142,29 @@ input,select,button,textarea{font-family:'Outfit',sans-serif}
 .sc{background:var(--l1);border:1px solid var(--rim);border-radius:10px;padding:12px 14px;position:relative;overflow:hidden}
 .sc::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--cyan),transparent)}
 .scl{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink4);margin-bottom:6px}
-.scv{font-family:'IBM Plex Mono',monospace;font-size:23px;font-weight:600;color:var(--ink0)}
-.scs{font-size:11px;color:var(--ink3);margin-top:2px}
+.scv{font-family:'IBM Plex Mono',monospace;font-size:23px;font-weight:600;color:var(--ink0)}.scs{font-size:11px;color:var(--ink3);margin-top:2px}
 .tbox{background:var(--l1);border:1px solid var(--rim);border-radius:10px;overflow:auto}
 .rtb{border-collapse:collapse;min-width:100%}
-.rtb th{background:var(--base);color:var(--ink3);padding:7px 4px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:8.5px;font-weight:400;white-space:nowrap;border-right:1px solid var(--rim);position:sticky;top:0;z-index:10}
-.rtb th.tha{text-align:left;padding-left:10px;min-width:148px;position:sticky;left:0;z-index:20;border-right:2px solid var(--rim2)}
-.rtb th.tht{color:var(--cyan);border-left:2px solid var(--rim2);background:rgba(0,212,255,.03)}
-.rtb td{padding:4px 3px;text-align:center;border-bottom:1px solid rgba(30,45,69,.35);border-right:1px solid rgba(30,45,69,.25)}
-.rtb td.tda{text-align:left;padding-left:10px;position:sticky;left:0;z-index:5;background:var(--l1);border-right:2px solid var(--rim2);white-space:nowrap}
-.rtb td.tdt{border-left:2px solid var(--rim2);font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--cyan)}
-.rtb tr:hover td{background:var(--l2)}.rtb tr:hover td.tda{background:var(--l2)}
-.ptb{border-collapse:collapse;width:100%}
-.ptb th{background:var(--base);color:var(--ink3);padding:8px 10px;text-align:left;font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:1px;text-transform:uppercase;border-bottom:2px solid var(--rim)}
-.ptb td{padding:8px 10px;border-bottom:1px solid rgba(30,45,69,.35);font-size:12.5px}
-.ptb tr:hover td{background:var(--l2)}
+.rtb th{background:var(--l1);color:var(--ink3);padding:5px 3px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:8px;font-weight:600;white-space:nowrap;border-right:1px solid var(--rim);border-bottom:2px solid var(--rim2);position:sticky;top:0;z-index:10;line-height:1.3}
+.rtb th.tha{text-align:left;padding-left:10px;min-width:170px;position:sticky;left:36px;z-index:20;border-right:2px solid var(--rim2)}
+.rtb th.thsno{width:32px;font-size:7px;position:sticky;left:0;z-index:21;background:var(--l1)}
+.rtb th.tht{color:var(--cyan);border-left:2px solid var(--rim2);background:rgba(0,212,255,.05);font-weight:700;min-width:38px}
+.rtb th.thsun{color:var(--sun-c);background:var(--sun-bg)}
+.rtb th.thsat{color:var(--sat-c);background:var(--sat-bg)}
+.rtb th.thhol{color:var(--hol-c);background:var(--hol-bg)}
+.rtb td{padding:3px 1px;text-align:center;border-bottom:1px solid rgba(30,45,69,.3);border-right:1px solid rgba(30,45,69,.2);font-size:9px;font-family:'IBM Plex Mono',monospace;font-weight:700}
+.rtb td.tda{text-align:left;padding:4px 10px;position:sticky;left:36px;z-index:5;background:var(--l1);border-right:2px solid var(--rim2);white-space:nowrap;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600}
+.rtb td.tdsno{text-align:center;position:sticky;left:0;z-index:6;background:var(--l1);border-right:1px solid var(--rim);font-size:9px;color:var(--ink3);font-family:'IBM Plex Mono',monospace;padding:3px 2px}
+.rtb td.tdt{border-left:2px solid var(--rim2);font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--cyan);font-size:13px}
+.rtb tr:hover td{filter:brightness(1.1)}
 .tab-row{display:flex;gap:2px;background:var(--l1);border:1px solid var(--rim);border-radius:8px;padding:3px;width:fit-content;margin-bottom:13px}
 .ttb{padding:6px 13px;border:none;background:none;color:var(--ink3);font-size:12.5px;font-weight:500;border-radius:6px;cursor:pointer;transition:all .14s}
 .ttb.on{background:var(--l3);color:var(--cyan)}
 .lbdg{display:inline-block;padding:2px 6px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:500}
-
-/* short leave */
+.ptb{border-collapse:collapse;width:100%}
+.ptb th{background:var(--base);color:var(--ink3);padding:8px 10px;text-align:left;font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:1px;text-transform:uppercase;border-bottom:2px solid var(--rim)}
+.ptb td{padding:8px 10px;border-bottom:1px solid rgba(30,45,69,.35);font-size:12.5px}
+.ptb tr:hover td{background:var(--l2)}
 .sl-tabs{display:flex;gap:2px;background:var(--l1);border:1px solid var(--rim);border-radius:8px;padding:3px}
 .sl-tab{padding:6px 13px;border:none;background:none;color:var(--ink3);font-size:12.5px;font-weight:500;border-radius:6px;cursor:pointer;transition:all .14s}
 .sl-tab.on{background:var(--l3);color:var(--cyan)}
@@ -257,10 +172,6 @@ input,select,button,textarea{font-family:'Outfit',sans-serif}
 .kpi{background:var(--l1);border:1px solid var(--rim);border-radius:10px;padding:12px 14px;text-align:center}
 .kpiv{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:700;color:var(--ink0);margin-bottom:3px}
 .kpil{font-size:11px;color:var(--ink3)}
-.sl-card{background:var(--l1);border:1px solid var(--rim);border-radius:10px;padding:13px 15px;margin-bottom:7px;display:flex;align-items:flex-start;gap:11px}
-.sl-acts{display:flex;gap:5px;flex-wrap:wrap;flex-shrink:0}
-
-/* admin */
 .asc{flex:1;overflow-y:auto;padding:20px 26px}
 .ah{font-size:19px;font-weight:800;color:var(--ink0);letter-spacing:-.5px;margin-bottom:3px}
 .as{font-size:13px;color:var(--ink3);margin-bottom:18px}
@@ -275,24 +186,16 @@ input,select,button,textarea{font-family:'Outfit',sans-serif}
 .bk-info{flex:1;min-width:0}
 .bk-name{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--ink1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bk-size{font-size:11px;color:var(--ink3)}
-
-/* toast */
 #toast-area{position:fixed;bottom:20px;right:20px;z-index:9000;display:flex;flex-direction:column;gap:8px;pointer-events:none}
 .toast{background:var(--l1);border:1px solid var(--rim2);border-radius:10px;padding:12px 16px;font-size:13px;color:var(--ink0);box-shadow:var(--shadow);animation:slideIn .3s ease;pointer-events:auto;display:flex;align-items:flex-start;gap:9px;max-width:320px}
-.toast.out{animation:slideOut .3s ease forwards}
-.toast-ico{font-size:18px;flex-shrink:0}
-
-@media(max-width:768px){
-  .sidenav{position:fixed;top:54px;left:0;bottom:0;z-index:300;transform:translateX(-100%)}
-  .sidenav.mob{transform:none}
-  .rsh{flex-direction:column}
-  .cp{width:100%;min-width:0;max-height:220px}
-  .sr{grid-template-columns:1fr 1fr}
-  .kpi-row{grid-template-columns:1fr 1fr}
-  .agrid{grid-template-columns:1fr}
-  .tbox{max-height:50vh}
-  #mbtn{display:flex!important}
-}
+.toast.out{animation:slideOut .3s ease forwards}.toast-ico{font-size:18px;flex-shrink:0}
+/* Agent leave picker grid */
+.day-cell{padding:6px 3px;border-radius:6px;text-align:center;cursor:pointer;border:2px solid var(--rim);background:var(--l2);transition:all .14s;user-select:none}
+.day-cell:hover{border-color:var(--cyan)}
+.day-cell.sel-lv{border-color:var(--rose);background:rgba(255,61,90,.12)}
+.day-cell.sel-wo{border-color:var(--cyan);background:rgba(0,212,255,.12)}
+.day-cell.disabled{opacity:.45;cursor:not-allowed}
+@media(max-width:768px){.sidenav{position:fixed;top:54px;left:0;bottom:0;z-index:300;transform:translateX(-100%)}.sidenav.mob{transform:none}.sr{grid-template-columns:1fr 1fr}.kpi-row{grid-template-columns:1fr 1fr}.agrid{grid-template-columns:1fr}#mbtn{display:flex!important}}
 @media print{.topbar,.sidenav,.cp,.mbar,.tab-row{display:none!important}.shell{height:auto}.content,.pg.on{overflow:visible}.ro{padding:0}.tbox{max-height:none;overflow:visible}}
 </style>
 </head>
@@ -314,24 +217,15 @@ input,select,button,textarea{font-family:'Outfit',sans-serif}
     <div id="auth-err" class="auth-err"></div>
     <div id="auth-ok" class="auth-ok"></div>
     <div id="reg-name-fg" class="fg" style="display:none">
-      <label class="fl">Full Name</label>
-      <input class="fi" type="text" id="reg-name" placeholder="Your full name">
+      <label class="fl">Full Name</label><input class="fi" type="text" id="reg-name" placeholder="Your full name">
     </div>
-    <div class="fg">
-      <label class="fl">Username</label>
-      <input class="fi" type="text" id="auth-user" placeholder="Enter username" autocomplete="username">
-    </div>
-    <div class="fg">
-      <label class="fl">Password</label>
-      <input class="fi" type="password" id="auth-pass" placeholder="Enter password" autocomplete="current-password">
-    </div>
+    <div class="fg"><label class="fl">Username</label><input class="fi" type="text" id="auth-user" placeholder="Username" autocomplete="username"></div>
+    <div class="fg"><label class="fl">Password</label><input class="fi" type="password" id="auth-pass" placeholder="Password" autocomplete="current-password"></div>
     <button class="btn-auth" id="auth-btn" onclick="doAuth()">
       <span id="auth-btn-txt">Sign In</span>
       <div class="sp" id="auth-sp" style="display:none;border-top-color:var(--bg)"></div>
     </button>
-    <div id="auth-hint" style="text-align:center;margin-top:12px;font-size:11px;color:var(--ink4)">
-      Admins: admin / Admin@123 &nbsp;|&nbsp; SA: superadmin / Super@123
-    </div>
+    <div id="auth-hint" style="text-align:center;margin-top:12px;font-size:11px;color:var(--ink4)">admin / Admin@123 &nbsp;·&nbsp; superadmin / Super@123</div>
   </div>
 </div>
 
@@ -342,14 +236,11 @@ input,select,button,textarea{font-family:'Outfit',sans-serif}
       <div class="brand-ico">⚡</div>
       <div><div class="bn">C-Serv<em>.AI</em></div><div class="bs">Intelligence Platform</div></div>
     </div>
-    <div class="tb-mid">
-      <div class="lpill"><div class="ldot"></div><span>Live</span></div>
-    </div>
+    <div class="tb-mid"><div class="lpill"><div class="ldot"></div><span>Live</span></div></div>
     <div class="tb-r">
       <div class="ib" id="mbtn" onclick="toggleNav()" style="display:none">☰</div>
-      <!-- Notification bell -->
       <div class="notif-wrap">
-        <div class="ib" id="notifBtn" onclick="toggleNotif()">🔔<div class="notif-cnt" id="notifCnt"></div></div>
+        <div class="ib" onclick="toggleNotif()">🔔<div class="notif-cnt" id="notifCnt"></div></div>
         <div class="notif-dd" id="notifDd">
           <div class="notif-hd">Notifications <button onclick="markAllRead()">Mark all read</button></div>
           <div class="notif-list" id="notifList"></div>
@@ -363,18 +254,15 @@ input,select,button,textarea{font-family:'Outfit',sans-serif}
       <div class="ib" onclick="doLogout()" title="Logout">⏻</div>
     </div>
   </div>
-
   <div class="shell">
     <nav class="sidenav" id="snav">
       <div class="ng">
         <div class="ngl">Overview</div>
         <div class="nl on" id="nl-home" onclick="go('home')"><span class="ni">🏠</span><span class="nt">Dashboard</span></div>
       </div>
-      <div class="ng" id="nav-roster-group">
+      <div class="ng">
         <div class="ngl">Modules</div>
-        <!-- Admin sees full roster generator -->
         <div class="nl" id="nl-roster" onclick="go('roster')" style="display:none"><span class="ni">📅</span><span class="nt">Roster Generator</span><span class="nbadge nb-live">LIVE</span></div>
-        <!-- Operator sees approved rosters view only -->
         <div class="nl" id="nl-myrosters" onclick="go('myrosters')" style="display:none"><span class="ni">📅</span><span class="nt">Monthly Roster</span><span class="nbadge nb-live">LIVE</span></div>
         <div class="nl" id="nl-shortleave" onclick="go('shortleave')"><span class="ni">🕐</span><span class="nt">Short Leave</span></div>
       </div>
@@ -382,32 +270,27 @@ input,select,button,textarea{font-family:'Outfit',sans-serif}
       <div class="ng" id="nav-admin-group" style="display:none">
         <div class="ngl">Configuration</div>
         <div class="nl" id="nl-rules" onclick="go('rules')"><span class="ni">📋</span><span class="nt">Rules Manager</span></div>
-        <div class="nl" id="nl-format" onclick="go('format')"><span class="ni">🗂</span><span class="nt">Roster Format</span></div>
         <div class="nl" id="nl-users" onclick="go('users')"><span class="ni">👥</span><span class="nt">User Management</span></div>
         <div class="nl" id="nl-backup" onclick="go('backup')"><span class="ni">💾</span><span class="nt">Backup & Restore</span></div>
         <div class="nl" id="nl-saved" onclick="go('saved')"><span class="ni">🗄</span><span class="nt">Saved Rosters</span></div>
       </div>
       <div class="nav-foot">
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--ink4)">C-Serv.AI · v3.0.0</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--ink4)">C-Serv.AI · v4.0.0</div>
         <div class="theme-row" id="themeRow"></div>
       </div>
     </nav>
-
     <div class="content">
       <div class="pg on" id="pg-home"></div>
       <div class="pg" id="pg-roster"></div>
       <div class="pg" id="pg-myrosters"></div>
       <div class="pg" id="pg-shortleave"></div>
       <div class="pg" id="pg-rules"></div>
-      <div class="pg" id="pg-format"></div>
       <div class="pg" id="pg-users"></div>
       <div class="pg" id="pg-backup"></div>
       <div class="pg" id="pg-saved"></div>
     </div>
   </div>
 </div>
-
-<!-- toast area -->
 <div id="toast-area"></div>
 
 <!-- MODALS -->
@@ -482,8 +365,7 @@ input,select,button,textarea{font-family:'Outfit',sans-serif}
 
 <div class="mbg" id="m-slact"><div class="mc">
   <div class="mh" id="slact-h">Action</div>
-  <input type="hidden" id="slact-id">
-  <input type="hidden" id="slact-type">
+  <input type="hidden" id="slact-id"><input type="hidden" id="slact-type">
   <div class="fg"><label class="fl">Remarks <span style="color:var(--ink3);font-size:10px">(optional)</span></label>
     <textarea class="fi" id="slact-remarks" rows="2" style="background:var(--l2);resize:vertical"></textarea></div>
   <div id="slact-err" class="auth-err"></div>
@@ -505,265 +387,168 @@ input,select,button,textarea{font-family:'Outfit',sans-serif}
   <div class="mft"><button class="btn btn-p" onclick="saveHolidays()">Save & Close</button></div>
 </div></div>
 
+<!-- Agent Leaves + Fixed WO modal -->
+<div class="mbg" id="m-agentleave"><div class="mc xl">
+  <div class="mh">📋 Agent Leaves & Fixed WO — <span id="alm-month" style="color:var(--cyan)"></span></div>
+  <div class="alrt ainfo" style="margin-bottom:12px;font-size:12px">
+    <b>Leaves</b>: Mark absence days — WO won't be assigned those days.<br>
+    <b>Fixed WO</b>: Agent's preferred WO day — algorithm prioritises it; other agents get ROI that day.
+  </div>
+  <div id="alm-body" style="max-height:55vh;overflow-y:auto"></div>
+  <div class="mft"><button class="btn btn-g" onclick="closeM('m-agentleave')">Close</button></div>
+</div></div>
+
+<!-- Day picker modal (reused for leaves and fixed WO) -->
+<div class="mbg" id="m-daypick"><div class="mc wide">
+  <div class="mh" id="dp-title">Pick Days</div>
+  <div id="dp-info" class="alrt awarn" style="margin-bottom:12px;font-size:12px"></div>
+  <div id="dp-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:10px"></div>
+  <div id="dp-selected" style="font-size:11px;color:var(--ink3);margin-top:4px"></div>
+  <div class="mft">
+    <button class="btn btn-g" onclick="closeM('m-daypick')">Cancel</button>
+    <button class="btn btn-p" id="dp-save-btn">Save</button>
+  </div>
+</div></div>
+
 <div class="mbg" id="m-restore"><div class="mc">
   <div class="mh">⚠️ Confirm Restore</div>
-  <p style="font-size:13px;color:var(--ink2);margin-bottom:10px">This will <strong style="color:var(--rose)">replace ALL current data</strong> with the selected backup. A pre-restore snapshot will be created automatically.</p>
+  <p style="font-size:13px;color:var(--ink2);margin-bottom:10px">This will <strong style="color:var(--rose)">replace ALL current data</strong> with the backup. A pre-restore snapshot is created automatically.</p>
   <p style="font-size:13px;color:var(--ink2)">Backup: <code id="restore-name" style="color:var(--amber)"></code></p>
   <div class="mft"><button class="btn btn-g" onclick="closeM('m-restore')">Cancel</button><button class="btn btn-r" onclick="doRestore()">Yes, Restore</button></div>
 </div></div>
-
 <script>
 'use strict';
-// ══ STATE ══════════════════════════════════════════════════════════════
-let ME=null, AG=[], ROSTER=null, RULES={}, RFMT={}, HOLIDAYS=[], MACCESS={}, SLS=[], NOTIFS=[];
+let ME=null,AG=[],ROSTER=null,RULES={},RFMT={},HOLIDAYS=[],MACCESS={},SLS=[],NOTIFS=[],AGENTLEAVES={};
 const MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
 const DS=['Su','Mo','Tu','We','Th','Fr','Sa'];
 const DF=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-const LN=['Team Leader','Sr.L1','Sr.L2','Sr.L3','Jr.L4','Jr.L5','Jr.L6','Trainee'];
-const LC=[
-  {bg:'rgba(192,132,252,.12)',fg:'#c084fc',b:'rgba(192,132,252,.25)'},
-  {bg:'rgba(96,165,250,.12)',fg:'#60a5fa',b:'rgba(96,165,250,.25)'},
-  {bg:'rgba(52,211,153,.12)',fg:'#34d399',b:'rgba(52,211,153,.25)'},
-  {bg:'rgba(251,191,36,.12)',fg:'#fbbf24',b:'rgba(251,191,36,.25)'},
-  {bg:'rgba(244,114,182,.12)',fg:'#f472b6',b:'rgba(244,114,182,.25)'},
-  {bg:'rgba(74,222,128,.12)',fg:'#4ade80',b:'rgba(74,222,128,.25)'},
-  {bg:'rgba(251,146,60,.12)',fg:'#fb923c',b:'rgba(251,146,60,.25)'},
-  {bg:'rgba(248,113,113,.12)',fg:'#f87171',b:'rgba(248,113,113,.25)'},
-];
-const THEMES=[
-  {id:'dark',label:'🌑',tip:'Dark'},
-  {id:'light',label:'☀️',tip:'Light'},
-  {id:'ocean',label:'🌊',tip:'Ocean'},
-  {id:'forest',label:'🌿',tip:'Forest'},
-  {id:'sunset',label:'🌅',tip:'Sunset'},
-];
+const LC=[{bg:'rgba(192,132,252,.12)',fg:'#c084fc',b:'rgba(192,132,252,.25)'},{bg:'rgba(96,165,250,.12)',fg:'#60a5fa',b:'rgba(96,165,250,.25)'},{bg:'rgba(52,211,153,.12)',fg:'#34d399',b:'rgba(52,211,153,.25)'},{bg:'rgba(251,191,36,.12)',fg:'#fbbf24',b:'rgba(251,191,36,.25)'},{bg:'rgba(244,114,182,.12)',fg:'#f472b6',b:'rgba(244,114,182,.25)'},{bg:'rgba(74,222,128,.12)',fg:'#4ade80',b:'rgba(74,222,128,.25)'},{bg:'rgba(251,146,60,.12)',fg:'#fb923c',b:'rgba(251,146,60,.25)'},{bg:'rgba(248,113,113,.12)',fg:'#f87171',b:'rgba(248,113,113,.25)'}];
+const THEMES=[{id:'dark',label:'🌑',tip:'Dark'},{id:'light',label:'☀️',tip:'Light'},{id:'ocean',label:'🌊',tip:'Ocean'},{id:'forest',label:'🌿',tip:'Forest'},{id:'sunset',label:'🌅',tip:'Sunset'}];
 
-// ══ API ════════════════════════════════════════════════════════════════
 async function api(m,u,b){
   const o={method:m,headers:{'Content-Type':'application/json'}};
-  if(b)o.body=JSON.stringify(b);
-  const r=await fetch(u,o);
-  const d=await r.json();
-  if(!r.ok) throw new Error(d.error||'Server error');
+  if(b!==undefined)o.body=JSON.stringify(b);
+  const r=await fetch(u,o);const d=await r.json();
+  if(!r.ok)throw new Error(d.error||'Server error');
   return d;
 }
+function setTheme(id){document.documentElement.setAttribute('data-theme',id);localStorage.setItem('cserv_theme',id);document.querySelectorAll('.th-btn').forEach(b=>b.classList.toggle('on',b.dataset.t===id))}
+function buildThemeRow(){document.getElementById('themeRow').innerHTML=THEMES.map(t=>`<div class="th-btn" data-t="${t.id}" title="${t.tip}" onclick="setTheme('${t.id}')">${t.label}</div>`).join('');setTheme(localStorage.getItem('cserv_theme')||'dark')}
+function toast(msg,type='info',dur=3500){const ico={ok:'✅',err:'❌',warn:'⚠️',info:'💬'}[type]||'💬';const el=document.createElement('div');el.className='toast';el.innerHTML=`<div class="toast-ico">${ico}</div><div style="flex:1;font-size:12.5px">${msg}</div>`;document.getElementById('toast-area').appendChild(el);setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),320)},dur)}
+function x(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function openM(id){document.getElementById(id).classList.add('on')}
+function closeM(id){document.getElementById(id).classList.remove('on')}
+function showErr(id,msg){const e=document.getElementById(id);if(e){e.textContent='⚠ '+msg;e.className='auth-err on'}}
+function rAlert(msg,t){const b=document.getElementById('rAB');if(b){b.innerHTML=`<div class="alrt ${t==='ok'?'aok':t==='err'?'aerr':'awarn'}">${msg}</div>`;setTimeout(()=>b.innerHTML='',7000)}}
+function $cb(id){return!!document.getElementById(id)?.checked}
+function fmtDT(iso){if(!iso)return'—';const d=new Date(iso);return d.toLocaleDateString()+' '+d.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'})}
+document.querySelectorAll('.mbg').forEach(bg=>bg.addEventListener('click',e=>{if(e.target===bg)bg.classList.remove('on')}));
 
-// ══ THEME ══════════════════════════════════════════════════════════════
-function setTheme(id){
-  document.documentElement.setAttribute('data-theme',id);
-  localStorage.setItem('cserv_theme',id);
-  document.querySelectorAll('.th-btn').forEach(b=>b.classList.toggle('on',b.dataset.t===id));
-}
-function buildThemeRow(){
-  document.getElementById('themeRow').innerHTML=THEMES.map(t=>
-    `<div class="th-btn" data-t="${t.id}" title="${t.tip}" onclick="setTheme('${t.id}')">${t.label}</div>`
-  ).join('');
-  setTheme(localStorage.getItem('cserv_theme')||'dark');
-}
-
-// ══ TOAST ══════════════════════════════════════════════════════════════
-function toast(msg,type='info',dur=3500){
-  const ico={ok:'✅',err:'❌',warn:'⚠️',info:'💬'}[type]||'💬';
-  const el=document.createElement('div');
-  el.className='toast';
-  el.innerHTML=`<div class="toast-ico">${ico}</div><div style="flex:1;font-size:12.5px">${msg}</div>`;
-  document.getElementById('toast-area').appendChild(el);
-  setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),320)},dur);
-}
-
-// ══ AUTH ═══════════════════════════════════════════════════════════════
+// AUTH
 let authCur='login';
-function authMode(m,el){
-  authCur=m;
-  document.querySelectorAll('.auth-mode-btn').forEach(b=>b.classList.remove('on'));
-  el.classList.add('on');
-  document.getElementById('reg-name-fg').style.display=m==='reg'?'block':'none';
-  document.getElementById('auth-btn-txt').textContent=m==='reg'?'Create Account':'Sign In';
-  document.getElementById('auth-hint').style.display=m==='reg'?'none':'block';
-  clearAuthMsg();
-}
-function clearAuthMsg(){
-  document.getElementById('auth-err').className='auth-err';
-  document.getElementById('auth-ok').className='auth-ok';
-}
-function showAuthErr(msg){const e=document.getElementById('auth-err');e.textContent='⚠ '+msg;e.className='auth-err on';}
-function showAuthOk(msg){const e=document.getElementById('auth-ok');e.textContent='✓ '+msg;e.className='auth-ok on';}
+function authMode(m,el){authCur=m;document.querySelectorAll('.auth-mode-btn').forEach(b=>b.classList.remove('on'));el.classList.add('on');document.getElementById('reg-name-fg').style.display=m==='reg'?'block':'none';document.getElementById('auth-btn-txt').textContent=m==='reg'?'Create Account':'Sign In';document.getElementById('auth-hint').style.display=m==='reg'?'none':'block';clearAuthMsg()}
+function clearAuthMsg(){document.getElementById('auth-err').className='auth-err';document.getElementById('auth-ok').className='auth-ok'}
+function showAuthErr(msg){const e=document.getElementById('auth-err');e.textContent='⚠ '+msg;e.className='auth-err on'}
+function showAuthOk(msg){const e=document.getElementById('auth-ok');e.textContent='✓ '+msg;e.className='auth-ok on'}
 document.getElementById('auth-pass').onkeydown=e=>{if(e.key==='Enter')doAuth()};
 document.getElementById('auth-user').onkeydown=e=>{if(e.key==='Enter')doAuth()};
-
 async function doAuth(){
   const btn=document.getElementById('auth-btn'),sp=document.getElementById('auth-sp'),tx=document.getElementById('auth-btn-txt');
   const user=document.getElementById('auth-user').value.trim(),pass=document.getElementById('auth-pass').value;
-  clearAuthMsg();
-  if(!user||!pass){showAuthErr('Please fill all fields');return}
+  clearAuthMsg();if(!user||!pass){showAuthErr('Please fill all fields');return}
   btn.disabled=true;sp.style.display='block';tx.textContent=authCur==='reg'?'Creating…':'Signing in…';
   try{
     if(authCur==='reg'){
       const name=document.getElementById('reg-name').value.trim();
-      if(!name){showAuthErr('Enter your full name');btn.disabled=false;sp.style.display='none';tx.textContent='Create Account';return}
+      if(!name){showAuthErr('Enter full name');btn.disabled=false;sp.style.display='none';tx.textContent='Create Account';return}
       await api('POST','/api/register',{name,username:user,password:pass});
-      showAuthOk('Account created! You can now sign in.');
+      showAuthOk('Account created! Sign in below.');
       authMode('login',document.querySelector('.auth-mode-btn'));
-    } else {
+    }else{
       const d=await api('POST','/api/login',{username:user,password:pass});
-      ME=d.user; MACCESS=d.moduleAccess||{};
-      const rd=await api('GET','/api/me');
-      RULES=rd.rules||{}; RFMT=rd.rosterFormat||{};
+      ME=d.user;MACCESS=d.moduleAccess||{};
+      const rd=await api('GET','/api/me');RULES=rd.rules||{};RFMT=rd.rosterFormat||{};
       await Promise.all([loadAG(),loadHolidays()]);
+      if(isAdmin())AGENTLEAVES=await api('GET','/api/agentleaves').catch(()=>({}));
       initApp();
     }
-  } catch(e){showAuthErr(e.message)}
-  btn.disabled=false;sp.style.display='none';
-  tx.textContent=authCur==='reg'?'Create Account':'Sign In';
+  }catch(e){showAuthErr(e.message)}
+  btn.disabled=false;sp.style.display='none';tx.textContent=authCur==='reg'?'Create Account':'Sign In';
 }
 
-// ══ INIT ═══════════════════════════════════════════════════════════════
+// INIT
 function initApp(){
-  document.getElementById('AUTH').style.display='none';
-  document.getElementById('APP').classList.add('on');
+  document.getElementById('AUTH').style.display='none';document.getElementById('APP').classList.add('on');
   const ini=ME.name.trim().split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-  const av=document.getElementById('tav');
-  av.textContent=ini;
-  av.className='uav'+(ME.role==='superadmin'?' sa':ME.role==='admin'?' adm':'');
-  document.getElementById('tnm').textContent=ME.name;
-  document.getElementById('trl').textContent=ME.username;
-  const rb=document.getElementById('trbdg');
-  rb.textContent=ME.role.toUpperCase();
+  const av=document.getElementById('tav');av.textContent=ini;av.className='uav'+(ME.role==='superadmin'?' sa':ME.role==='admin'?' adm':'');
+  document.getElementById('tnm').textContent=ME.name;document.getElementById('trl').textContent=ME.username;
+  const rb=document.getElementById('trbdg');rb.textContent=ME.role.toUpperCase();
   rb.className='rb '+(ME.role==='superadmin'?'rb-sa':ME.role==='admin'?'rb-a':'rb-o');
   const isAdm=isAdmin();
-  // Nav wiring
-  if(isAdm){
-    document.getElementById('nl-roster').style.display='flex';
-    document.getElementById('nav-admin-group').style.display='block';
-  } else {
-    document.getElementById('nl-myrosters').style.display='flex';
-  }
-  if(window.innerWidth<=768) document.getElementById('mbtn').style.display='flex';
-  buildThemeRow();
-  buildHome();
-  buildRosterPage();
-  buildMyRostersPage();
-  buildSLPage();
-  if(isAdm){buildRulesPage();buildFormatPage();buildUsersPage();buildBackupPage();buildSavedPage();}
-  go('home');
-  startNotifPoll();
+  if(isAdm){document.getElementById('nl-roster').style.display='flex';document.getElementById('nav-admin-group').style.display='block'}
+  else document.getElementById('nl-myrosters').style.display='flex';
+  if(window.innerWidth<=768)document.getElementById('mbtn').style.display='flex';
+  buildThemeRow();buildHome();buildRosterPage();buildMyRostersPage();buildSLPage();
+  if(isAdm){buildRulesPage();buildUsersPage();buildBackupPage();buildSavedPage();}
+  go('home');startNotifPoll();
 }
-
 function isAdmin(){return ME&&['superadmin','admin'].includes(ME.role)}
-function can(mod,act){
-  if(!ME) return false;
-  if(ME.role==='superadmin') return true;
-  return !!ME.permissions?.[mod]?.[act];
-}
+function can(mod,act){if(!ME)return false;if(ME.role==='superadmin')return true;return!!ME.permissions?.[mod]?.[act]}
 async function loadAG(){try{AG=await api('GET','/api/agents')}catch{AG=[]}}
 async function loadHolidays(){try{HOLIDAYS=await api('GET','/api/holidays')}catch{HOLIDAYS=[]}}
 function toggleNav(){document.getElementById('snav').classList.toggle('mob')}
 
-// ══ NAV ════════════════════════════════════════════════════════════════
+// NAV
 function go(id){
   document.querySelectorAll('.pg').forEach(p=>{p.classList.remove('on');p.style.display='none'});
   document.querySelectorAll('.nl').forEach(l=>l.classList.remove('on'));
-  const pg=document.getElementById('pg-'+id);
-  if(pg){pg.style.display='flex';requestAnimationFrame(()=>pg.classList.add('on'))}
+  const pg=document.getElementById('pg-'+id);if(pg){pg.style.display='flex';requestAnimationFrame(()=>pg.classList.add('on'))}
   const nl=document.getElementById('nl-'+id);if(nl)nl.classList.add('on');
-  if(id==='shortleave') loadSL();
-  if(id==='saved') loadSaved();
-  if(id==='backup') loadBackups();
-  if(id==='users') loadUsers();
-  if(id==='myrosters') loadMyRosters();
+  if(id==='shortleave')loadSL();if(id==='saved')loadSaved();if(id==='backup')loadBackups();
+  if(id==='users')loadUsers();if(id==='myrosters')loadMyRosters();
   document.getElementById('snav').classList.remove('mob');
 }
 function doLogout(){api('POST','/api/logout').finally(()=>location.reload())}
 
-// ══ NOTIFICATIONS ══════════════════════════════════════════════════════
+// NOTIFICATIONS
 let notifOpen=false;
-function toggleNotif(){
-  notifOpen=!notifOpen;
-  document.getElementById('notifDd').classList.toggle('on',notifOpen);
-  if(notifOpen) renderNotifs();
-}
-document.addEventListener('click',e=>{
-  if(notifOpen&&!e.target.closest('.notif-wrap')){notifOpen=false;document.getElementById('notifDd').classList.remove('on')}
-});
-async function fetchNotifs(){
-  try{
-    NOTIFS=await api('GET','/api/notifications');
-    const unread=NOTIFS.filter(n=>!n.read).length;
-    const cnt=document.getElementById('notifCnt');
-    cnt.textContent=unread>9?'9+':unread;
-    cnt.classList.toggle('on',unread>0);
-  }catch{}
-}
-function renderNotifs(){
-  const list=document.getElementById('notifList');
-  if(!NOTIFS.length){list.innerHTML='<div class="notif-empty">No notifications</div>';return}
-  const ico={sl_new:'📋',sl_approved:'✅',sl_rejected:'❌',sl_cancelled:'🚫',roster:'📅',user:'👤',info:'💬'};
-  list.innerHTML=NOTIFS.slice(0,30).map(n=>`
-    <div class="notif-item${n.read?'':' unread'}" onclick="readNotif('${n.id}')">
-      <div class="notif-ico">${ico[n.type]||'💬'}</div>
-      <div><div class="notif-msg">${x(n.msg)}</div>
-      <div class="notif-time">${timeAgo(n.createdAt)}</div></div>
-    </div>`).join('');
-}
-async function readNotif(id){
-  await api('PUT',`/api/notifications/${id}/read`).catch(()=>{});
-  fetchNotifs();renderNotifs();
-}
-async function markAllRead(){
-  await api('PUT','/api/notifications/readall').catch(()=>{});
-  fetchNotifs();renderNotifs();
-}
-function timeAgo(iso){
-  const s=Math.floor((Date.now()-new Date(iso))/1000);
-  if(s<60) return 'just now';
-  if(s<3600) return Math.floor(s/60)+'m ago';
-  if(s<86400) return Math.floor(s/3600)+'h ago';
-  return Math.floor(s/86400)+'d ago';
-}
+function toggleNotif(){notifOpen=!notifOpen;document.getElementById('notifDd').classList.toggle('on',notifOpen);if(notifOpen)renderNotifs()}
+document.addEventListener('click',e=>{if(notifOpen&&!e.target.closest('.notif-wrap')){notifOpen=false;document.getElementById('notifDd').classList.remove('on')}});
+async function fetchNotifs(){try{NOTIFS=await api('GET','/api/notifications');const u=NOTIFS.filter(n=>!n.read).length;const cnt=document.getElementById('notifCnt');cnt.textContent=u>9?'9+':u;cnt.classList.toggle('on',u>0)}catch{}}
+function renderNotifs(){const list=document.getElementById('notifList');if(!NOTIFS.length){list.innerHTML='<div class="notif-empty">No notifications</div>';return}const ico={sl_new:'📋',sl_approved:'✅',sl_rejected:'❌',sl_cancelled:'🚫',roster:'📅',user:'👤',info:'💬'};list.innerHTML=NOTIFS.slice(0,30).map(n=>`<div class="notif-item${n.read?'':' unread'}" onclick="readNotif('${n.id}')"><div class="notif-ico">${ico[n.type]||'💬'}</div><div><div class="notif-msg">${x(n.msg)}</div><div class="notif-time">${timeAgo(n.createdAt)}</div></div></div>`).join('')}
+async function readNotif(id){await api('PUT',`/api/notifications/${id}/read`).catch(()=>{});fetchNotifs();renderNotifs()}
+async function markAllRead(){await api('PUT','/api/notifications/readall').catch(()=>{});fetchNotifs();renderNotifs()}
+function timeAgo(iso){const s=Math.floor((Date.now()-new Date(iso))/1000);if(s<60)return'just now';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';return Math.floor(s/86400)+'d ago'}
 function startNotifPoll(){fetchNotifs();setInterval(fetchNotifs,30000)}
 
-// ══ HOME ═══════════════════════════════════════════════════════════════
+// HOME
 function buildHome(){
   const isAdm=isAdmin();
-  document.getElementById('pg-home').innerHTML=`
-  <div style="flex:1;overflow-y:auto">
-    <div style="padding:28px 28px 22px;background:linear-gradient(180deg,rgba(0,212,255,.04),transparent);border-bottom:1px solid var(--rim);position:relative;overflow:hidden">
-      <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(0,212,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.02) 1px,transparent 1px);background-size:44px 44px;pointer-events:none"></div>
-      <div style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--cyan);letter-spacing:2px;text-transform:uppercase;margin-bottom:9px">Welcome back</div>
-      <div style="font-size:26px;font-weight:800;color:var(--ink0);letter-spacing:-1px;margin-bottom:8px">Hello, <span style="color:var(--cyan)">${x(ME.name)}</span></div>
-      <div style="font-size:13px;color:var(--ink2);max-width:480px;line-height:1.7;margin-bottom:18px">C-Serv.AI — your team's scheduling and leave management hub.</div>
-      <div style="display:flex;gap:24px;flex-wrap:wrap">
-        ${isAdm?`<div><div style="font-size:20px;font-weight:800;font-family:'IBM Plex Mono',monospace;color:var(--ink0)">${AG.length}</div><div style="font-size:11px;color:var(--ink3)">Agents</div></div>`:''}
-        <div><div style="font-size:20px;font-weight:800;font-family:'IBM Plex Mono',monospace;color:var(--cyan)">2</div><div style="font-size:11px;color:var(--ink3)">Live Modules</div></div>
-        <div><div style="font-size:20px;font-weight:800;font-family:'IBM Plex Mono',monospace;color:var(--em)">${RULES.shortLeaveMonthlyLimit||3}</div><div style="font-size:11px;color:var(--ink3)">SL/Month Limit</div></div>
-      </div>
+  document.getElementById('pg-home').innerHTML=`<div style="flex:1;overflow-y:auto">
+  <div style="padding:28px 28px 22px;background:linear-gradient(180deg,rgba(0,212,255,.04),transparent);border-bottom:1px solid var(--rim);position:relative;overflow:hidden">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--cyan);letter-spacing:2px;text-transform:uppercase;margin-bottom:9px">Welcome back</div>
+    <div style="font-size:26px;font-weight:800;color:var(--ink0);letter-spacing:-1px;margin-bottom:8px">Hello, <span style="color:var(--cyan)">${x(ME.name)}</span></div>
+    <div style="font-size:13px;color:var(--ink2);max-width:480px;line-height:1.7;margin-bottom:18px">C-Serv.AI — your team's scheduling and leave management hub.</div>
+    <div style="display:flex;gap:24px;flex-wrap:wrap">
+      ${isAdm?`<div><div style="font-size:20px;font-weight:800;font-family:'IBM Plex Mono',monospace;color:var(--ink0)">${AG.length}</div><div style="font-size:11px;color:var(--ink3)">Agents</div></div>`:''}
+      <div><div style="font-size:20px;font-weight:800;font-family:'IBM Plex Mono',monospace;color:var(--em)">${RULES.shortLeaveMonthlyLimit||3}</div><div style="font-size:11px;color:var(--ink3)">SL/Month Limit</div></div>
     </div>
-    <div style="padding:20px 28px">
-      <div style="font-size:13.5px;font-weight:700;color:var(--ink0);margin-bottom:12px;display:flex;align-items:center;gap:7px"><span style="width:3px;height:15px;background:var(--cyan);border-radius:2px;display:inline-block"></span>Quick Access</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:11px">
-        ${(isAdm?[
-          {id:'roster',ico:'📅',n:'Roster Generator',d:'Generate and manage monthly WO rosters with holidays and rules.',c:'#00d4ff'},
-          {id:'shortleave',ico:'🕐',n:'Short Leave Manager',d:'Review, approve and reject short leave requests from your team.',c:'#00e5a0'},
-        ]:[
-          {id:'myrosters',ico:'📅',n:'Monthly Roster',d:'View your approved monthly roster schedules.',c:'#00d4ff'},
-          {id:'shortleave',ico:'🕐',n:'Short Leave',d:'Apply for short leaves and track your request history.',c:'#00e5a0'},
-        ]).map(m=>`<div style="background:var(--l1);border:1px solid var(--rim);border-radius:12px;padding:18px;cursor:pointer;transition:all .2s" onclick="go('${m.id}')" onmouseover="this.style.borderColor='${m.c}';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='';this.style.transform=''">
-          <div style="width:42px;height:42px;border-radius:10px;background:${m.c}18;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:11px">${m.ico}</div>
-          <div style="font-size:13.5px;font-weight:700;color:var(--ink0);margin-bottom:4px">${m.n}</div>
-          <div style="font-size:12px;color:var(--ink2);line-height:1.6">${m.d}</div>
-        </div>`).join('')}
-      </div>
+  </div>
+  <div style="padding:20px 28px">
+    <div style="font-size:13.5px;font-weight:700;color:var(--ink0);margin-bottom:12px;display:flex;align-items:center;gap:7px"><span style="width:3px;height:15px;background:var(--cyan);border-radius:2px;display:inline-block"></span>Quick Access</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:11px">
+      ${(isAdm?[{id:'roster',ico:'📅',n:'Roster Generator',d:'Generate WO rosters with agent leaves, fixed WOs, boundary rules & pairing.',c:'#00d4ff'},{id:'shortleave',ico:'🕐',n:'Short Leave Manager',d:'Review, approve and reject short leave requests.',c:'#00e5a0'}]:[{id:'myrosters',ico:'📅',n:'Monthly Roster',d:'View your approved monthly roster schedules.',c:'#00d4ff'},{id:'shortleave',ico:'🕐',n:'Short Leave',d:'Apply for short leaves and track your history.',c:'#00e5a0'}]).map(m=>`<div style="background:var(--l1);border:1px solid var(--rim);border-radius:12px;padding:18px;cursor:pointer;transition:all .2s" onclick="go('${m.id}')" onmouseover="this.style.borderColor='${m.c}';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='';this.style.transform=''"><div style="width:42px;height:42px;border-radius:10px;background:${m.c}18;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:11px">${m.ico}</div><div style="font-size:13.5px;font-weight:700;color:var(--ink0);margin-bottom:4px">${m.n}</div><div style="font-size:12px;color:var(--ink2);line-height:1.6">${m.d}</div></div>`).join('')}
     </div>
-  </div>`;
+  </div></div>`;
 }
 
-// ══ ROSTER (ADMIN) ═════════════════════════════════════════════════════
+// ROSTER PAGE
 function buildRosterPage(){
   const pg=document.getElementById('pg-roster');
-  pg.innerHTML=`
-  <div class="mbar">
+  pg.innerHTML=`<div class="mbar">
     <div class="bc"><span class="bch" onclick="go('home')">🏠</span><span class="bcs">›</span><span class="bcc">📅 Roster Generator</span></div>
-    <button class="btn btn-g" style="font-size:12px;margin-left:auto" onclick="openHolMgr()">🗓 Holidays (${HOLIDAYS.length})</button>
+    <button class="btn btn-g" style="font-size:12px" onclick="openHolMgr()">🗓 Holidays (${HOLIDAYS.length})</button>
+    <button class="btn btn-g" style="font-size:12px" onclick="openAgentLeaves()">📋 Agent Leaves / WO</button>
   </div>
   <div class="rsh">
     <aside class="cp">
@@ -771,9 +556,9 @@ function buildRosterPage(){
         <div class="cl">Schedule Period</div>
         <div class="c2">
           <div><label class="fl" style="font-size:10px">Month</label>
-          <select class="ctrl" id="selM">${MN.map((m,i)=>`<option value="${i}"${i===2?' selected':''}>${m}</option>`).join('')}</select></div>
+          <select class="ctrl" id="selM" onchange="updateHolBadge()">${MN.map((m,i)=>`<option value="${i}"${i===new Date().getMonth()?' selected':''}>${m}</option>`).join('')}</select></div>
           <div><label class="fl" style="font-size:10px">Year</label>
-          <input type="number" class="ctrl" id="selY" value="2026" min="2020" max="2035"></div>
+          <input type="number" class="ctrl" id="selY" value="${new Date().getFullYear()}" min="2020" max="2035" onchange="updateHolBadge()"></div>
         </div>
         <label class="fl" style="font-size:10px;margin-top:6px">WO Saturdays</label>
         <select class="ctrl" id="selS">
@@ -782,10 +567,11 @@ function buildRosterPage(){
           <option value="0,3">1st &amp; Last Saturday</option>
         </select>
         <div id="hol-badge" style="margin-top:7px;font-size:11.5px;color:var(--hol-c)"></div>
+        <div id="boundary-msg" style="margin-top:5px;font-size:11px;color:var(--amber)"></div>
       </div>
       <div class="cs" style="flex:1;overflow-y:auto">
         <div class="cl">Team Agents <span id="agCnt" style="color:var(--ink4)"></span></div>
-        <div id="ag-head" style="display:grid;grid-template-columns:52px 1fr 42px ${can('roster','editAgents')?'22px':''};gap:4px;padding:4px 2px;font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--ink4);border-bottom:1px solid var(--rim);margin-bottom:3px">
+        <div style="display:grid;grid-template-columns:48px 1fr 36px ${can('roster','editAgents')?'18px':''};gap:3px;padding:3px 2px;font-family:'IBM Plex Mono',monospace;font-size:7.5px;color:var(--ink4);border-bottom:1px solid var(--rim);margin-bottom:3px">
           <span>Emp#</span><span>Name</span><span>Lvl</span>${can('roster','editAgents')?'<span></span>':''}
         </div>
         <div id="agList"></div>
@@ -794,13 +580,12 @@ function buildRosterPage(){
       <div class="cs">
         <div id="rAB"></div>
         <button style="width:100%;padding:10px;background:linear-gradient(135deg,var(--cyan),var(--cyan2));color:var(--bg);border:none;border-radius:8px;font-size:13.5px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:6px;transition:all .2s" id="btnGen" onclick="generate()" ${!can('roster','generate')?'disabled':''}>
-          <span id="btnT">⚡ Generate Roster</span>
-          <div class="sp" id="btnSp" style="display:none;border-top-color:var(--bg)"></div>
+          <span id="btnT">⚡ Generate Roster</span><div class="sp" id="btnSp" style="display:none;border-top-color:var(--bg)"></div>
         </button>
-        <div class="exp-row" id="expRow" style="display:none;gap:6px;margin-bottom:6px">
-          ${can('roster','export')?`<button class="btn btn-g" style="flex:1;font-size:11.5px" onclick="doCSV()">⬇ CSV</button><button class="btn btn-g" style="flex:1;font-size:11.5px" onclick="doXLSX()">⬇ XLSX</button><button class="btn btn-g" style="flex:1;font-size:11.5px" onclick="window.print()">🖨</button>`:''}
+        <div id="expRow" style="display:none;gap:6px;margin-bottom:6px">
+          ${can('roster','export')?`<button class="btn btn-g" style="flex:1;font-size:11px" onclick="doCSV()">⬇ CSV</button><button class="btn btn-g" style="flex:1;font-size:11px" onclick="doXLSX()">⬇ XLSX</button><button class="btn btn-g" style="flex:1;font-size:11px" onclick="window.print()">🖨</button>`:''}
         </div>
-        ${can('roster','save')?`<button class="btn btn-e" style="width:100%;margin-bottom:5px" id="btnSv" onclick="saveR()" style="display:none">💾 Save Roster</button>`:''}
+        ${can('roster','save')?`<button class="btn btn-e" style="width:100%;margin-bottom:5px;display:none" id="btnSv" onclick="saveR()">💾 Save Roster</button>`:''}
         ${can('roster','approve')?`<button class="btn btn-a" style="width:100%;display:none" id="btnApprove" onclick="approveCurrentR()">✓ Approve & Publish</button>`:''}
       </div>
     </aside>
@@ -808,9 +593,9 @@ function buildRosterPage(){
       <div class="empty" id="emDiv">
         <div style="font-size:44px;opacity:.2;margin-bottom:14px">📅</div>
         <div style="font-size:17px;font-weight:700;color:var(--ink2);margin-bottom:6px">Ready to Generate</div>
-        <div style="font-size:13px;color:var(--ink3);max-width:300px;line-height:1.7">Set period, add holidays if needed, then click Generate.</div>
+        <div style="font-size:13px;color:var(--ink3);max-width:320px;line-height:1.7">Configure holidays and agent leaves/fixed WOs, then click Generate.</div>
       </div>
-      <div id="resDiv" style="display:none" class="fu">
+      <div id="resDiv" style="display:none">
         <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
           <div><div style="font-size:18px;font-weight:800;color:var(--ink0);letter-spacing:-.5px" id="rTi">—</div>
           <div style="font-size:11px;color:var(--ink3);margin-top:2px;font-family:'IBM Plex Mono',monospace" id="rSu">—</div></div>
@@ -819,7 +604,7 @@ function buildRosterPage(){
         <div class="sr">
           <div class="sc"><div class="scl">Target WOs</div><div class="scv" id="s1">—</div><div class="scs">per agent</div></div>
           <div class="sc"><div class="scl">Team Size</div><div class="scv" id="s2">—</div><div class="scs">agents</div></div>
-          <div class="sc"><div class="scl">Pair Days</div><div class="scv" id="s3">—</div><div class="scs">extra WO days</div></div>
+          <div class="sc"><div class="scl">Extra WO Days</div><div class="scv" id="s3">—</div><div class="scs">pair-days</div></div>
           <div class="sc"><div class="scl">Holidays</div><div class="scv" id="s4">—</div><div class="scs">this month</div></div>
         </div>
         <div class="tab-row">
@@ -827,7 +612,7 @@ function buildRosterPage(){
           <button class="ttb" onclick="swTab('pairs',this)">🔗 Pairs</button>
           <button class="ttb" onclick="swTab('sum',this)">📊 Summary</button>
         </div>
-        <div id="tab-cal"><div class="tbox" style="max-height:calc(100vh - 320px)"><table class="rtb" id="calT"></table></div></div>
+        <div id="tab-cal"><div class="tbox" style="max-height:calc(100vh - 310px)"><table class="rtb" id="calT"></table></div></div>
         <div id="tab-pairs" style="display:none"><div class="tbox"><table class="ptb" id="pairT"></table></div></div>
         <div id="tab-sum" style="display:none"><div class="tbox"><table class="ptb" id="sumT"></table></div></div>
       </div>
@@ -836,10 +621,9 @@ function buildRosterPage(){
   renderAG();updateHolBadge();
 }
 
-// ══ OPERATOR: MY ROSTERS ═══════════════════════════════════════════════
+// OPERATOR: MY ROSTERS
 function buildMyRostersPage(){
-  document.getElementById('pg-myrosters').innerHTML=`
-  <div class="mbar"><div class="bc"><span class="bch" onclick="go('home')">🏠</span><span class="bcs">›</span><span class="bcc">📅 Monthly Roster</span></div></div>
+  document.getElementById('pg-myrosters').innerHTML=`<div class="mbar"><div class="bc"><span class="bch" onclick="go('home')">🏠</span><span class="bcs">›</span><span class="bcc">📅 Monthly Roster</span></div></div>
   <div style="flex:1;overflow-y:auto;padding:20px 24px">
     <div style="font-size:18px;font-weight:800;color:var(--ink0);margin-bottom:3px">Monthly Roster</div>
     <div style="font-size:13px;color:var(--ink3);margin-bottom:16px">Approved rosters are shown below. Contact your admin if a roster is missing.</div>
@@ -847,41 +631,20 @@ function buildMyRostersPage(){
   </div>`;
 }
 async function loadMyRosters(){
-  try{
-    const list=await api('GET','/api/rosters');
-    const el=document.getElementById('my-roster-list');
-    if(!list.length){el.innerHTML='<div class="alrt ainfo">No approved rosters yet. Your admin will publish them here.</div>';return}
-    el.innerHTML=list.map(r=>`
-    <div style="background:var(--l1);border:1px solid var(--rim);border-radius:10px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .15s" onclick="viewApprovedRoster(${r.id})" onmouseover="this.style.borderColor='var(--cyan)'" onmouseout="this.style.borderColor=''">
-      <div style="font-size:24px">📅</div>
-      <div style="flex:1">
-        <div style="font-size:13.5px;font-weight:700;color:var(--ink0)">${x(r.title)}</div>
-        <div style="font-size:11px;color:var(--ink3);font-family:'IBM Plex Mono',monospace;margin-top:2px">${r.agentCount} agents · ${r.targetWO} WOs · Approved by ${x(r.approvedBy)} · ${new Date(r.approvedAt).toLocaleDateString()}</div>
-      </div>
-      <span class="chip cappr">Approved</span>
-    </div>`).join('');
-  }catch(e){document.getElementById('my-roster-list').innerHTML=`<div class="alrt aerr">${e.message}</div>`}
+  try{const list=await api('GET','/api/rosters');const el=document.getElementById('my-roster-list');
+  if(!list.length){el.innerHTML='<div class="alrt ainfo">No approved rosters yet. Your admin will publish them here.</div>';return}
+  el.innerHTML=list.map(r=>`<div style="background:var(--l1);border:1px solid var(--rim);border-radius:10px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .15s" onclick="viewApprovedRoster(${r.id})" onmouseover="this.style.borderColor='var(--cyan)'" onmouseout="this.style.borderColor=''">
+    <div style="font-size:24px">📅</div>
+    <div style="flex:1"><div style="font-size:13.5px;font-weight:700;color:var(--ink0)">${x(r.title)}</div>
+    <div style="font-size:11px;color:var(--ink3);font-family:'IBM Plex Mono',monospace;margin-top:2px">${r.agentCount} agents · ${r.targetWO} WOs · Approved by ${x(r.approvedBy)} · ${new Date(r.approvedAt).toLocaleDateString()}</div></div>
+    <span class="chip cappr">Approved</span>
+  </div>`).join('')}catch(e){document.getElementById('my-roster-list').innerHTML=`<div class="alrt aerr">${e.message}</div>`}
 }
 async function viewApprovedRoster(id){
-  try{
-    const d=await api('GET',`/api/rosters/${id}`);
-    const dow={};(d.dowSer||[]).forEach(([k,v])=>dow[+k]=v);
-    const uSet=new Set(d.univSetSer||[]);
-    const asn={};(d.asgnSer||[]).forEach(([day,prs])=>{asn[day]=prs.map(pair=>pair.map(n=>d.agents.find(a=>a.name===n)).filter(Boolean))});
-    const sc={};(d.schedSer||[]).forEach(([n,v])=>{sc[n]={};Object.entries(v).forEach(([dd,s])=>sc[n][+dd]=s)});
-    const dt={};(d.dtypeSer||[]).forEach(([k,v])=>dt[+k]=v);
-    ROSTER={yr:d.year,mo:d.month,days:d.days,dow,suns:d.sundays||[],wos:d.woSats||[],holDays:d.holDays||[],holNames:d.holNames||[],uSet,tgt:d.target,ex:d.extra,asn,sc,dt,agents:d.agents,savedId:d.id,approvedBy:d.approvedBy};
-    AG=d.agents;
-    // Show in a modal-style overlay
-    showRosterView(ROSTER,d.title);
-  }catch(e){toast(e.message,'err')}
-}
-function showRosterView(r,title){
-  // Render inside my-roster view
+  try{const d=await api('GET',`/api/rosters/${id}`);const r=deserR(d);ROSTER=r;AG=d.agents;
   const el=document.getElementById('my-roster-list');
-  el.innerHTML=`
-  <button class="btn btn-g" style="margin-bottom:14px" onclick="loadMyRosters()">← Back to list</button>
-  <div style="font-size:16px;font-weight:800;color:var(--ink0);margin-bottom:4px">${x(title)}</div>
+  el.innerHTML=`<button class="btn btn-g" style="margin-bottom:14px" onclick="loadMyRosters()">← Back</button>
+  <div style="font-size:16px;font-weight:800;color:var(--ink0);margin-bottom:4px">${x(d.title)}</div>
   <div style="font-size:11px;color:var(--ink3);font-family:'IBM Plex Mono',monospace;margin-bottom:14px">✓ Approved by ${x(r.approvedBy||'Admin')}</div>
   <div class="tab-row" style="margin-bottom:12px">
     <button class="ttb on" onclick="swTabMR('cal',this)">📅 Calendar</button>
@@ -890,79 +653,169 @@ function showRosterView(r,title){
   <div id="mr-cal"><div class="tbox"><table class="rtb" id="mr-calT"></table></div></div>
   <div id="mr-sum" style="display:none"><div class="tbox"><table class="ptb" id="mr-sumT"></table></div></div>`;
   bCal(r,'mr-calT');bSum(r,'mr-sumT');
+  }catch(e){toast(e.message,'err')}
 }
 function swTabMR(id,el){['cal','sum'].forEach(t=>document.getElementById('mr-'+t).style.display=t===id?'block':'none');document.querySelectorAll('#my-roster-list .ttb').forEach(b=>b.classList.remove('on'));el.classList.add('on')}
+function deserR(d){
+  const dow={};(d.dowSer||[]).forEach(([k,v])=>dow[+k]=v);
+  const uSet=new Set(d.univSetSer||[]);
+  const asn={};(d.asgnSer||[]).forEach(([day,prs])=>{asn[day]=prs.map(pair=>pair.map(n=>d.agents.find(a=>a.name===n)).filter(Boolean))});
+  const sc={};(d.schedSer||[]).forEach(([n,v])=>{sc[n]={};Object.entries(v).forEach(([dd,s])=>sc[n][+dd]=s)});
+  const dt={};(d.dtypeSer||[]).forEach(([k,v])=>dt[+k]=v);
+  return{yr:d.year,mo:d.month,days:d.days,dow,suns:d.sundays||[],wos:d.woSats||[],holDays:d.holDays||[],holNames:d.holNames||[],uSet,tgt:d.target,ex:d.extra,asn,sc,dt,agents:d.agents,savedId:d.id,approvedBy:d.approvedBy};
+}
 
-// ══ HOLIDAYS ═══════════════════════════════════════════════════════════
+// HOLIDAYS
 let _tmpHols=[];
 function openHolMgr(){_tmpHols=[...HOLIDAYS];renderHolList();openM('m-holiday')}
-function renderHolList(){
-  document.getElementById('hol-list').innerHTML=_tmpHols.length?_tmpHols.map((h,i)=>`
-    <div style="display:flex;align-items:center;gap:8px;padding:7px 8px;background:var(--l2);border:1px solid var(--rim);border-radius:6px;margin-bottom:5px;font-size:12.5px">
-      <span>🗓</span><div style="flex:1"><div style="color:var(--ink1)">${x(h.name)}</div>
-      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--hol-c)">${h.date} (${DF[new Date(h.date).getDay()]})</div></div>
-      <button style="background:none;border:none;cursor:pointer;color:var(--ink4);font-size:13px;padding:2px" onmouseover="this.style.color='var(--rose)'" onmouseout="this.style.color=''" onclick="_tmpHols.splice(${i},1);renderHolList()">✕</button>
-    </div>`).join(''):'<div style="color:var(--ink3);font-size:13px;padding:8px 0">No holidays added.</div>'}
-function addHoliday(){
-  const n=document.getElementById('hn').value.trim(),d=document.getElementById('hd').value;
-  if(!n||!d){toast('Enter name and date','warn');return}
-  if(_tmpHols.find(h=>h.date===d)){toast('Already added','warn');return}
-  _tmpHols.push({name:n,date:d});_tmpHols.sort((a,b)=>a.date.localeCompare(b.date));
-  document.getElementById('hn').value='';document.getElementById('hd').value='';
-  renderHolList();
-}
-async function saveHolidays(){
-  await api('PUT','/api/holidays',_tmpHols);
-  HOLIDAYS=_tmpHols;closeM('m-holiday');updateHolBadge();toast('Holidays saved','ok');
-}
+function renderHolList(){document.getElementById('hol-list').innerHTML=_tmpHols.length?_tmpHols.map((h,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 8px;background:var(--l2);border:1px solid var(--rim);border-radius:6px;margin-bottom:5px;font-size:12.5px"><span>🗓</span><div style="flex:1"><div style="color:var(--ink1)">${x(h.name)}</div><div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--hol-c)">${h.date} (${DF[new Date(h.date).getDay()]})</div></div><button style="background:none;border:none;cursor:pointer;color:var(--ink4);font-size:13px" onmouseover="this.style.color='var(--rose)'" onmouseout="this.style.color=''" onclick="_tmpHols.splice(${i},1);renderHolList()">✕</button></div>`).join(''):'<div style="color:var(--ink3);font-size:13px;padding:8px 0">No holidays added.</div>'}
+function addHoliday(){const n=document.getElementById('hn').value.trim(),d=document.getElementById('hd').value;if(!n||!d){toast('Enter name and date','warn');return}if(_tmpHols.find(h=>h.date===d)){toast('Already added','warn');return}_tmpHols.push({name:n,date:d});_tmpHols.sort((a,b)=>a.date.localeCompare(b.date));document.getElementById('hn').value='';document.getElementById('hd').value='';renderHolList()}
+async function saveHolidays(){await api('PUT','/api/holidays',_tmpHols);HOLIDAYS=_tmpHols;closeM('m-holiday');updateHolBadge();toast('Holidays saved','ok')}
 function updateHolBadge(){
-  const yr=+(document.getElementById('selY')?.value||2026),mo=+(document.getElementById('selM')?.value||2);
+  const yr=+(document.getElementById('selY')?.value||new Date().getFullYear()),mo=+(document.getElementById('selM')?.value||new Date().getMonth());
   const mh=HOLIDAYS.filter(h=>{const d=new Date(h.date);return d.getFullYear()===yr&&d.getMonth()===mo});
-  const el=document.getElementById('hol-badge');
-  if(el)el.textContent=mh.length?`🟢 ${mh.length} holiday${mh.length>1?'s':''}: ${mh.map(h=>h.name).join(', ')}`:'';
+  const el=document.getElementById('hol-badge');if(el)el.textContent=mh.length?`🟢 ${mh.length} holiday${mh.length>1?'s':''}: ${mh.map(h=>h.name).join(', ')}`:'';
+  // Boundary rule check
+  const bm=document.getElementById('boundary-msg');if(bm){
+    const prevD=new Date(yr,mo,0);const prevMo=prevD.getMonth(),prevYr=prevD.getFullYear(),prevDt=prevD.getDate();
+    const prevDow=new Date(prevYr,prevMo,prevDt).getDay();
+    const prevIsWO=prevDow===0||HOLIDAYS.find(h=>{const dt=new Date(h.date);return dt.getFullYear()===prevYr&&dt.getMonth()===prevMo&&dt.getDate()===prevDt});
+    const firstDow=new Date(yr,mo,1).getDay();
+    const firstIsWO=firstDow===0||mh.find(h=>new Date(h.date).getDate()===1);
+    bm.textContent=(prevIsWO&&firstIsWO)?'⚠ Boundary rule: prev month ends WO/HOL & this month starts WO/HOL — Day 2 WO blocked':'';
+  }
 }
 
-// ══ AGENTS ═════════════════════════════════════════════════════════════
+// AGENT LEAVES & FIXED WO
+let _dpMode='',_dpAgent='',_dpMonth='',_dpSel=[],_dpMeta={};
+function openAgentLeaves(){
+  const yr=+document.getElementById('selY').value,mo=+document.getElementById('selM').value;
+  const monthKey=`${yr}-${String(mo+1).padStart(2,'0')}`;
+  document.getElementById('alm-month').textContent=`${MN[mo]} ${yr}`;
+  renderALBody(yr,mo,monthKey);openM('m-agentleave');
+}
+function renderALBody(yr,mo,monthKey){
+  const dim=new Date(yr,mo+1,0).getDate();const days=Array.from({length:dim},(_,i)=>i+1);
+  const dowMap={};days.forEach(d=>dowMap[d]=new Date(yr,mo,d).getDay());
+  document.getElementById('alm-body').innerHTML=AG.map(a=>{
+    const al=AGENTLEAVES[a.name]?.[monthKey]||{leaves:[],fixedWOs:[]};
+    const lDays=(al.leaves||[]).map(s=>+s.split('-')[2]);
+    const fDays=(al.fixedWOs||[]).map(s=>+s.split('-')[2]);
+    const c=LC[a.level]||LC[0];
+    return`<div style="background:var(--l2);border:1px solid var(--rim);border-radius:9px;padding:11px 13px;margin-bottom:9px">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:9px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:8px;height:8px;border-radius:50%;background:${c.fg}"></div>
+          <span style="font-weight:700;color:var(--ink0)">${x(a.name)}</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--ink3)">${x(a.emp)} · L${a.level}</span>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-r" style="font-size:11px;padding:4px 9px" onclick="openDP('leave','${a.name}','${monthKey}',${yr},${mo})">📌 Set Leaves</button>
+          <button class="btn btn-p" style="font-size:11px;padding:4px 9px" onclick="openDP('fixedwo','${a.name}','${monthKey}',${yr},${mo})">⭐ Fixed WO</button>
+        </div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;font-size:10px">
+        ${lDays.length?lDays.map(d=>`<span style="padding:2px 7px;border-radius:4px;background:rgba(255,61,90,.1);border:1px solid rgba(255,61,90,.3);color:var(--rose);font-family:'IBM Plex Mono',monospace">${DS[dowMap[d]]} ${d} LV</span>`).join(''):'<span style="color:var(--ink4)">No leaves</span>'}
+        ${fDays.length?fDays.map(d=>`<span style="padding:2px 7px;border-radius:4px;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);color:var(--cyan);font-family:'IBM Plex Mono',monospace">⭐ ${DS[dowMap[d]]} ${d} WO</span>`).join(''):''}
+      </div>
+    </div>`;
+  }).join('');
+}
+function openDP(mode,agentName,monthKey,yr,mo){
+  _dpMode=mode;_dpAgent=agentName;_dpMonth=monthKey;_dpMeta={yr,mo};
+  const al=AGENTLEAVES[agentName]?.[monthKey]||{leaves:[],fixedWOs:[]};
+  _dpSel=mode==='leave'?[...(al.leaves||[])]:mode==='fixedwo'?[...(al.fixedWOs||[])]:[];
+  const dim=new Date(yr,mo+1,0).getDate();const days=Array.from({length:dim},(_,i)=>i+1);
+  const lSet=new Set(al.leaves||[]);const fSet=new Set(al.fixedWOs||[]);
+  const si=document.getElementById('selS').value.split(',').map(Number);
+  const allSats=days.filter(d=>new Date(yr,mo,d).getDay()===6);
+  const woSatSet=new Set(si.map(i=>allSats[i]).filter(Boolean));
+  const mholDays=new Set(HOLIDAYS.filter(h=>{const dt=new Date(h.date);return dt.getFullYear()===yr&&dt.getMonth()===mo}).map(h=>new Date(h.date).getDate()));
+  if(mode==='leave'){
+    document.getElementById('dp-title').textContent=`Set Leave Days — ${agentName} · ${MN[mo]} ${yr}`;
+    document.getElementById('dp-info').textContent='Click days to mark as LEAVE. Agent will not be assigned WO on leave days.';
+    document.getElementById('dp-info').className='alrt aerr';
+  }else{
+    document.getElementById('dp-title').textContent=`Fixed WO Days — ${agentName} · ${MN[mo]} ${yr}`;
+    document.getElementById('dp-info').textContent='Click working days to lock as preferred WO. Other agents get ROI that day. Sundays/Sat-WOs/Holidays are auto WO already.';
+    document.getElementById('dp-info').className='alrt awarn';
+  }
+  const grid=document.getElementById('dp-grid');
+  grid.innerHTML=days.map(d=>{
+    const dow=new Date(yr,mo,d).getDay();
+    const ds=`${yr}-${String(mo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isSun=dow===0,isWoSat=woSatSet.has(d),isHol=mholDays.has(d);
+    const isLv=lSet.has(ds),isFW=fSet.has(ds);
+    let disabled=false,selCls='';
+    if(mode==='leave'){selCls=_dpSel.includes(ds)?'sel-lv':'';}
+    else{disabled=isSun||isWoSat||isHol||isLv;selCls=_dpSel.includes(ds)?'sel-wo':'';}
+    const isUniv=isSun||isWoSat||isHol;
+    return`<div class="day-cell ${selCls} ${disabled?'disabled':''}" ${disabled?'':''} data-ds="${ds}" onclick="${disabled?'':''}" style="border-color:${selCls==='sel-lv'?'var(--rose)':selCls==='sel-wo'?'var(--cyan)':isUniv?'var(--rim)':'var(--rim)'};background:${selCls==='sel-lv'?'rgba(255,61,90,.12)':selCls==='sel-wo'?'rgba(0,212,255,.12)':isUniv?'var(--l3)':'var(--l2)'};opacity:${disabled?'.4':'1'}" ${disabled?'':'onclick="dpToggle(this)"'}>
+      <div style="font-size:7.5px;font-family:'IBM Plex Mono',monospace;color:${isSun?'var(--sun-c)':isWoSat?'var(--sat-c)':isHol?'var(--hol-c)':'var(--ink4)'}">${DS[dow]}</div>
+      <div style="font-size:13px;font-weight:700;color:${selCls==='sel-lv'?'var(--rose)':selCls==='sel-wo'?'var(--cyan)':isUniv?'var(--amber)':'var(--ink1)'}">${d}</div>
+      <div style="font-size:7.5px;font-family:'IBM Plex Mono',monospace;color:${selCls==='sel-lv'?'var(--rose)':selCls==='sel-wo'?'var(--cyan)':isUniv?'var(--amber)':'var(--ink4)'}">${selCls==='sel-lv'?'LV':selCls==='sel-wo'?'WO':isUniv?'WO':''}</div>
+    </div>`;
+  }).join('');
+  updateDPSel();document.getElementById('dp-save-btn').onclick=saveDP;
+  openM('m-daypick');
+}
+function dpToggle(el){
+  const ds=el.dataset.ds;const idx=_dpSel.indexOf(ds);
+  if(idx>=0)_dpSel.splice(idx,1);else _dpSel.push(ds);
+  const isLv=_dpMode==='leave'&&idx<0;const isWO=_dpMode==='fixedwo'&&idx<0;
+  el.style.borderColor=isLv?'var(--rose)':isWO?'var(--cyan)':'var(--rim)';
+  el.style.background=isLv?'rgba(255,61,90,.12)':isWO?'rgba(0,212,255,.12)':'var(--l2)';
+  el.querySelectorAll('div')[1].style.color=isLv?'var(--rose)':isWO?'var(--cyan)':'var(--ink1)';
+  el.querySelectorAll('div')[2].textContent=isLv?'LV':isWO?'WO':'';
+  updateDPSel();
+}
+function updateDPSel(){document.getElementById('dp-selected').textContent=_dpSel.length?`Selected: ${_dpSel.map(s=>s.slice(-2)).join(', ')}`:'None selected'}
+async function saveDP(){
+  if(!AGENTLEAVES[_dpAgent])AGENTLEAVES[_dpAgent]={};
+  if(!AGENTLEAVES[_dpAgent][_dpMonth])AGENTLEAVES[_dpAgent][_dpMonth]={leaves:[],fixedWOs:[]};
+  if(_dpMode==='leave')AGENTLEAVES[_dpAgent][_dpMonth].leaves=[..._dpSel];
+  else AGENTLEAVES[_dpAgent][_dpMonth].fixedWOs=[..._dpSel];
+  try{
+    await api('PUT','/api/agentleaves',{agentName:_dpAgent,monthKey:_dpMonth,leaves:AGENTLEAVES[_dpAgent][_dpMonth].leaves,fixedWOs:AGENTLEAVES[_dpAgent][_dpMonth].fixedWOs});
+    toast(`Saved for ${_dpAgent}`,'ok');closeM('m-daypick');
+    renderALBody(_dpMeta.yr,_dpMeta.mo,_dpMonth);
+  }catch(e){toast(e.message,'err')}
+}
+
+// AGENTS
 function renderAG(){
   const el=document.getElementById('agCnt');if(el)el.textContent=`(${AG.length})`;
   const ed=can('roster','editAgents'),list=document.getElementById('agList');if(!list)return;
-  list.innerHTML=AG.map((a,i)=>`
-    <div style="display:grid;grid-template-columns:52px 1fr 42px ${ed?'22px':''};gap:4px;padding:3px;border-radius:5px;align-items:center;margin-bottom:2px" onmouseover="this.style.background='var(--l2)'" onmouseout="this.style.background=''">
-      <input style="background:var(--l2);border:1px solid var(--rim);border-radius:4px;padding:3px 5px;color:var(--ink1);font-size:10px;outline:none;width:100%;font-family:'IBM Plex Mono',monospace" value="${x(a.emp)}" oninput="AG[${i}].emp=this.value" ${ed?'':'readonly'}>
-      <input style="background:var(--l2);border:1px solid var(--rim);border-radius:4px;padding:3px 5px;color:var(--ink1);font-size:11.5px;outline:none;width:100%" value="${x(a.name)}" oninput="AG[${i}].name=this.value" ${ed?'':'readonly'}>
-      <select style="background:var(--l2);border:1px solid var(--rim);border-radius:4px;padding:3px;color:var(--ink1);font-family:'IBM Plex Mono',monospace;font-size:10px;outline:none;width:100%;appearance:none" onchange="AG[${i}].level=+this.value" ${ed?'':'disabled'}>
-        ${[0,1,2,3,4,5,6,7].map(l=>`<option value="${l}"${l===a.level?' selected':''}>L${l}</option>`).join('')}
-      </select>
-      ${ed?`<button style="background:none;border:none;cursor:pointer;color:var(--ink4);font-size:12px;padding:2px;border-radius:3px" onmouseover="this.style.color='var(--rose)'" onmouseout="this.style.color=''" onclick="rmAg(${i})">✕</button>`:''}
-    </div>`).join('');
+  list.innerHTML=AG.map((a,i)=>`<div style="display:grid;grid-template-columns:48px 1fr 36px ${ed?'18px':''};gap:3px;padding:3px;border-radius:5px;align-items:center;margin-bottom:2px" onmouseover="this.style.background='var(--l2)'" onmouseout="this.style.background=''">
+    <input style="background:var(--l2);border:1px solid var(--rim);border-radius:4px;padding:2px 4px;color:var(--ink1);font-size:9.5px;outline:none;width:100%;font-family:'IBM Plex Mono',monospace" value="${x(a.emp)}" oninput="AG[${i}].emp=this.value" ${ed?'':'readonly'}>
+    <input style="background:var(--l2);border:1px solid var(--rim);border-radius:4px;padding:2px 4px;color:var(--ink1);font-size:11px;outline:none;width:100%" value="${x(a.name)}" oninput="AG[${i}].name=this.value" ${ed?'':'readonly'}>
+    <select style="background:var(--l2);border:1px solid var(--rim);border-radius:4px;padding:2px;color:var(--ink1);font-family:'IBM Plex Mono',monospace;font-size:9.5px;outline:none;width:100%;appearance:none" onchange="AG[${i}].level=+this.value" ${ed?'':'disabled'}>
+      ${[0,1,2,3,4,5,6,7].map(l=>`<option value="${l}"${l===a.level?' selected':''}>L${l}</option>`).join('')}
+    </select>
+    ${ed?`<button style="background:none;border:none;cursor:pointer;color:var(--ink4);font-size:11px" onmouseover="this.style.color='var(--rose)'" onmouseout="this.style.color=''" onclick="rmAg(${i})">✕</button>`:''}
+  </div>`).join('');
 }
 function addAgent(){AG.push({emp:'EP'+(Math.floor(Math.random()*900)+100),name:'New Agent',level:1,dept:'Customer Service',loc:'Gurgaon-US'});renderAG();syncAG()}
 function rmAg(i){AG.splice(i,1);renderAG();syncAG()}
 async function syncAG(){try{await api('PUT','/api/agents',AG)}catch{}}
 
-// ══ PAIRING ════════════════════════════════════════════════════════════
-function vPair(a,b){
-  if(RULES.pairingRule==='any')return true;
-  const la=a.level,lb=b.level;
-  if(la===0&&lb===0)return true;
-  if(la===0||lb===0)return false;
-  const S=new Set([1,2,3]),J=new Set([4,5,6,7]);
-  return(S.has(la)&&J.has(lb))||(J.has(la)&&S.has(lb));
-}
+// PAIRING
+function vPair(a,b){if(RULES.pairingRule==='any')return true;const la=a.level,lb=b.level;if(la===0&&lb===0)return true;if(la===0||lb===0)return false;const S=new Set([1,2,3]),J=new Set([4,5,6,7]);return(S.has(la)&&J.has(lb))||(J.has(la)&&S.has(lb))}
 
-// ══ GENERATE ═══════════════════════════════════════════════════════════
+// GENERATE
 function generate(){
   const btn=document.getElementById('btnGen'),sp=document.getElementById('btnSp'),tx=document.getElementById('btnT');
   btn.disabled=true;sp.style.display='block';tx.textContent='Generating…';
   setTimeout(()=>{
-    try{ROSTER=compute();renderAll(ROSTER);rAlert('✓ Roster generated.','ok');
+    try{ROSTER=compute();renderAll(ROSTER);rAlert('✓ Roster generated successfully.','ok');
       document.getElementById('expRow').style.display='flex';
-      if(can('roster','save')){document.getElementById('btnSv').style.display='inline-flex'}
-      if(can('roster','approve')){document.getElementById('btnApprove').style.display='inline-flex'}
-    } catch(e){rAlert('⚠ '+e.message,'err')}
+      if(can('roster','save'))document.getElementById('btnSv').style.display='inline-flex';
+      if(can('roster','approve'))document.getElementById('btnApprove').style.display='inline-flex';
+    }catch(e){rAlert('⚠ '+e.message,'err')}
     btn.disabled=false;sp.style.display='none';tx.textContent='⚡ Generate Roster';
   },60);
 }
+
 function compute(){
   const yr=+document.getElementById('selY').value,mo=+document.getElementById('selM').value;
   const si=document.getElementById('selS').value.split(',').map(Number);
@@ -976,104 +829,149 @@ function compute(){
   const holDays=new Set(mhols.map(h=>new Date(h.date).getDate()));
   const uSet=new Set([...suns,...woSats]);
   const tgt=(R.targetWOBase||8)+(suns.length>=5&&R.extraWOIfFifthSunday?1:0);
-  const ex=tgt-uSet.size;
-  if(ex<0)throw new Error('Target WOs less than universal WO days.');
+  const ex=tgt-uSet.size;if(ex<0)throw new Error('Target WOs less than universal WO days.');
   const maxPD=R.maxAgentsOnWOPerDay||2;
-  const wd=days.filter(d=>!uSet.has(d)&&!holDays.has(d));
-  const blk=d=>{const p1=uSet.has(d-1)||holDays.has(d-1),p2=uSet.has(d-2)||holDays.has(d-2),n1=uSet.has(d+1)||holDays.has(d+1),n2=uSet.has(d+2)||holDays.has(d+2);return(p1&&p2)||(n1&&n2)||(p1&&n1)};
-  const isHA=d=>holDays.has(d-1)||holDays.has(d+1);
-  const safe=wd.filter(d=>!blk(d));
-  if(!safe.length)throw new Error('No safe working days after applying rules.');
-  const qt={},ew={},cu={};AG.forEach(a=>{qt[a.name]=ex;ew[a.name]=[];cu[a.name]=false});
+  const monthKey=`${yr}-${String(mo+1).padStart(2,'0')}`;
+
+  // REQUIREMENT 2: Boundary rule
+  const prevD=new Date(yr,mo,0);const prevMo=prevD.getMonth(),prevYr=prevD.getFullYear(),prevDt=prevD.getDate();
+  const prevDow=new Date(prevYr,prevMo,prevDt).getDay();
+  const prevIsWO=prevDow===0||HOLIDAYS.find(h=>{const dt=new Date(h.date);return dt.getFullYear()===prevYr&&dt.getMonth()===prevMo&&dt.getDate()===prevDt});
+  const firstIsWO=dow[1]===0||holDays.has(1)||uSet.has(1);
+  const blockDay2=!!(prevIsWO&&firstIsWO);
+
+  // REQUIREMENT 3: Agent leaves
+  const agLv={},agFW={};
+  AG.forEach(a=>{
+    const al=AGENTLEAVES[a.name]?.[monthKey]||{leaves:[],fixedWOs:[]};
+    agLv[a.name]=new Set((al.leaves||[]).map(s=>+s.split('-')[2]));
+    agFW[a.name]=new Set((al.fixedWOs||[]).map(s=>+s.split('-')[2]));
+  });
+
+  const qt={};AG.forEach(a=>{qt[a.name]=ex});
+  const ew={};AG.forEach(a=>ew[a.name]=[]);
   const asn={},dWO={};
-  const hadj=(a,d)=>{const idx=days.indexOf(d);for(const di of[idx-1,idx+1]){if(di>=0&&di<days.length){const nd=days[di];if(!uSet.has(nd)&&!holDays.has(nd)&&ew[a.name].includes(nd))return true}}return false};
+
+  // REQUIREMENT 4: Fixed WO phase — assign preferred WO days first
+  const allFWDays=new Set();AG.forEach(a=>agFW[a.name].forEach(d=>{if(!uSet.has(d)&&!holDays.has(d))allFWDays.add(d)}));
+  for(const day of [...allFWDays].sort((a,b)=>a-b)){
+    if(blockDay2&&day===2)continue;
+    const fAgents=AG.filter(a=>agFW[a.name].has(day)&&!agLv[a.name].has(day)&&ew[a.name].length<qt[a.name]&&!ew[a.name].includes(day));
+    for(const a of fAgents){ew[a.name].push(day);dWO[day]=(dWO[day]||0)+1}
+    // pair them for asn display
+    const pairs=[];for(let i=0;i<fAgents.length;i+=2)if(fAgents[i+1])pairs.push([fAgents[i],fAgents[i+1]]);
+    if(pairs.length)asn[day]=(asn[day]||[]).concat(pairs);
+  }
+
+  // Standard assignment for remaining quota
   const w3=(a,d)=>{const s=new Set([...ew[a.name],d]);for(const xd of s)if(s.has(xd+1)&&s.has(xd+2))return true;return false};
-  const can2=(a,d)=>ew[a.name].length<qt[a.name]&&!w3(a,d)&&!(hadj(a,d)&&cu[a.name]);
-  for(const day of safe){
+  const isHA=d=>holDays.has(d-1)||holDays.has(d+1);
+  const wd=days.filter(d=>!uSet.has(d)&&!holDays.has(d)&&!allFWDays.has(d)&&!(blockDay2&&d===2));
+  for(const day of wd){
     if(AG.every(a=>ew[a.name].length>=qt[a.name]))continue;
     const mp=isHA(day)?Math.min(R.holidayMaxAgents||2,maxPD):maxPD;
     if((dWO[day]||0)>=mp)continue;
-    const el=AG.filter(a=>can2(a,day));
+    const el=AG.filter(a=>!agLv[a.name].has(day)&&ew[a.name].length<qt[a.name]&&!w3(a,day));
     let pr=[];
     for(let i=0;i<el.length;i++)for(let j=i+1;j<el.length;j++)if(vPair(el[i],el[j]))pr.push([el[i],el[j]]);
     if(!pr.length)continue;
-    pr.sort((p,q)=>{const sp=(qt[p[0].name]-ew[p[0].name].length)+(qt[p[1].name]-ew[p[1].name].length)-(hadj(p[0],day)?8:0)-(hadj(p[1],day)?8:0);const sq=(qt[q[0].name]-ew[q[0].name].length)+(qt[q[1].name]-ew[q[1].name].length)-(hadj(q[0],day)?8:0)-(hadj(q[1],day)?8:0);return sq-sp});
+    pr.sort((p,q)=>{const sp=(qt[p[0].name]-ew[p[0].name].length)+(qt[p[1].name]-ew[p[1].name].length);const sq=(qt[q[0].name]-ew[q[0].name].length)+(qt[q[1].name]-ew[q[1].name].length);return sq-sp});
     const ch=pr.find(([a,b])=>ew[a.name].length<qt[a.name]&&ew[b.name].length<qt[b.name]);
     if(!ch)continue;
-    const[a1,a2]=ch;
-    ew[a1.name].push(day);ew[a2.name].push(day);
-    asn[day]=asn[day]||[];asn[day].push([a1,a2]);
-    dWO[day]=(dWO[day]||0)+2;
-    for(const a of[a1,a2])if(hadj(a,day))cu[a.name]=true;
+    const[a1,a2]=ch;ew[a1.name].push(day);ew[a2.name].push(day);
+    asn[day]=(asn[day]||[]);asn[day].push([a1,a2]);dWO[day]=(dWO[day]||0)+2;
   }
+
   const sh=AG.filter(a=>ew[a.name].length<qt[a.name]);
-  if(sh.length)throw new Error(`Could not assign all WOs to: ${sh.map(a=>a.name).join(', ')}.`);
-  const sc={};AG.forEach(a=>{sc[a.name]={};days.forEach(d=>{sc[a.name][d]=uSet.has(d)?'UWO':holDays.has(d)?'HOL':ew[a.name].includes(d)?'WO':'ROI'})});
+  if(sh.length)throw new Error(`Could not assign all WOs to: ${sh.map(a=>a.name).join(', ')}. Try relaxing rules.`);
+
+  // REQUIREMENT 4 & 5: Schedule — ONLY "WO" or "ROI" (plus LV for leaves)
+  const sc={};AG.forEach(a=>{sc[a.name]={};days.forEach(d=>{
+    if(uSet.has(d)||holDays.has(d))sc[a.name][d]='WO';
+    else if(agLv[a.name].has(d))sc[a.name][d]='LV';
+    else if(ew[a.name].includes(d))sc[a.name][d]='WO';
+    else sc[a.name][d]='ROI';
+  })});
   const dt={};days.forEach(d=>{dt[d]=suns.includes(d)?'SUN':woSats.includes(d)?'SAT':holDays.has(d)?'HOL':'WORK'});
-  return{yr,mo,days,dow,suns,wos:woSats,holDays:[...holDays],holNames:mhols,uSet,tgt,ex,asn,sc,dt,agents:[...AG]};
+  return{yr,mo,days,dow,suns,wos:woSats,holDays:[...holDays],holNames:mhols,uSet,tgt,ex,asn,sc,dt,agents:[...AG],blockDay2};
 }
 
+// RENDER ALL
 function renderAll(r){
-  document.getElementById('emDiv').style.display='none';
-  document.getElementById('resDiv').style.display='block';
-  const mn=MN[r.mo];
-  document.getElementById('rTi').textContent=`${mn} ${r.yr} — WO Roster`;
+  document.getElementById('emDiv').style.display='none';document.getElementById('resDiv').style.display='block';
+  document.getElementById('rTi').textContent=`${MN[r.mo]} ${r.yr} — WO Roster`;
   const pairs=Object.values(r.asn).flat().length;
-  document.getElementById('rSu').textContent=`${r.agents.length} agents · ${r.tgt} WOs each · ${pairs} pair-days`;
-  document.getElementById('s1').textContent=r.tgt;
-  document.getElementById('s2').textContent=r.agents.length;
-  document.getElementById('s3').textContent=pairs;
-  document.getElementById('s4').textContent=r.holNames?.length||0;
-  document.getElementById('approveStatus').innerHTML=r.savedId?`<span class="chip ${r.approvedBy?'cappr':'cpend'}">${r.approvedBy?'✓ Approved':'Pending Approval'}</span>`:'';
+  document.getElementById('rSu').textContent=`${r.agents.length} agents · ${r.tgt} WOs each · ${pairs} extra pair-days${r.blockDay2?' · ⚠ Day-2 boundary rule applied':''}`;
+  document.getElementById('s1').textContent=r.tgt;document.getElementById('s2').textContent=r.agents.length;
+  document.getElementById('s3').textContent=pairs;document.getElementById('s4').textContent=r.holNames?.length||0;
+  document.getElementById('approveStatus').innerHTML=r.savedId?`<span class="chip ${r.approvedBy?'cappr':'cpend'}">${r.approvedBy?'✓ Approved':'Draft'}</span>`:'';
   bCal(r,'calT');bPairs(r,'pairT');bSum(r,'sumT');
 }
 function lb(l){const c=LC[l]||LC[0];return`<span class="lbdg" style="background:${c.bg};color:${c.fg};border:1px solid ${c.b}">L${l}</span>`}
-function cellChip(t,s){
-  if(t==='SUN') return`<span style="display:inline-block;padding:2px 5px;border-radius:3px;background:var(--sun-bg);color:var(--sun-c);font-size:8.5px;font-family:'IBM Plex Mono',monospace">SUN</span>`;
-  if(t==='SAT') return`<span style="display:inline-block;padding:2px 5px;border-radius:3px;background:var(--sat-bg);color:var(--sat-c);font-size:8.5px;font-family:'IBM Plex Mono',monospace">SAT</span>`;
-  if(t==='HOL') return`<span style="display:inline-block;padding:2px 5px;border-radius:3px;background:var(--hol-bg);color:var(--hol-c);font-size:8.5px;font-family:'IBM Plex Mono',monospace">HOL</span>`;
-  if(s==='WO')  return`<span style="display:inline-block;padding:2px 5px;border-radius:3px;background:var(--wo-bg);color:var(--wo);font-size:8.5px;font-family:'IBM Plex Mono',monospace">WO</span>`;
-  return`<span style="display:inline-block;padding:2px 5px;border-radius:3px;background:var(--roi-bg);color:var(--roi);font-size:8.5px;font-family:'IBM Plex Mono',monospace">ROI</span>`;
+
+// REQUIREMENT 4 & 5: Only WO or ROI in calendar cells
+function cellStyle(s){
+  if(s==='WO')return{txt:'WO',bg:'var(--wo-bg)',fg:'var(--wo)'};
+  if(s==='LV')return{txt:'LV',bg:'rgba(255,184,48,.1)',fg:'var(--amber)'};
+  return{txt:'ROI',bg:'var(--roi-bg)',fg:'var(--roi)'};
 }
+
 function bCal(r,tid){
-  const mn=MN[r.mo];let h=`<thead><tr><th class="tha">${mn} ${r.yr}</th>`;
-  const hSet=new Set(r.holDays||[]);
-  r.days.forEach(d=>{const dw=r.dow[d];const col=dw===0?'style="color:var(--sun-c)"':dw===6&&r.wos.includes(d)?'style="color:var(--sat-c)"':hSet.has(d)?'style="color:var(--hol-c)"':'';h+=`<th ${col}>${DS[dw]}<br><span style="font-size:8px">${d}</span></th>`});
+  const mn=MN[r.mo];const hSet=new Set(r.holDays||[]);
+  let h=`<thead><tr><th class="thsno">S#</th><th class="tha">${mn} ${r.yr}</th>`;
+  r.days.forEach(d=>{
+    const dw=r.dow[d];const isSun=dw===0,isWoSat=r.wos.includes(d),isHol=hSet.has(d);
+    const cls=isSun?'thsun':isWoSat?'thsat':isHol?'thhol':'';
+    h+=`<th class="${cls}" style="min-width:30px">${DS[dw]}<br>${d}</th>`;
+  });
   h+=`<th class="tht">WO</th></tr></thead><tbody>`;
-  r.agents.forEach(a=>{const c=LC[a.level]||LC[0];h+='<tr>';
-    h+=`<td class="tda" style="border-left:3px solid ${c.fg}"><span style="color:var(--ink0);font-size:12px;font-weight:600">${x(a.name)}</span><span style="display:block;font-size:9px;color:var(--ink4);font-family:'IBM Plex Mono',monospace">${x(a.emp)}</span></td>`;
-    let tot=0;r.days.forEach(d=>{const s=r.sc[a.name]?.[d]||'ROI',t=r.dt[d]||'WORK';if(t!=='WORK'||s==='WO')tot++;h+=`<td>${cellChip(t,s)}</td>`});
+  r.agents.forEach((a,ri)=>{
+    const c=LC[a.level]||LC[0];h+=`<tr>`;
+    h+=`<td class="tdsno">${ri+1}</td>`;
+    h+=`<td class="tda" style="border-left:3px solid ${c.fg}"><span style="color:var(--ink0)">${x(a.name)}</span><br><span style="font-size:8.5px;color:var(--ink4);font-family:'IBM Plex Mono',monospace">${x(a.emp)} L${a.level}</span></td>`;
+    let tot=0;
+    r.days.forEach(d=>{
+      const s=r.sc[a.name]?.[d]||'ROI';if(s==='WO')tot++;
+      const v=cellStyle(s);
+      h+=`<td style="background:${v.bg};color:${v.fg}">${v.txt}</td>`;
+    });
     h+=`<td class="tdt"><b>${tot}</b></td></tr>`;
   });
   h+='</tbody>';document.getElementById(tid).innerHTML=h;
 }
+
 function bPairs(r,tid){
-  const mn=MN[r.mo];
-  let h=`<thead><tr><th>Date</th><th>Day</th><th>Type</th><th>WO Pairs</th></tr></thead><tbody>`;
+  const mn=MN[r.mo];const hSet=new Set(r.holDays||[]);
+  let h=`<thead><tr><th>Date</th><th>Day</th><th>Type</th><th>WO Details</th></tr></thead><tbody>`;
   r.days.forEach(d=>{
     const dn=DF[r.dow[d]],t=r.dt[d],pairs=r.asn[d];let tc,body;
     if(t==='SUN'){tc=`<span class="chip" style="background:var(--sun-bg);color:var(--sun-c)">Sunday</span>`;body=`<td style="color:var(--ink3);font-size:11.5px;font-style:italic">All agents — Universal WO</td>`}
-    else if(t==='SAT'){tc=`<span class="chip" style="background:var(--sat-bg);color:var(--sat-c)">WO Saturday</span>`;body=`<td style="color:var(--ink3);font-size:11.5px;font-style:italic">All agents — Universal WO</td>`}
-    else if(t==='HOL'){const hn=r.holNames?.find(h2=>new Date(h2.date).getDate()===d)?.name||'Holiday';tc=`<span class="chip" style="background:var(--hol-bg);color:var(--hol-c)">Holiday</span>`;body=`<td style="color:var(--hol-c)">🗓 ${x(hn)}</td>`}
+    else if(t==='SAT'){tc=`<span class="chip" style="background:var(--sat-bg);color:var(--sat-c)">WO Sat</span>`;body=`<td style="color:var(--ink3);font-size:11.5px;font-style:italic">All agents — Universal WO</td>`}
+    else if(t==='HOL'){const hn=r.holNames?.find(h2=>new Date(h2.date).getDate()===d)?.name||'Holiday';tc=`<span class="chip" style="background:var(--hol-bg);color:var(--hol-c)">Holiday</span>`;body=`<td style="color:var(--hol-c)">🗓 ${x(hn)} — All WO</td>`}
     else if(pairs?.length){tc=`<span class="chip" style="background:var(--wo-bg);color:var(--wo)">WO Day</span>`;body=`<td>${pairs.map(([a1,a2])=>`<b style="color:var(--ink0)">${x(a1.name)}</b>${lb(a1.level)} + <b style="color:var(--ink0)">${x(a2.name)}</b>${lb(a2.level)}`).join('<br>')}</td>`}
     else{tc=`<span class="chip" style="background:var(--roi-bg);color:var(--roi)">All ROI</span>`;body=`<td style="color:var(--ink3);font-size:11.5px;font-style:italic">All working</td>`}
-    h+=`<tr><td style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--ink2)">${mn.slice(0,3)} ${String(d).padStart(2,'0')}</td><td style="color:var(--ink3)">${dn.slice(0,3)}</td><td>${tc}</td>${body}</tr>`;
+    const note=r.blockDay2&&d===2?' <span style="font-size:9px;color:var(--amber)">(boundary rule)</span>':'';
+    h+=`<tr><td style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--ink2)">${mn.slice(0,3)} ${String(d).padStart(2,'0')}${note}</td><td style="color:var(--ink3)">${dn.slice(0,3)}</td><td>${tc}</td>${body}</tr>`;
   });
   h+='</tbody>';document.getElementById(tid).innerHTML=h;
 }
+
 function bSum(r,tid){
-  let h=`<thead><tr><th>Emp#</th><th>Name</th><th>Level</th><th>Univ WO</th><th>Holiday</th><th>Extra WO</th><th>Total WO</th><th>Working</th></tr></thead><tbody>`;
-  r.agents.forEach(a=>{
-    const univ=r.days.filter(d=>r.sc[a.name]?.[d]==='UWO').length,hol=r.days.filter(d=>r.sc[a.name]?.[d]==='HOL').length,ext=r.days.filter(d=>r.sc[a.name]?.[d]==='WO').length,tot=univ+hol+ext,wk=r.days.length-tot;
-    h+=`<tr><td style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink3)">${x(a.emp)}</td><td style="font-weight:600;color:var(--ink0)">${x(a.name)}</td><td>${lb(a.level)}</td><td style="text-align:center;font-family:'IBM Plex Mono',monospace;color:var(--ink2)">${univ}</td><td style="text-align:center;font-family:'IBM Plex Mono',monospace;color:var(--hol-c)">${hol}</td><td style="text-align:center;font-family:'IBM Plex Mono',monospace;color:var(--rose);font-weight:600">${ext}</td><td style="text-align:center;font-family:'IBM Plex Mono',monospace;color:var(--cyan);font-weight:700;font-size:14px">${tot}</td><td style="text-align:center;font-family:'IBM Plex Mono',monospace;color:var(--roi)">${wk}</td></tr>`;
+  let h=`<thead><tr><th>S#</th><th>Emp#</th><th>Name</th><th>Level</th><th>WO Days</th><th>Leave Days</th><th>Working Days</th></tr></thead><tbody>`;
+  r.agents.forEach((a,ri)=>{
+    const wo=r.days.filter(d=>r.sc[a.name]?.[d]==='WO').length;
+    const lv=r.days.filter(d=>r.sc[a.name]?.[d]==='LV').length;
+    const wk=r.days.length-wo-lv;
+    h+=`<tr><td style="text-align:center;color:var(--ink3)">${ri+1}</td><td style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink3)">${x(a.emp)}</td><td style="font-weight:600;color:var(--ink0)">${x(a.name)}</td><td>${lb(a.level)}</td><td style="text-align:center;font-weight:700;color:var(--cyan);font-size:14px">${wo}</td><td style="text-align:center;color:var(--amber)">${lv||'—'}</td><td style="text-align:center;color:var(--roi)">${wk}</td></tr>`;
   });
   h+='</tbody>';document.getElementById(tid).innerHTML=h;
 }
+
 function swTab(id,el){['cal','pairs','sum'].forEach(t=>document.getElementById('tab-'+t).style.display=t===id?'block':'none');document.querySelectorAll('.tab-row .ttb').forEach(b=>b.classList.remove('on'));el.classList.add('on')}
 
-// ══ SAVE & APPROVE ROSTER ══════════════════════════════════════════════
+// SAVE & APPROVE
 async function saveR(){
-  if(!ROSTER){toast('Generate a roster first','warn');return}
+  if(!ROSTER){toast('Generate first','warn');return}
   const r=ROSTER,mn=MN[r.mo];
   const pl={title:`${mn} ${r.yr}`,month:r.mo,year:r.yr,agentCount:r.agents.length,targetWO:r.tgt,
     days:r.days,dowSer:Object.entries(r.dow).map(([k,v])=>[+k,v]),
@@ -1082,38 +980,36 @@ async function saveR(){
     asgnSer:Object.entries(r.asn).map(([d,prs])=>[+d,prs.map(pair=>pair.map(a=>a.name))]),
     schedSer:Object.entries(r.sc).map(([n,v])=>[n,v]),
     dtypeSer:Object.entries(r.dt).map(([k,v])=>[+k,v]),agents:r.agents};
-  try{const res=await api('POST','/api/rosters',pl);ROSTER.savedId=res.id;toast('Roster saved','ok');}catch(e){toast(e.message,'err')}
+  try{const res=await api('POST','/api/rosters',pl);ROSTER.savedId=res.id;toast('Roster saved','ok')}catch(e){toast(e.message,'err')}
 }
 async function approveCurrentR(){
   if(!ROSTER?.savedId){await saveR();if(!ROSTER?.savedId)return}
-  try{await api('PUT',`/api/rosters/${ROSTER.savedId}/approve`);ROSTER.approvedBy='you';toast('Roster approved & published to operators','ok');document.getElementById('approveStatus').innerHTML='<span class="chip cappr">✓ Approved</span>'}catch(e){toast(e.message,'err')}
+  try{await api('PUT',`/api/rosters/${ROSTER.savedId}/approve`);ROSTER.approvedBy='you';toast('Approved & published to operators','ok');document.getElementById('approveStatus').innerHTML='<span class="chip cappr">✓ Approved</span>'}catch(e){toast(e.message,'err')}
 }
 
-// ══ EXPORTS ════════════════════════════════════════════════════════════
+// EXPORTS
 async function doXLSX(){
-  if(!ROSTER){toast('Generate and save a roster first','warn');return}
-  if(!ROSTER.savedId)await saveR();
-  if(!ROSTER.savedId)return;
-  try{
-    const resp=await fetch('/api/rosters/export/xlsx',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({rosterId:ROSTER.savedId})});
-    if(!resp.ok){const e=await resp.json();toast(e.error,'err');return}
-    const blob=await resp.blob();dl(blob,`Roster_${MN[ROSTER.mo]}_${ROSTER.yr}.xlsx`);
-  }catch(e){toast(e.message,'err')}
+  if(!ROSTER){toast('Generate first','warn');return}
+  if(!ROSTER.savedId)await saveR();if(!ROSTER.savedId)return;
+  try{const resp=await fetch('/api/rosters/export/xlsx',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({rosterId:ROSTER.savedId})});
+  if(!resp.ok){const e=await resp.json();toast(e.error,'err');return}
+  const blob=await resp.blob();dl(blob,`Roster_${MN[ROSTER.mo]}_${ROSTER.yr}.xlsx`)}catch(e){toast(e.message,'err')}
 }
 function doCSV(){
-  if(!ROSTER)return;
-  const r=ROSTER,mn=MN[r.mo];
-  let csv=`Emp#,Name,Level,${r.days.map(d=>`${mn.slice(0,3)}-${d}`).join(',')},Total WO\n`;
-  r.agents.forEach(a=>{const row=r.days.map(d=>r.sc[a.name]?.[d]==='UWO'?'WO':r.sc[a.name]?.[d]==='HOL'?'H':r.sc[a.name]?.[d]==='WO'?'WO':'ROI');csv+=`${a.emp},"${a.name}",L${a.level},${row.join(',')},${row.filter(v=>v!=='ROI').length}\n`});
+  if(!ROSTER)return;const r=ROSTER,mn=MN[r.mo];
+  let csv=`S#,Emp#,Name,Level,Total WO,${r.days.map(d=>`${mn.slice(0,3)}-${d}`).join(',')}\n`;
+  r.agents.forEach((a,ri)=>{
+    const row=r.days.map(d=>r.sc[a.name]?.[d]==='WO'?'WO':r.sc[a.name]?.[d]==='LV'?'LV':'ROI');
+    csv+=`${ri+1},${a.emp},"${a.name}",L${a.level},${row.filter(v=>v==='WO').length},${row.join(',')}\n`;
+  });
   dl(new Blob([csv],{type:'text/csv'}),`Roster_${mn}_${r.yr}.csv`);
 }
 function dl(blob,name){const u=URL.createObjectURL(blob);Object.assign(document.createElement('a'),{href:u,download:name}).click();URL.revokeObjectURL(u)}
 
-// ══ SHORT LEAVE ════════════════════════════════════════════════════════
+// SHORT LEAVE
 function buildSLPage(){
   const isAdm=isAdmin();
-  document.getElementById('pg-shortleave').innerHTML=`
-  <div class="mbar">
+  document.getElementById('pg-shortleave').innerHTML=`<div class="mbar">
     <div class="bc"><span class="bch" onclick="go('home')">🏠</span><span class="bcs">›</span><span class="bcc">🕐 Short Leave</span></div>
     <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
       <div class="sl-tabs" id="sl-tabs">
@@ -1130,235 +1026,391 @@ function buildSLPage(){
     <div id="sl-all" style="display:none"></div>
   </div>`;
 }
-function swSL(tab,el){
-  ['dash','my','all'].forEach(t=>{const e=document.getElementById('sl-'+t);if(e)e.style.display='none'});
-  const target=document.getElementById('sl-'+tab);if(target)target.style.display='block';
-  document.querySelectorAll('.sl-tab').forEach(b=>b.classList.remove('on'));
-  if(el)el.classList.add('on');
-  if(tab==='dash')renderSLDash();
-  if(tab==='my')renderSLMy();
-  if(tab==='all')renderSLAll();
-}
-async function loadSL(){
-  try{SLS=await api('GET','/api/shortleaves')}catch{SLS=[]}
-  const isAdm=isAdmin();
-  if(isAdm) renderSLDash(); else renderSLMy();
-}
+function swSL(tab,el){['dash','my','all'].forEach(t=>{const e=document.getElementById('sl-'+t);if(e)e.style.display='none'});const t=document.getElementById('sl-'+tab);if(t)t.style.display='block';document.querySelectorAll('.sl-tab').forEach(b=>b.classList.remove('on'));if(el)el.classList.add('on');if(tab==='dash')renderSLDash();if(tab==='my')renderSLMy();if(tab==='all')renderSLAll()}
+async function loadSL(){try{SLS=await api('GET','/api/shortleaves')}catch{SLS=[]}const isAdm=isAdmin();if(isAdm)renderSLDash();else renderSLMy()}
+
 function renderSLDash(){
   const el=document.getElementById('sl-dash');if(!el)return;
   const tot=SLS.length,appr=SLS.filter(s=>s.status==='Approved').length,reje=SLS.filter(s=>s.status==='Rejected').length,canc=SLS.filter(s=>s.status==='Cancelled').length,pend=SLS.filter(s=>s.status==='Pending').length;
-  const lim=RULES.shortLeaveMonthlyLimit||3;
-  const now=new Date();const curMon=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
-  const agents={};SLS.forEach(sl=>{if(!agents[sl.agentName])agents[sl.agentName]={name:sl.agentName,tot:0,appr:0,reje:0,canc:0,pend:0};agents[sl.agentName].tot++;agents[sl.agentName][{Approved:'appr',Rejected:'reje',Cancelled:'canc',Pending:'pend'}[sl.status]]++;});
-  el.innerHTML=`
-  <div class="kpi-row">
-    <div class="kpi"><div class="kpiv">${tot}</div><div class="kpil">Total</div></div>
-    <div class="kpi"><div class="kpiv" style="color:var(--em)">${appr}</div><div class="kpil">Approved</div></div>
-    <div class="kpi"><div class="kpiv" style="color:var(--rose)">${reje}</div><div class="kpil">Rejected</div></div>
-    <div class="kpi"><div class="kpiv" style="color:var(--ink2)">${canc}</div><div class="kpil">Cancelled</div></div>
-    <div class="kpi"><div class="kpiv" style="color:var(--amber)">${pend}</div><div class="kpil">Pending</div></div>
-  </div>
+  const lim=RULES.shortLeaveMonthlyLimit||3;const now=new Date();const curMon=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const agents={};SLS.forEach(sl=>{if(!agents[sl.agentName])agents[sl.agentName]={name:sl.agentName,tot:0,appr:0,reje:0,canc:0,pend:0};agents[sl.agentName].tot++;agents[sl.agentName][{Approved:'appr',Rejected:'reje',Cancelled:'canc',Pending:'pend'}[sl.status]]++});
+  el.innerHTML=`<div class="kpi-row"><div class="kpi"><div class="kpiv">${tot}</div><div class="kpil">Total</div></div><div class="kpi"><div class="kpiv" style="color:var(--em)">${appr}</div><div class="kpil">Approved</div></div><div class="kpi"><div class="kpiv" style="color:var(--rose)">${reje}</div><div class="kpil">Rejected</div></div><div class="kpi"><div class="kpiv" style="color:var(--ink2)">${canc}</div><div class="kpil">Cancelled</div></div><div class="kpi"><div class="kpiv" style="color:var(--amber)">${pend}</div><div class="kpil">Pending</div></div></div>
   <div style="font-size:13px;font-weight:700;color:var(--ink0);margin-bottom:10px;display:flex;align-items:center;gap:7px"><span style="width:3px;height:14px;background:var(--cyan);border-radius:2px;display:inline-block"></span>Agent Summary</div>
   <div style="background:var(--l1);border:1px solid var(--rim);border-radius:10px;overflow:auto;margin-bottom:16px">
   <table class="tbl"><thead><tr><th>Agent</th><th>Total</th><th>Approved</th><th>Rejected</th><th>Cancelled</th><th>Pending</th><th>Used (${curMon.slice(5)})</th><th>Balance</th></tr></thead>
-  <tbody>${Object.values(agents).map(a=>{
-    const cu=SLS.filter(sl=>sl.agentName===a.name&&sl.shortLeaveDate.slice(0,7)===curMon&&sl.status!=='Cancelled').length;
-    const bal=Math.max(0,lim-cu);
-    return`<tr><td style="font-weight:600;color:var(--ink0)">${x(a.name)}</td><td style="text-align:center">${a.tot}</td><td style="text-align:center;color:var(--em)">${a.appr}</td><td style="text-align:center;color:var(--rose)">${a.reje}</td><td style="text-align:center;color:var(--ink2)">${a.canc}</td><td style="text-align:center;color:var(--amber)">${a.pend}</td><td style="text-align:center">${cu}</td><td style="text-align:center;font-weight:700;color:${bal===0?'var(--rose)':'var(--em)'}">${bal}</td></tr>`;
-  }).join('')||'<tr><td colspan="8" style="text-align:center;color:var(--ink3);padding:18px">No data</td></tr>'}</tbody></table></div>
-  <div style="font-size:13px;font-weight:700;color:var(--ink0);margin-bottom:10px;display:flex;align-items:center;gap:7px"><span style="width:3px;height:14px;background:var(--cyan);border-radius:2px;display:inline-block"></span>All Requests</div>
+  <tbody>${Object.values(agents).map(a=>{const cu=SLS.filter(sl=>sl.agentName===a.name&&sl.shortLeaveDate.slice(0,7)===curMon&&sl.status!=='Cancelled').length;const bal=Math.max(0,lim-cu);
+  return`<tr><td style="font-weight:600;color:var(--ink0)">${x(a.name)}</td><td style="text-align:center">${a.tot}</td><td style="text-align:center;color:var(--em)">${a.appr}</td><td style="text-align:center;color:var(--rose)">${a.reje}</td><td style="text-align:center;color:var(--ink2)">${a.canc}</td><td style="text-align:center;color:var(--amber)">${a.pend}</td><td style="text-align:center">${cu}</td><td style="text-align:center;font-weight:700;color:${bal===0?'var(--rose)':'var(--em)'}">${bal}</td></tr>`}).join('')||'<tr><td colspan="8" style="text-align:center;color:var(--ink3);padding:18px">No data</td></tr>'}</tbody></table></div>
   ${renderSLTable(SLS,true)}`;
 }
 function renderSLMy(){
   const el=document.getElementById('sl-my');if(!el)return;
-  const my=SLS.filter(s=>s.agentId===ME.id);
-  const lim=RULES.shortLeaveMonthlyLimit||3;
+  const my=SLS.filter(s=>s.agentId===ME.id);const lim=RULES.shortLeaveMonthlyLimit||3;
   const now=new Date();const curMon=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
-  const used=my.filter(s=>s.shortLeaveDate.slice(0,7)===curMon&&s.status!=='Cancelled').length;
-  const bal=Math.max(0,lim-used);
-  el.innerHTML=`
-  <div class="kpi-row" style="grid-template-columns:repeat(3,1fr);max-width:380px;margin-bottom:16px">
+  const used=my.filter(s=>s.shortLeaveDate.slice(0,7)===curMon&&s.status!=='Cancelled').length;const bal=Math.max(0,lim-used);
+  el.innerHTML=`<div class="kpi-row" style="grid-template-columns:repeat(3,1fr);max-width:380px;margin-bottom:16px">
     <div class="kpi"><div class="kpiv">${my.length}</div><div class="kpil">My Total</div></div>
     <div class="kpi"><div class="kpiv">${used}</div><div class="kpil">Used This Month</div></div>
     <div class="kpi"><div class="kpiv" style="color:${bal===0?'var(--rose)':'var(--em)'}">${bal}</div><div class="kpil">Balance</div></div>
-  </div>
-  ${bal===0?`<div class="alrt aerr" style="max-width:480px;margin-bottom:12px">⚠ Monthly limit of ${lim} short leave(s) reached. New requests cannot be submitted.</div>`:''}
-  ${renderSLTable(my,false)}`;
+  </div>${bal===0?`<div class="alrt aerr" style="max-width:480px;margin-bottom:12px">⚠ Monthly limit of ${lim} reached.</div>`:''}${renderSLTable(my,false)}`;
 }
-function renderSLAll(){
-  const el=document.getElementById('sl-all');if(!el)return;
-  el.innerHTML=renderSLTable(SLS,true);
-}
+function renderSLAll(){const el=document.getElementById('sl-all');if(!el)return;el.innerHTML=renderSLTable(SLS,true)}
+
+// REQUIREMENT 1: Show Approved/Rejected/Cancelled By + Date in table
 function renderSLTable(list,admin=false){
   if(!list.length)return`<div style="color:var(--ink3);font-size:13px;padding:16px 0">No records found.</div>`;
   const sorted=[...list].sort((a,b)=>b.createdAt.localeCompare(a.createdAt));
-  return`<div style="background:var(--l1);border:1px solid var(--rim);border-radius:10px;overflow:auto">
-  <table class="tbl"><thead><tr>${admin?'<th>Agent</th>':''}<th>Leave Date</th><th>Half Day</th><th>Type</th><th>Status</th><th>Request Date</th><th>Reason</th><th>Remarks</th><th>Actions</th></tr></thead>
-  <tbody>${sorted.map(sl=>{
+  return`<div style="font-size:13px;font-weight:700;color:var(--ink0);margin-bottom:10px;display:flex;align-items:center;gap:7px"><span style="width:3px;height:14px;background:var(--cyan);border-radius:2px;display:inline-block"></span>${admin?'All Requests':'My Requests'}</div>
+  <div style="background:var(--l1);border:1px solid var(--rim);border-radius:10px;overflow:auto">
+  <table class="tbl" style="min-width:1050px"><thead><tr>
+    ${admin?'<th>Agent</th>':''}
+    <th>Leave Date</th><th>Half</th><th>Type</th><th>Status</th><th>Requested On</th><th>Reason</th>
+    <th>✅ Approved By / Date</th><th>❌ Rejected By / Date</th><th>🚫 Cancelled By / Date</th>
+    <th>Remarks</th><th>Actions</th>
+  </tr></thead><tbody>${sorted.map(sl=>{
     const isMine=sl.agentId===ME.id,isAdm=isAdmin();
     const acts=[];
-    if(isAdm&&sl.status==='Pending'){acts.push(`<button class="btn btn-e" style="font-size:11px;padding:4px 8px" onclick="openSLAct(${sl.id},'approve')">✓ Approve</button>`);acts.push(`<button class="btn btn-r" style="font-size:11px;padding:4px 8px" onclick="openSLAct(${sl.id},'reject')">✗ Reject</button>`)}
-    if(isMine&&sl.status==='Pending') acts.push(`<button class="btn btn-g" style="font-size:11px;padding:4px 8px" onclick="openSLAct(${sl.id},'cancel')">Cancel</button>`);
-    if(isAdm&&sl.status==='Approved') acts.push(`<button class="btn btn-r" style="font-size:11px;padding:4px 8px" onclick="openSLAct(${sl.id},'cancel')">Cancel</button>`);
-    return`<tr>${admin?`<td style="font-weight:600;color:var(--ink0)">${x(sl.agentName)}</td>`:''}
-      <td style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:600">${sl.shortLeaveDate}</td>
+    if(isAdm&&sl.status==='Pending'){acts.push(`<button class="btn btn-e" style="font-size:11px;padding:3px 7px" onclick="openSLAct(${sl.id},'approve')">✓</button>`);acts.push(`<button class="btn btn-r" style="font-size:11px;padding:3px 7px" onclick="openSLAct(${sl.id},'reject')">✗</button>`)}
+    if(isMine&&sl.status==='Pending')acts.push(`<button class="btn btn-g" style="font-size:11px;padding:3px 7px" onclick="openSLAct(${sl.id},'cancel')">Cancel</button>`);
+    if(isAdm&&sl.status==='Approved')acts.push(`<button class="btn btn-r" style="font-size:11px;padding:3px 7px" onclick="openSLAct(${sl.id},'cancel')">Cancel</button>`);
+    return`<tr>
+      ${admin?`<td style="font-weight:600;color:var(--ink0);white-space:nowrap;font-size:12px">${x(sl.agentName)}</td>`:''}
+      <td style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:600;white-space:nowrap">${sl.shortLeaveDate}</td>
       <td><span class="chip cplan">${x(sl.halfDay||'—')}</span></td>
       <td><span class="chip ${sl.type==='Planned'?'cplan':'cunpl'}">${sl.type||'—'}</span></td>
       <td><span class="chip ${sl.status==='Pending'?'cpend':sl.status==='Approved'?'cappr':sl.status==='Rejected'?'creje':'ccanc'}">${sl.status}</span></td>
-      <td style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink2)">${sl.requestDate}</td>
-      <td style="color:var(--ink2);font-size:12px;max-width:140px">${x(sl.reason||'—')}</td>
-      <td style="color:var(--ink2);font-size:12px;max-width:140px">${x(sl.remarks||'—')}</td>
-      <td><div style="display:flex;gap:4px;flex-wrap:wrap">${acts.join('')}</div></td>
+      <td style="font-size:11px;color:var(--ink2);white-space:nowrap">${sl.requestDate||'—'}</td>
+      <td style="font-size:11px;color:var(--ink2);max-width:120px;word-break:break-word">${x(sl.reason||'—')}</td>
+      <td style="font-size:10.5px;color:var(--em);white-space:nowrap">${sl.approvedBy?`${x(sl.approvedBy)}<br><span style="color:var(--ink3)">${fmtDT(sl.approvedAt)}</span>`:'—'}</td>
+      <td style="font-size:10.5px;color:var(--rose);white-space:nowrap">${sl.rejectedBy?`${x(sl.rejectedBy)}<br><span style="color:var(--ink3)">${fmtDT(sl.rejectedAt)}</span>`:'—'}</td>
+      <td style="font-size:10.5px;color:var(--ink2);white-space:nowrap">${sl.cancelledBy?`${x(sl.cancelledBy)}<br><span style="color:var(--ink3)">${fmtDT(sl.cancelledAt)}</span>`:'—'}</td>
+      <td style="font-size:11px;color:var(--ink3);max-width:100px;word-break:break-word">${x(sl.remarks||'—')}</td>
+      <td style="white-space:nowrap"><div style="display:flex;gap:4px">${acts.join('')}</div></td>
     </tr>`;
   }).join('')}</tbody></table></div>`;
 }
-async function openApplySL(){
-  const lim=RULES.shortLeaveMonthlyLimit||3;
-  const now=new Date();const curMon=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
-  const used=SLS.filter(s=>s.agentId===ME.id&&s.shortLeaveDate.slice(0,7)===curMon&&s.status!=='Cancelled').length;
-  const bal=Math.max(0,lim-used);
-  document.getElementById('sl-bal-info').textContent=`Monthly limit: ${lim} · Used: ${used} · Balance: ${bal}`;
+
+function openApplySL(){
   document.getElementById('sl-date').value='';
-  document.getElementById('sl-reason').value='';
-  document.getElementById('sl-err').className='auth-err';
-  document.getElementById('half1').checked=false;
-  document.getElementById('half2').checked=false;
-  // highlight on select
-  ['half1','half2'].forEach(id=>{
-    document.getElementById(id).onchange=()=>{
-      document.getElementById('half1-lbl').style.borderColor=document.getElementById('half1').checked?'var(--cyan)':'var(--rim)';
-      document.getElementById('half2-lbl').style.borderColor=document.getElementById('half2').checked?'var(--cyan)':'var(--rim)';
-    }
-  });
-  if(bal===0){const e=document.getElementById('sl-err');e.textContent='⚠ No balance remaining this month.';e.className='auth-err on'}
+  document.getElementById('half1').checked=false;document.getElementById('half2').checked=false;
+  document.getElementById('sl-reason').value='';document.getElementById('sl-err').className='auth-err';
+  ['half1','half2'].forEach(id=>{document.getElementById(id).onchange=()=>{
+    document.getElementById('half1-lbl').style.borderColor=document.getElementById('half1').checked?'var(--cyan)':'var(--rim)';
+    document.getElementById('half2-lbl').style.borderColor=document.getElementById('half2').checked?'var(--cyan)':'var(--rim)';
+  }});
+  const lim=RULES.shortLeaveMonthlyLimit||3;const now=new Date();const curMon=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const used=SLS.filter(s=>s.agentId===ME.id&&s.shortLeaveDate.slice(0,7)===curMon&&s.status!=='Cancelled').length;const bal=Math.max(0,lim-used);
+  const bi=document.getElementById('sl-bal-info');bi.textContent=`Short leaves this month: ${used}/${lim} used · ${bal} remaining`;bi.style.display='block';
+  const btn=document.getElementById('sl-submit-btn');btn.disabled=false;btn.textContent='Submit Request';
   openM('m-applysl');
 }
 function submitSL(){
   const dateVal=document.getElementById('sl-date').value;
   const halfDay=document.querySelector('input[name="halfday"]:checked')?.value;
   const reason=document.getElementById('sl-reason').value;
-  const errEl=document.getElementById('sl-err');
-  errEl.className='auth-err';
+  const errEl=document.getElementById('sl-err');errEl.className='auth-err';
   if(!dateVal){errEl.textContent='⚠ Select a leave date';errEl.className='auth-err on';return}
   if(!halfDay){errEl.textContent='⚠ Select 1st Half or 2nd Half';errEl.className='auth-err on';return}
-  const btn=document.getElementById('sl-submit-btn');
-  btn.disabled=true;btn.textContent='Submitting…';
+  const btn=document.getElementById('sl-submit-btn');btn.disabled=true;btn.textContent='Submitting…';
   fetch('/api/shortleaves',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({shortLeaveDate:dateVal,halfDay,reason})})
-    .then(r=>r.json())
-    .then(d=>{
-      if(d.error){errEl.textContent='⚠ '+d.error;errEl.className='auth-err on'}
-      else{closeM('m-applysl');toast('Short leave request submitted','ok');SLS=[];loadSL();}
-    })
-    .catch(e=>{errEl.textContent='⚠ '+e.message;errEl.className='auth-err on'})
-    .finally(()=>{btn.disabled=false;btn.textContent='Submit Request'});
+    .then(r=>r.json()).then(d=>{
+      if(d.error){errEl.textContent='⚠ '+d.error;errEl.className='auth-err on';btn.disabled=false;btn.textContent='Submit Request'}
+      else{closeM('m-applysl');toast('Short leave request submitted','ok');SLS=[];loadSL()}
+    }).catch(e=>{errEl.textContent='⚠ '+e.message;errEl.className='auth-err on';btn.disabled=false;btn.textContent='Submit Request'});
 }
 function openSLAct(id,type){
-  document.getElementById('slact-id').value=id;
-  document.getElementById('slact-type').value=type;
-  const t={approve:'✓ Approve Request',reject:'✗ Reject Request',cancel:'Cancel Request'};
-  document.getElementById('slact-h').textContent=t[type]||'Action';
-  const btn=document.getElementById('slact-btn');
-  btn.className='btn '+(type==='approve'?'btn-e':type==='cancel'?'btn-g':'btn-r');
-  document.getElementById('slact-remarks').value='';
-  document.getElementById('slact-err').className='auth-err';
+  document.getElementById('slact-id').value=id;document.getElementById('slact-type').value=type;
+  document.getElementById('slact-remarks').value='';document.getElementById('slact-err').className='auth-err';
+  const labels={approve:'✅ Approve Short Leave',reject:'❌ Reject Short Leave',cancel:'🚫 Cancel Short Leave'};
+  document.getElementById('slact-h').textContent=labels[type]||'Action';
+  document.getElementById('slact-btn').className=`btn ${type==='approve'?'btn-e':type==='reject'?'btn-r':'btn-g'}`;
+  openM('m-slact');
+}
+async function doSLAct(){
+  const id=document.getElementById('slact-id').value,type=document.getElementById('slact-type').value;
+  const remarks=document.getElementById('slact-remarks').value;
+  try{await api('PUT',`/api/shortleaves/${id}/${type}`,{remarks});closeM('m-slact');toast(`Request ${type}d`,'ok');SLS=[];loadSL()}
+  catch(e){showErr('slact-err',e.message)}
+}
+
+// RULES PAGE
+function buildRulesPage(){
+  const R=RULES;
+  document.getElementById('pg-rules').innerHTML=`<div class="mbar"><div class="bc"><span class="bch" onclick="go('home')">🏠</span><span class="bcs">›</span><span class="bcc">📋 Rules Manager</span></div></div>
+  <div class="asc"><div class="ah">Rules Manager</div><div class="as">Configure scheduling rules for roster generation.</div>
+  <div class="agrid">
+    <div class="acard"><div class="act">WO Targets</div>
+      <div class="fg"><label class="fl">Base WO per agent/month</label><input class="fi ctrl" type="number" id="r-tgt" value="${R.targetWOBase||8}" min="4" max="15" style="background:var(--l2)"></div>
+      <label class="perm-item" style="margin-bottom:8px"><input type="checkbox" id="r-fifth" ${R.extraWOIfFifthSunday?'checked':''}> Extra WO if 5th Sunday</label>
+      <div class="fg"><label class="fl">Max agents on WO per day</label><input class="fi ctrl" type="number" id="r-mpd" value="${R.maxAgentsOnWOPerDay||2}" min="1" max="6" style="background:var(--l2)"></div>
+    </div>
+    <div class="acard"><div class="act">Pairing Rule</div>
+      <div class="fg"><label class="fl">Pairing Strategy</label><select class="ctrl" id="r-pair"><option value="senior_junior" ${R.pairingRule==='senior_junior'?'selected':''}>Senior + Junior</option><option value="any" ${R.pairingRule==='any'?'selected':''}>Any pair</option></select></div>
+      <label class="perm-item"><input type="checkbox" id="r-l0" ${R.minL0Working?'checked':''}> Min 1 L0 always working</label>
+    </div>
+    <div class="acard"><div class="act">Holiday Rules</div>
+      <div class="fg"><label class="fl">Max WO pairs on holiday adj. days</label><input class="fi ctrl" type="number" id="r-hmax" value="${R.holidayMaxAgents||2}" min="1" max="4" style="background:var(--l2)"></div>
+    </div>
+    <div class="acard"><div class="act">Short Leave</div>
+      <div class="fg"><label class="fl">Monthly limit per agent</label><input class="fi ctrl" type="number" id="r-slm" value="${R.shortLeaveMonthlyLimit||3}" min="1" max="10" style="background:var(--l2)"></div>
+    </div>
+  </div>
+  <button class="btn btn-p" style="margin-top:16px" onclick="saveRules()">💾 Save Rules</button>
+  </div>`;
+}
+async function saveRules(){
+  const R={targetWOBase:+document.getElementById('r-tgt').value,extraWOIfFifthSunday:document.getElementById('r-fifth').checked,maxAgentsOnWOPerDay:+document.getElementById('r-mpd').value,pairingRule:document.getElementById('r-pair').value,minL0Working:document.getElementById('r-l0').checked,holidayMaxAgents:+document.getElementById('r-hmax').value,shortLeaveMonthlyLimit:+document.getElementById('r-slm').value};
+  try{await api('PUT','/api/rules',R);RULES={...RULES,...R};toast('Rules saved','ok')}catch(e){toast(e.message,'err')}
+}
+
+// USERS PAGE
+function buildUsersPage(){
+  document.getElementById('pg-users').innerHTML=`<div class="mbar"><div class="bc"><span class="bch" onclick="go('home')">🏠</span><span class="bcs">›</span><span class="bcc">👥 User Management</span></div></div>
+  <div class="asc"><div class="ah">User Management</div><div class="as">Create accounts and control permissions.</div>
+  <div style="margin-bottom:11px"><button class="btn btn-p" onclick="openAddUser()">+ Add User</button></div>
+  <div style="background:var(--l1);border:1px solid var(--rim);border-radius:10px;overflow:auto;margin-bottom:16px">
+    <table class="tbl"><thead><tr><th>Name</th><th>Username</th><th>Role</th><th>Roster Perms</th><th>SL Perms</th><th>Actions</th></tr></thead>
+    <tbody id="uTbl"><tr><td colspan="6" style="text-align:center;color:var(--ink3);padding:18px">Loading…</td></tr></tbody></table>
+  </div>
+  <div style="background:var(--l1);border:1px solid var(--rim);border-radius:10px;padding:16px;max-width:380px">
+    <div class="act">🔑 Change My Password</div>
+    <div class="fg" style="margin-bottom:8px"><label class="fl">New Password</label><input class="fi" type="password" id="np1" style="background:var(--l2)"></div>
+    <div class="fg" style="margin-bottom:8px"><label class="fl">Confirm Password</label><input class="fi" type="password" id="np2" style="background:var(--l2)"></div>
+    <div id="pwd-msg" style="margin-bottom:7px"></div>
+    <button class="btn btn-p" style="width:100%" onclick="chgPwd()">Update Password</button>
+  </div></div>`;
+}
+async function loadUsers(){
+  try{const us=await api('GET','/api/users');
+  document.getElementById('uTbl').innerHTML=us.map(u=>{
+    const rp=u.permissions?.roster||{},slp=u.permissions?.shortleave||{};
+    const rPerms=[rp.view&&'View',rp.generate&&'Gen',rp.save&&'Save',rp.export&&'Export',rp.editAgents&&'Agents',rp.editRules&&'Rules',rp.approve&&'Approve'].filter(Boolean).join(', ')||'—';
+    const slPerms=[slp.view&&'View',slp.apply&&'Apply',slp.approve&&'Approve',slp.reject&&'Reject',slp.cancel&&'Cancel',slp.dashboard&&'Dash'].filter(Boolean).join(', ')||'—';
+    const rc={superadmin:'rb-sa',admin:'rb-a',operator:'rb-o'}[u.role]||'rb-o';
+    return`<tr><td style="font-weight:600;color:var(--ink0)">${x(u.name)}</td>
+      <td style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink2)">${x(u.username)}</td>
+      <td><span class="rb ${rc}">${u.role.toUpperCase()}</span></td>
+      <td style="font-size:11px;color:var(--ink2)">${rPerms}</td>
+      <td style="font-size:11px;color:var(--ink2)">${slPerms}</td>
+      <td style="display:flex;gap:5px">
+        <button class="btn btn-g" style="font-size:11px;padding:4px 8px" onclick='openEditUser(${JSON.stringify(u)})'>Edit</button>
+        ${u.username!=='superadmin'?`<button class="btn btn-r" style="font-size:11px;padding:4px 8px" onclick="delUser(${u.id})">Del</button>`:''}
+      </td></tr>`;
+  }).join('')}catch(e){document.getElementById('uTbl').innerHTML=`<tr><td colspan="6" style="color:var(--rose)">${e.message}</td></tr>`}
+}
+function openAddUser(){['au-name','au-user','au-pass'].forEach(id=>document.getElementById(id).value='');document.getElementById('au-role').value='operator';document.getElementById('au-err').className='auth-err';openM('m-adduser')}
+async function createUser(){
+  const n=document.getElementById('au-name').value.trim(),u=document.getElementById('au-user').value.trim(),p=document.getElementById('au-pass').value,r=document.getElementById('au-role').value;
+  if(!n||!u||!p){showErr('au-err','All fields required');return}if(p.length<6){showErr('au-err','Password min 6 chars');return}
+  const defPerms={operator:{roster:{view:true},shortleave:{view:true,apply:true}},admin:{roster:{view:true,generate:true,save:true,export:true,editAgents:true,editRules:false,approve:true},shortleave:{view:true,approve:true,reject:true,cancel:true,dashboard:true}}};
+  try{await api('POST','/api/users',{name:n,username:u,password:p,role:r,permissions:defPerms[r]||{}});closeM('m-adduser');loadUsers();toast('User created','ok')}catch(e){showErr('au-err',e.message)}
+}
+function openEditUser(u){
+  document.getElementById('eu-id').value=u.id;document.getElementById('eu-name').value=u.name;document.getElementById('eu-role').value=u.role;document.getElementById('eu-pw').value='';
+  const rp=u.permissions?.roster||{},slp=u.permissions?.shortleave||{};
+  [['ep-r-view',rp.view],['ep-r-gen',rp.generate],['ep-r-save',rp.save],['ep-r-export',rp.export],['ep-r-agents',rp.editAgents],['ep-r-rules',rp.editRules],['ep-r-approve',rp.approve],['ep-sl-view',slp.view],['ep-sl-apply',slp.apply],['ep-sl-approve',slp.approve],['ep-sl-reject',slp.reject],['ep-sl-cancel',slp.cancel],['ep-sl-dash',slp.dashboard]].forEach(([id,v])=>{const el=document.getElementById(id);if(el)el.checked=!!v});
+  document.getElementById('eu-err').className='auth-err';openM('m-edituser');
+}
+async function updUser(){
+  const id=document.getElementById('eu-id').value,n=document.getElementById('eu-name').value.trim(),pw=document.getElementById('eu-pw').value,r=document.getElementById('eu-role').value;
+  const perms={roster:{view:$cb('ep-r-view'),generate:$cb('ep-r-gen'),save:$cb('ep-r-save'),export:$cb('ep-r-export'),editAgents:$cb('ep-r-agents'),editRules:$cb('ep-r-rules'),approve:$cb('ep-r-approve')},shortleave:{view:$cb('ep-sl-view'),apply:$cb('ep-sl-apply'),approve:$cb('ep-sl-approve'),reject:$cb('ep-sl-reject'),cancel:$cb('ep-sl-cancel'),dashboard:$cb('ep-sl-dash')}};
+  const pl={name:n,role:r,permissions:perms};if(pw){if(pw.length<6){showErr('eu-err','Min 6 chars');return}pl.password=pw}
+  try{await api('PUT',`/api/users/${id}`,pl);closeM('m-edituser');loadUsers();toast('User updated','ok')}catch(e){showErr('eu-err',e.message)}
+}
+async function delUser(id){if(!confirm('Delete this user?'))return;try{await api('DELETE',`/api/users/${id}`);loadUsers();toast('Deleted','ok')}catch(e){toast(e.message,'err')}
+}
+async function chgPwd(){
+  const p1=document.getElementById('np1').value,p2=document.getElementById('np2').value,el=document.getElementById('pwd-msg');
+  if(!p1||!p2){el.innerHTML='<div class="alrt awarn">Fill both fields.</div>';return}
+  if(p1!==p2){el.innerHTML='<div class="alrt aerr">Passwords do not match.</div>';return}
+  if(p1.length<6){el.innerHTML='<div class="alrt aerr">Min 6 characters.</div>';return}
+  try{await api('PUT',`/api/users/${ME.id}/password`,{password:p1});el.innerHTML='<div class="alrt aok">✓ Password updated!</div>';document.getElementById('np1').value='';document.getElementById('np2').value='';setTimeout(()=>el.innerHTML='',4000)}catch(e){el.innerHTML=`<div class="alrt aerr">${e.message}</div>`}
+}
+
+// BACKUP PAGE
+function buildBackupPage(){
+  document.getElementById('pg-backup').innerHTML=`<div class="mbar"><div class="bc"><span class="bch" onclick="go('home')">🏠</span><span class="bcs">›</span><span class="bcc">💾 Backup & Restore</span></div></div>
+  <div class="asc"><div class="ah">Backup & Restore</div><div class="as">Auto-backup every 24h. Up to 30 snapshots retained.</div>
+  <div class="agrid">
+    <div class="acard"><div class="act">Create Backup</div>
+      <p style="font-size:12.5px;color:var(--ink3);margin-bottom:11px">Snapshot all data: agents, rosters, users, short leaves, rules, agent leaves.</p>
+      <button class="btn btn-p" style="width:100%" onclick="createBackup()">📦 Create Backup Now</button>
+      <div id="bk-msg" style="margin-top:8px"></div>
+    </div>
+    <div class="acard"><div class="act">Auto Backup</div>
+      <p style="font-size:12.5px;color:var(--ink3)">Automatic daily backup is active.</p>
+      <div class="alrt aok" style="margin-top:10px;font-size:12px">✓ Auto backup enabled</div>
+    </div>
+    <div class="acard full"><div class="act" style="justify-content:space-between">Backup Files <button class="btn btn-g" style="font-size:11px;margin-left:auto" onclick="loadBackups()">↺ Refresh</button></div>
+      <div id="bk-list"><div style="color:var(--ink3)">Loading…</div></div>
+    </div>
+  </div></div>`;
+}
+async function createBackup(){try{const r=await api('POST','/api/backup');document.getElementById('bk-msg').innerHTML=`<div class="alrt aok">✓ ${r.file} (${(r.size/1024).toFixed(1)}KB)</div>`;loadBackups()}catch(e){document.getElementById('bk-msg').innerHTML=`<div class="alrt aerr">⚠ ${e.message}</div>`}}
+async function loadBackups(){
+  try{const bks=await api('GET','/api/backups');const el=document.getElementById('bk-list');if(!el)return;
+  if(!bks.length){el.innerHTML='<div style="color:var(--ink3);font-size:13px">No backups yet.</div>';return}
+  el.innerHTML=bks.map(b=>`<div class="bk-item"><div style="font-size:20px">📦</div><div class="bk-info"><div class="bk-name">${x(b.name)}</div><div class="bk-size">${(b.size/1024).toFixed(1)}KB · ${new Date(b.created).toLocaleString()}</div></div><div style="display:flex;gap:5px"><a class="btn btn-g" style="font-size:11px;padding:4px 8px;text-decoration:none" href="/api/backups/${encodeURIComponent(b.name)}/download">⬇</a>${ME.role==='superadmin'?`<button class="btn btn-e" style="font-size:11px;padding:4px 8px" onclick="confirmRestore('${b.name}')">↺</button><button class="btn btn-r" style="font-size:11px;padding:4px 8px" onclick="delBackup('${b.name}')">🗑</button>`:''}</div></div>`).join('')}catch{}
+}
+function confirmRestore(name){document.getElementById('restore-name').textContent=name;openM('m-restore')}
+async function doRestore(){const name=document.getElementById('restore-name').textContent;try{await api('POST',`/api/backups/${encodeURIComponent(name)}/restore`);closeM('m-restore');alert('✓ Restored! Reloading…');location.reload()}catch(e){alert('Error: '+e.message)}}
+async function delBackup(name){if(!confirm('Delete backup?'))return;try{await api('DELETE',`/api/backups/${encodeURIComponent(name)}`);loadBackups()}catch(e){toast(e.message,'err')}}
+
+// SAVED ROSTERS (ADMIN)
+function buildSavedPage(){
+  document.getElementById('pg-saved').innerHTML=`<div class="mbar"><div class="bc"><span class="bch" onclick="go('home')">🏠</span><span class="bcs">›</span><span class="bcc">🗄 Saved Rosters</span></div></div>
+  <div style="flex:1;overflow-y:auto;padding:20px 24px">
+    <div style="font-size:18px;font-weight:800;color:var(--ink0);margin-bottom:3px">Saved Rosters</div>
+    <div style="font-size:13px;color:var(--ink3);margin-bottom:14px">Click to load. Use "Approve & Publish" to make visible to operators.</div>
+    <div id="saved-list"><div style="color:var(--ink3)">Loading…</div></div>
+  </div>`;
+}
+async function loadSaved(){
+  try{const list=await api('GET','/api/rosters');const el=document.getElementById('saved-list');if(!el)return;
+  if(!list.length){el.innerHTML='<div class="alrt ainfo">No saved rosters yet.</div>';return}
+  el.innerHTML=list.map(r=>`<div style="background:var(--l1);border:1px solid var(--rim);border-radius:10px;padding:13px 16px;margin-bottom:7px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .14s" onclick="loadSavedR(${r.id})" onmouseover="this.style.borderColor='var(--cyan)'" onmouseout="this.style.borderColor=''">
+    <div style="font-size:22px">📅</div>
+    <div style="flex:1"><div style="font-size:13.5px;font-weight:700;color:var(--ink0)">${x(r.title)}</div>
+    <div style="font-size:11px;color:var(--ink3);font-family:'IBM Plex Mono',monospace;margin-top:2px">${r.agentCount} agents · ${r.targetWO} WOs · ${new Date(r.savedAt).toLocaleDateString()} by ${x(r.savedBy)}</div></div>
+    <span class="chip ${r.approved?'cappr':'cpend'}">${r.approved?'✓ Published':'Draft'}</span>
+    ${!r.approved&&can('roster','approve')?`<button class="btn btn-e" style="font-size:11px;padding:4px 8px" onclick="event.stopPropagation();approveRoster(${r.id})">Approve</button>`:''}
+    <button class="btn btn-r" style="font-size:11px;padding:4px 8px" onclick="event.stopPropagation();delR(${r.id})">🗑</button>
+  </div>`).join('')}catch(e){const el=document.getElementById('saved-list');if(el)el.innerHTML=`<div class="alrt aerr">${e.message}</div>`}
+}
+async function approveRoster(id){try{await api('PUT',`/api/rosters/${id}/approve`);toast('Approved & published','ok');loadSaved()}catch(e){toast(e.message,'err')}}
+async function loadSavedR(id){
+  try{const d=await api('GET',`/api/rosters/${id}`);const r=deserR(d);
+  ROSTER=r;AG=d.agents;go('roster');renderAG();renderAll(ROSTER);
+  document.getElementById('expRow').style.display='flex';
+  if(can('roster','save'))document.getElementById('btnSv').style.display='inline-flex';
+  if(can('roster','approve'))document.getElementById('btnApprove').style.display='inline-flex';
+  }catch(e){toast('Failed: '+e.message,'err')}
+}
+async function delR(id){if(!confirm('Delete roster?'))return;try{await api('DELETE',`/api/rosters/${id}`);loadSaved();toast('Deleted','ok')}catch(e){toast(e.message,'err')}}
+
+// BOOTSTRAP
+window.addEventListener('DOMContentLoaded',async()=>{
+  try{const d=await api('GET','/api/me');ME=d.user;MACCESS=d.moduleAccess||{};RULES=d.rules||{};RFMT=d.rosterFormat||{};
+  await Promise.all([loadAG(),loadHolidays()]);
+  if(isAdmin())AGENTLEAVES=await api('GET','/api/agentleaves').catch(()=>({}));
+  initApp()}catch{}
+});
+</script>
+</body>
+</html>
+="font-size:11px;color:var(--ink3);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${x(sl.reason)||'—'}</td>
+      <td style="font-size:10.5px;white-space:nowrap">${sl.status==='Approved'?`<span style="color:var(--em);font-weight:600">${x(sl.approvedBy||'—')}</span><br><span style="color:var(--ink3);font-family:'IBM Plex Mono',monospace;font-size:9.5px">${fmtDT(sl.approvedAt)}</span>`:'<span style="color:var(--ink4)">—</span>'}</td>
+      <td style="font-size:10.5px;white-space:nowrap">${sl.status==='Rejected'?`<span style="color:var(--rose);font-weight:600">${x(sl.rejectedBy||'—')}</span><br><span style="color:var(--ink3);font-family:'IBM Plex Mono',monospace;font-size:9.5px">${fmtDT(sl.rejectedAt)}</span>`:'<span style="color:var(--ink4)">—</span>'}</td>
+      <td style="font-size:10.5px;white-space:nowrap">${sl.status==='Cancelled'?`<span style="color:var(--ink2);font-weight:600">${x(sl.cancelledBy||'—')}</span><br><span style="color:var(--ink3);font-family:'IBM Plex Mono',monospace;font-size:9.5px">${fmtDT(sl.cancelledAt)}</span>`:'<span style="color:var(--ink4)">—</span>'}</td>
+      <td style="font-size:11px;color:var(--ink3);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${x(sl.remarks||'—')}</td>
+      <td><div style="display:flex;gap:4px">${acts.join('')}</div></td>
+    </tr>`;
+  }).join('')}</tbody></table></div>`;
+}
+
+function openApplySL(){
+  document.getElementById('sl-date').value='';
+  document.getElementById('half1').checked=false;document.getElementById('half2').checked=false;
+  document.getElementById('sl-reason').value='';
+  document.getElementById('sl-err').className='auth-err';
+  const now=new Date();const curMon=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const lim=RULES.shortLeaveMonthlyLimit||3;
+  const used=SLS.filter(s=>s.agentId===ME.id&&s.shortLeaveDate.slice(0,7)===curMon&&s.status!=='Cancelled').length;
+  const bal=Math.max(0,lim-used);
+  document.getElementById('sl-bal-info').textContent=`${used} of ${lim} short leaves used this month. Balance: ${bal}`;
+  document.getElementById('sl-bal-info').style.display='block';
+  openM('m-applysl');
+}
+function submitSL(){
+  const date=document.getElementById('sl-date').value;
+  const halfDay=document.querySelector('input[name="halfday"]:checked')?.value;
+  const reason=document.getElementById('sl-reason').value.trim();
+  const errEl=document.getElementById('sl-err');errEl.className='auth-err';
+  if(!date){showErr('sl-err','Please select a date');return}
+  if(!halfDay){showErr('sl-err','Please select 1st Half or 2nd Half');return}
+  const btn=document.getElementById('sl-submit-btn');btn.disabled=true;btn.textContent='Submitting…';
+  fetch('/api/shortleaves',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({shortLeaveDate:date,halfDay,reason})})
+  .then(r=>r.json().then(d=>({ok:r.ok,d})))
+  .then(({ok,d})=>{
+    btn.disabled=false;btn.textContent='Submit Request';
+    if(!ok){showErr('sl-err',d.error||'Server error');return}
+    closeM('m-applysl');loadSL();toast('Short leave submitted','ok');
+  }).catch(e=>{btn.disabled=false;btn.textContent='Submit Request';showErr('sl-err',e.message)});
+}
+function openSLAct(id,type){
+  document.getElementById('slact-id').value=id;document.getElementById('slact-type').value=type;
+  document.getElementById('slact-remarks').value='';document.getElementById('slact-err').className='auth-err';
+  const titles={approve:'✅ Approve Short Leave',reject:'❌ Reject Short Leave',cancel:'🚫 Cancel Short Leave'};
+  const btns={approve:'Approve',reject:'Reject',cancel:'Cancel Leave'};
+  const cls={approve:'btn-e',reject:'btn-r',cancel:'btn-r'};
+  document.getElementById('slact-h').textContent=titles[type];
+  const btn=document.getElementById('slact-btn');btn.textContent=btns[type];btn.className='btn '+cls[type];
   openM('m-slact');
 }
 function doSLAct(){
   const id=document.getElementById('slact-id').value,type=document.getElementById('slact-type').value;
-  const remarks=document.getElementById('slact-remarks').value;
-  const btn=document.getElementById('slact-btn');
-  btn.disabled=true;btn.textContent='Processing…';
-  fetch(`/api/shortleaves/${id}/${type}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({remarks})})
-    .then(r=>r.json())
-    .then(d=>{
-      if(d.error){const e=document.getElementById('slact-err');e.textContent='⚠ '+d.error;e.className='auth-err on'}
-      else{closeM('m-slact');toast('Done','ok');loadSL();}
-    })
-    .catch(e=>{const el=document.getElementById('slact-err');el.textContent='⚠ '+e.message;el.className='auth-err on'})
-    .finally(()=>{btn.disabled=false;btn.textContent='Confirm'});
+  const remarks=document.getElementById('slact-remarks').value.trim();
+  const btn=document.getElementById('slact-btn');btn.disabled=true;
+  api('PUT',`/api/shortleaves/${id}/${type}`,{remarks})
+  .then(()=>{closeM('m-slact');loadSL();toast('Done','ok')})
+  .catch(e=>{showErr('slact-err',e.message)})
+  .finally(()=>btn.disabled=false);
 }
 
-// ══ RULES ══════════════════════════════════════════════════════════════
+// ══ RULES ══════════════════════════════════════════════════════════════════════
 function buildRulesPage(){
-  const rlist=[
-    {k:'targetWOBase',n:'Base WO Target',d:'Base WOs per agent per month',t:'num',min:1,max:15},
-    {k:'extraWOIfFifthSunday',n:'Extra WO for 5th Sunday',d:'Add 1 extra WO when month has 5 Sundays',t:'bool'},
-    {k:'maxAgentsOnWOPerDay',n:'Max Agents on WO/Day',d:'Maximum agents on WO on any working day',t:'num',min:1,max:6},
-    {k:'maxConsecutiveWO',n:'Max Consecutive WOs',d:'Prevent more than N consecutive WO days',t:'num',min:2,max:5},
-    {k:'pairingRule',n:'WO Pairing Rule',d:'How WO pairs are matched',t:'sel',opts:[{v:'senior_junior',l:'Senior + Junior (L0↔L0, L1-3↔L4-7)'},{v:'any',l:'Any two agents'}]},
-    {k:'minL0Working',n:'Min 1 TL Working',d:'Ensure at least one L0 (Team Leader) is always working',t:'bool'},
-    {k:'holidayMaxWO',n:'Max WO Pairs Adjacent to Holiday',d:'WO pair limit on days next to holidays',t:'num',min:0,max:3},
-    {k:'holidayMaxAgents',n:'Max Agents on WO Near Holiday',d:'Agent limit on WO days adjacent to holidays',t:'num',min:0,max:4},
-    {k:'shortLeaveMonthlyLimit',n:'Short Leave Monthly Limit',d:'Max short leaves per agent per month',t:'num',min:1,max:10},
-  ];
-  document.getElementById('pg-rules').innerHTML=`
-  <div class="mbar"><div class="bc"><span class="bch" onclick="go('home')">🏠</span><span class="bcs">›</span><span class="bcc">📋 Rules Manager</span></div></div>
+  const pg=document.getElementById('pg-rules');
+  pg.innerHTML=`<div class="mbar"><div class="bc"><span class="bch" onclick="go('home')">🏠</span><span class="bcs">›</span><span class="bcc">📋 Rules Manager</span></div></div>
   <div class="asc">
     <div class="ah">Rules Manager</div>
-    <div class="as">Define scheduling rules for roster generation and short leave management.</div>
-    ${rlist.map((r,i)=>`<div style="background:var(--l1);border:1px solid var(--rim);border-radius:10px;padding:14px;margin-bottom:9px">
-      <div style="display:flex;align-items:center;gap:9px;margin-bottom:8px">
-        <div style="width:24px;height:24px;border-radius:5px;background:var(--cdim);border:1px solid rgba(0,212,255,.15);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;color:var(--cyan);flex-shrink:0">${String(i+1).padStart(2,'0')}</div>
-        <div><div style="font-size:13px;font-weight:600;color:var(--ink0)">${r.n}</div><div style="font-size:11.5px;color:var(--ink3)">${r.d}</div></div>
+    <div class="as">Configure roster generation rules and short leave limits.</div>
+    <div class="agrid">
+      <div class="acard">
+        <div class="act">WO Targets</div>
+        <div class="fg"><label class="fl">Base WO Count per Agent</label><input class="fi" type="number" id="rl-two" value="${RULES.targetWOBase||8}" min="1" max="15" style="background:var(--l2)"></div>
+        <div class="fg" style="display:flex;align-items:center;justify-content:space-between">
+          <label class="fl" style="margin:0">Extra WO if 5th Sunday</label>
+          <label class="tog"><input type="checkbox" id="rl-5s" ${RULES.extraWOIfFifthSunday?'checked':''}><span class="tog-sl"></span></label>
+        </div>
       </div>
-      <div style="display:flex;align-items:center;gap:8px">
-        ${r.t==='bool'?`<label class="tog"><input type="checkbox" id="rl-${r.k}" ${RULES[r.k]?' checked':''}><span class="tog-sl"></span></label><span style="font-size:12.5px;color:var(--ink1)">${RULES[r.k]?'Enabled':'Disabled'}</span>`:
-          r.t==='num'?`<input type="number" style="width:70px;padding:6px 8px;background:var(--l2);border:1px solid var(--rim2);border-radius:6px;color:var(--ink1);font-size:13px;text-align:center;outline:none" id="rl-${r.k}" value="${RULES[r.k]||1}" min="${r.min}" max="${r.max}">`:
-          `<select class="ctrl" id="rl-${r.k}" style="max-width:280px">${r.opts.map(o=>`<option value="${o.v}"${RULES[r.k]===o.v?' selected':''}>${o.l}</option>`).join('')}</select>`}
+      <div class="acard">
+        <div class="act">WO Constraints</div>
+        <div class="fg"><label class="fl">Max Agents on WO per Day</label><input class="fi" type="number" id="rl-mpd" value="${RULES.maxAgentsOnWOPerDay||2}" min="1" max="6" style="background:var(--l2)"></div>
+        <div class="fg"><label class="fl">Max Consecutive Extra WO</label><input class="fi" type="number" id="rl-mcw" value="${RULES.maxConsecutiveWO||3}" min="1" max="7" style="background:var(--l2)"></div>
       </div>
-    </div>`).join('')}
-    <div style="display:flex;gap:8px;margin-top:4px">
-      <button class="btn btn-p" onclick="saveRules()">💾 Save Rules</button>
-      <button class="btn btn-g" onclick="buildRulesPage()">↺ Reset</button>
+      <div class="acard">
+        <div class="act">Pairing & Holiday</div>
+        <div class="fg"><label class="fl">Pairing Rule</label>
+          <select class="ctrl" id="rl-pair">
+            <option value="senior_junior" ${RULES.pairingRule==='senior_junior'?'selected':''}>Senior + Junior</option>
+            <option value="any" ${RULES.pairingRule==='any'?'selected':''}>Any Combination</option>
+          </select>
+        </div>
+        <div class="fg"><label class="fl">Max Agents WO on Holiday</label><input class="fi" type="number" id="rl-hma" value="${RULES.holidayMaxAgents||2}" min="1" max="4" style="background:var(--l2)"></div>
+      </div>
+      <div class="acard">
+        <div class="act">Short Leave</div>
+        <div class="fg"><label class="fl">Monthly Short Leave Limit per Agent</label><input class="fi" type="number" id="rl-sll" value="${RULES.shortLeaveMonthlyLimit||3}" min="1" max="10" style="background:var(--l2)"></div>
+      </div>
     </div>
+    <div style="margin-top:14px"><button class="btn btn-p" onclick="saveRules()" style="padding:9px 22px">💾 Save Rules</button></div>
   </div>`;
 }
 async function saveRules(){
-  const keys=['targetWOBase','extraWOIfFifthSunday','maxAgentsOnWOPerDay','maxConsecutiveWO','pairingRule','minL0Working','holidayMaxWO','holidayMaxAgents','shortLeaveMonthlyLimit'];
-  const out={};
-  keys.forEach(k=>{const el=document.getElementById('rl-'+k);if(!el)return;if(el.type==='checkbox')out[k]=el.checked;else if(el.tagName==='SELECT')out[k]=el.value;else out[k]=+el.value});
-  try{await api('PUT','/api/rules',out);RULES={...RULES,...out};toast('Rules saved','ok')}catch(e){toast(e.message,'err')}
+  const rules={
+    targetWOBase:+document.getElementById('rl-two').value,
+    extraWOIfFifthSunday:document.getElementById('rl-5s').checked,
+    maxAgentsOnWOPerDay:+document.getElementById('rl-mpd').value,
+    maxConsecutiveWO:+document.getElementById('rl-mcw').value,
+    pairingRule:document.getElementById('rl-pair').value,
+    holidayMaxAgents:+document.getElementById('rl-hma').value,
+    shortLeaveMonthlyLimit:+document.getElementById('rl-sll').value,
+  };
+  try{await api('PUT','/api/rules',rules);RULES={...RULES,...rules};toast('Rules saved','ok')}catch(e){toast(e.message,'err')}
 }
 
-// ══ FORMAT ═════════════════════════════════════════════════════════════
-function buildFormatPage(){
-  document.getElementById('pg-format').innerHTML=`
-  <div class="mbar"><div class="bc"><span class="bch" onclick="go('home')">🏠</span><span class="bcs">›</span><span class="bcc">🗂 Roster Format</span></div></div>
-  <div class="asc">
-    <div class="ah">Roster Format</div>
-    <div class="as">Customise columns and cell labels for exported rosters.</div>
-    <div style="background:var(--l1);border:1px solid var(--rim);border-radius:10px;padding:16px;margin-bottom:12px">
-      <div class="act" style="margin-bottom:12px">Visible Columns</div>
-      ${[['showEmp','Show Emp#','Employee ID'],['showLevel','Show Level','L0–L7 level'],['showRole','Show Role','Role name'],['showDept','Show Department','Dept column']].map(([k,n,d])=>`
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--rim)">
-        <div><div style="font-size:13px;color:var(--ink1);font-weight:500">${n}</div><div style="font-size:11px;color:var(--ink3)">${d}</div></div>
-        <label class="tog"><input type="checkbox" id="fmt-${k}" ${RFMT[k]?' checked':''}><span class="tog-sl"></span></label>
-      </div>`).join('')}
-    </div>
-    <div style="background:var(--l1);border:1px solid var(--rim);border-radius:10px;padding:16px;margin-bottom:12px">
-      <div class="act" style="margin-bottom:12px">Cell Labels</div>
-      ${[['cellWO','WO Label','WO'],['cellROI','Working Label','ROI'],['cellHoliday','Holiday Label','H']].map(([k,n,ph])=>`
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--rim)">
-        <div style="font-size:13px;color:var(--ink1);font-weight:500">${n}</div>
-        <input type="text" class="fi" id="fmt-${k}" value="${x(RFMT[k]||ph)}" style="background:var(--l2);border-color:var(--rim);width:80px;text-align:center">
-      </div>`).join('')}
-    </div>
-    <div style="display:flex;gap:8px">
-      <button class="btn btn-p" onclick="saveFmt()">💾 Save</button>
-      <button class="btn btn-g" onclick="buildFormatPage()">↺ Reset</button>
-    </div>
-  </div>`;
-}
-async function saveFmt(){
-  const keys=['showEmp','showLevel','showRole','showDept','cellWO','cellROI','cellHoliday'];
-  const out={};keys.forEach(k=>{const el=document.getElementById('fmt-'+k);if(!el)return;out[k]=el.type==='checkbox'?el.checked:el.value.trim()});
-  try{await api('PUT','/api/rosterformat',out);RFMT={...RFMT,...out};toast('Format saved','ok')}catch(e){toast(e.message,'err')}
-}
-
-// ══ USERS ══════════════════════════════════════════════════════════════
+// ══ USERS ══════════════════════════════════════════════════════════════════════
 function buildUsersPage(){
-  document.getElementById('pg-users').innerHTML=`
-  <div class="mbar"><div class="bc"><span class="bch" onclick="go('home')">🏠</span><span class="bcs">›</span><span class="bcc">👥 User Management</span></div></div>
+  document.getElementById('pg-users').innerHTML=`<div class="mbar"><div class="bc"><span class="bch" onclick="go('home')">🏠</span><span class="bcs">›</span><span class="bcc">👥 User Management</span></div></div>
   <div class="asc">
     <div class="ah">User Management</div>
     <div class="as">Create accounts and control permissions for each user.</div>
@@ -1377,24 +1429,22 @@ function buildUsersPage(){
   </div>`;
 }
 async function loadUsers(){
-  try{
-    const us=await api('GET','/api/users');
-    document.getElementById('uTbl').innerHTML=us.map(u=>{
-      const rp=u.permissions?.roster||{},slp=u.permissions?.shortleave||{};
-      const rPerms=[rp.view&&'View',rp.generate&&'Gen',rp.save&&'Save',rp.export&&'Export',rp.editAgents&&'Agents',rp.editRules&&'Rules',rp.approve&&'Approve'].filter(Boolean).join(', ')||'—';
-      const slPerms=[slp.view&&'View',slp.apply&&'Apply',slp.approve&&'Approve',slp.reject&&'Reject',slp.cancel&&'Cancel',slp.dashboard&&'Dash'].filter(Boolean).join(', ')||'—';
-      const rc={superadmin:'rb-sa',admin:'rb-a',operator:'rb-o'}[u.role]||'rb-o';
-      return`<tr><td style="font-weight:600;color:var(--ink0)">${x(u.name)}</td>
-        <td style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink2)">${x(u.username)}</td>
-        <td><span class="rb ${rc}">${u.role.toUpperCase()}</span></td>
-        <td style="font-size:11px;color:var(--ink2)">${rPerms}</td>
-        <td style="font-size:11px;color:var(--ink2)">${slPerms}</td>
-        <td style="display:flex;gap:5px">
-          <button class="btn btn-g" style="font-size:11px;padding:4px 8px" onclick='openEditUser(${JSON.stringify(u)})'>Edit</button>
-          ${u.username!=='superadmin'?`<button class="btn btn-r" style="font-size:11px;padding:4px 8px" onclick="delUser(${u.id})">Del</button>`:''}
-        </td></tr>`;
-    }).join('');
-  }catch(e){document.getElementById('uTbl').innerHTML=`<tr><td colspan="6" style="color:var(--rose)">${e.message}</td></tr>`}
+  try{const us=await api('GET','/api/users');
+  document.getElementById('uTbl').innerHTML=us.map(u=>{
+    const rp=u.permissions?.roster||{},slp=u.permissions?.shortleave||{};
+    const rPerms=[rp.view&&'View',rp.generate&&'Gen',rp.save&&'Save',rp.export&&'Export',rp.editAgents&&'Agents',rp.editRules&&'Rules',rp.approve&&'Approve'].filter(Boolean).join(', ')||'—';
+    const slPerms=[slp.view&&'View',slp.apply&&'Apply',slp.approve&&'Approve',slp.reject&&'Reject',slp.cancel&&'Cancel',slp.dashboard&&'Dash'].filter(Boolean).join(', ')||'—';
+    const rc={superadmin:'rb-sa',admin:'rb-a',operator:'rb-o'}[u.role]||'rb-o';
+    return`<tr><td style="font-weight:600;color:var(--ink0)">${x(u.name)}</td>
+      <td style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink2)">${x(u.username)}</td>
+      <td><span class="rb ${rc}">${u.role.toUpperCase()}</span></td>
+      <td style="font-size:11px;color:var(--ink2)">${rPerms}</td>
+      <td style="font-size:11px;color:var(--ink2)">${slPerms}</td>
+      <td style="display:flex;gap:5px">
+        <button class="btn btn-g" style="font-size:11px;padding:4px 8px" onclick='openEditUser(${JSON.stringify(u)})'>Edit</button>
+        ${u.username!=='superadmin'?`<button class="btn btn-r" style="font-size:11px;padding:4px 8px" onclick="delUser(${u.id})">Del</button>`:''}
+      </td></tr>`;
+  }).join('')}catch(e){document.getElementById('uTbl').innerHTML=`<tr><td colspan="6" style="color:var(--rose)">${e.message}</td></tr>`}
 }
 function openAddUser(){['au-name','au-user','au-pass'].forEach(id=>document.getElementById(id).value='');document.getElementById('au-role').value='operator';document.getElementById('au-err').className='auth-err';openM('m-adduser')}
 async function createUser(){
@@ -1405,16 +1455,12 @@ async function createUser(){
   try{await api('POST','/api/users',{name:n,username:u,password:p,role:r,permissions:defPerms[r]||{}});closeM('m-adduser');loadUsers();toast('User created','ok')}catch(e){showErr('au-err',e.message)}
 }
 function openEditUser(u){
-  document.getElementById('eu-id').value=u.id;
-  document.getElementById('eu-name').value=u.name;
-  document.getElementById('eu-role').value=u.role;
-  document.getElementById('eu-pw').value='';
+  document.getElementById('eu-id').value=u.id;document.getElementById('eu-name').value=u.name;document.getElementById('eu-role').value=u.role;document.getElementById('eu-pw').value='';
   const rp=u.permissions?.roster||{},slp=u.permissions?.shortleave||{};
   [['ep-r-view',rp.view],['ep-r-gen',rp.generate],['ep-r-save',rp.save],['ep-r-export',rp.export],['ep-r-agents',rp.editAgents],['ep-r-rules',rp.editRules],['ep-r-approve',rp.approve],
    ['ep-sl-view',slp.view],['ep-sl-apply',slp.apply],['ep-sl-approve',slp.approve],['ep-sl-reject',slp.reject],['ep-sl-cancel',slp.cancel],['ep-sl-dash',slp.dashboard]]
   .forEach(([id,v])=>{const el=document.getElementById(id);if(el)el.checked=!!v});
-  document.getElementById('eu-err').className='auth-err';
-  openM('m-edituser');
+  document.getElementById('eu-err').className='auth-err';openM('m-edituser');
 }
 async function updUser(){
   const id=document.getElementById('eu-id').value,n=document.getElementById('eu-name').value.trim(),pw=document.getElementById('eu-pw').value,r=document.getElementById('eu-role').value;
@@ -1422,7 +1468,7 @@ async function updUser(){
   const pl={name:n,role:r,permissions:perms};if(pw){if(pw.length<6){showErr('eu-err','Password min 6 chars');return}pl.password=pw}
   try{await api('PUT',`/api/users/${id}`,pl);closeM('m-edituser');loadUsers();toast('User updated','ok')}catch(e){showErr('eu-err',e.message)}
 }
-async function delUser(id){if(!confirm('Delete this user?'))return;try{await api('DELETE',`/api/users/${id}`);loadUsers();toast('User deleted','ok')}catch(e){toast(e.message,'err')}}
+async function delUser(id){if(!confirm('Delete this user?'))return;try{await api('DELETE',`/api/users/${id}`);loadUsers();toast('Deleted','ok')}catch(e){toast(e.message,'err')}}
 async function chgPwd(){
   const p1=document.getElementById('np1').value,p2=document.getElementById('np2').value,el=document.getElementById('pwd-msg');
   if(!p1||!p2){el.innerHTML='<div class="alrt awarn">Fill both fields.</div>';return}
@@ -1432,13 +1478,12 @@ async function chgPwd(){
 }
 function $cb(id){return!!document.getElementById(id)?.checked}
 
-// ══ BACKUP ═════════════════════════════════════════════════════════════
+// ══ BACKUP ═════════════════════════════════════════════════════════════════════
 function buildBackupPage(){
-  document.getElementById('pg-backup').innerHTML=`
-  <div class="mbar"><div class="bc"><span class="bch" onclick="go('home')">🏠</span><span class="bcs">›</span><span class="bcc">💾 Backup & Restore</span></div></div>
+  document.getElementById('pg-backup').innerHTML=`<div class="mbar"><div class="bc"><span class="bch" onclick="go('home')">🏠</span><span class="bcs">›</span><span class="bcc">💾 Backup & Restore</span></div></div>
   <div class="asc">
     <div class="ah">Backup & Restore</div>
-    <div class="as">Auto-backup runs every 24h. Up to 30 backups are retained.</div>
+    <div class="as">Auto-backup every 24h · Up to 30 snapshots retained.</div>
     <div class="agrid">
       <div class="acard">
         <div class="act">Create Backup</div>
@@ -1458,25 +1503,19 @@ function buildBackupPage(){
     </div>
   </div>`;
 }
-async function createBackup(){
-  try{const r=await api('POST','/api/backup');document.getElementById('bk-msg').innerHTML=`<div class="alrt aok">✓ ${r.file} (${(r.size/1024).toFixed(1)}KB)</div>`;loadBackups()}catch(e){document.getElementById('bk-msg').innerHTML=`<div class="alrt aerr">⚠ ${e.message}</div>`}
-}
+async function createBackup(){try{const r=await api('POST','/api/backup');document.getElementById('bk-msg').innerHTML=`<div class="alrt aok">✓ ${r.file} (${(r.size/1024).toFixed(1)}KB)</div>`;loadBackups()}catch(e){document.getElementById('bk-msg').innerHTML=`<div class="alrt aerr">⚠ ${e.message}</div>`}}
 async function loadBackups(){
-  try{
-    const bks=await api('GET','/api/backups');
-    const el=document.getElementById('bk-list');if(!el)return;
-    if(!bks.length){el.innerHTML='<div style="color:var(--ink3);font-size:13px">No backups yet.</div>';return}
-    el.innerHTML=bks.map(b=>`<div class="bk-item"><div style="font-size:20px">📦</div><div class="bk-info"><div class="bk-name">${x(b.name)}</div><div class="bk-size">${(b.size/1024).toFixed(1)}KB · ${new Date(b.created).toLocaleString()}</div></div><div style="display:flex;gap:5px"><a class="btn btn-g" style="font-size:11px;padding:4px 8px;text-decoration:none" href="/api/backups/${encodeURIComponent(b.name)}/download">⬇</a>${ME.role==='superadmin'?`<button class="btn btn-e" style="font-size:11px;padding:4px 8px" onclick="confirmRestore('${b.name}')">↺</button><button class="btn btn-r" style="font-size:11px;padding:4px 8px" onclick="delBackup('${b.name}')">🗑</button>`:''}</div></div>`).join('');
-  }catch{}
+  try{const bks=await api('GET','/api/backups');const el=document.getElementById('bk-list');if(!el)return;
+  if(!bks.length){el.innerHTML='<div style="color:var(--ink3);font-size:13px">No backups yet.</div>';return}
+  el.innerHTML=bks.map(b=>`<div class="bk-item"><div style="font-size:20px">📦</div><div class="bk-info"><div class="bk-name">${x(b.name)}</div><div class="bk-size">${(b.size/1024).toFixed(1)}KB · ${new Date(b.created).toLocaleString()}</div></div><div style="display:flex;gap:5px"><a class="btn btn-g" style="font-size:11px;padding:4px 8px;text-decoration:none" href="/api/backups/${encodeURIComponent(b.name)}/download">⬇</a>${ME.role==='superadmin'?`<button class="btn btn-e" style="font-size:11px;padding:4px 8px" onclick="confirmRestore('${b.name}')">↺</button><button class="btn btn-r" style="font-size:11px;padding:4px 8px" onclick="delBackup('${b.name}')">🗑</button>`:''}</div></div>`).join('')}catch{}
 }
 function confirmRestore(name){document.getElementById('restore-name').textContent=name;openM('m-restore')}
 async function doRestore(){const name=document.getElementById('restore-name').textContent;try{await api('POST',`/api/backups/${encodeURIComponent(name)}/restore`);closeM('m-restore');alert('✓ Restored! Reloading…');location.reload()}catch(e){alert('Error: '+e.message)}}
 async function delBackup(name){if(!confirm('Delete backup?'))return;try{await api('DELETE',`/api/backups/${encodeURIComponent(name)}`);loadBackups()}catch(e){toast(e.message,'err')}}
 
-// ══ SAVED ROSTERS (ADMIN) ══════════════════════════════════════════════
+// ══ SAVED ROSTERS ══════════════════════════════════════════════════════════════
 function buildSavedPage(){
-  document.getElementById('pg-saved').innerHTML=`
-  <div class="mbar"><div class="bc"><span class="bch" onclick="go('home')">🏠</span><span class="bcs">›</span><span class="bcc">🗄 Saved Rosters</span></div></div>
+  document.getElementById('pg-saved').innerHTML=`<div class="mbar"><div class="bc"><span class="bch" onclick="go('home')">🏠</span><span class="bcs">›</span><span class="bcc">🗄 Saved Rosters</span></div></div>
   <div style="flex:1;overflow-y:auto;padding:20px 24px">
     <div style="font-size:18px;font-weight:800;color:var(--ink0);margin-bottom:3px">Saved Rosters</div>
     <div style="font-size:13px;color:var(--ink3);margin-bottom:14px">Click to load. Use "Approve & Publish" to make a roster visible to operators.</div>
@@ -1484,43 +1523,32 @@ function buildSavedPage(){
   </div>`;
 }
 async function loadSaved(){
-  try{
-    const list=await api('GET','/api/rosters');
-    const el=document.getElementById('saved-list');if(!el)return;
-    if(!list.length){el.innerHTML='<div class="alrt ainfo">No saved rosters yet.</div>';return}
-    el.innerHTML=list.map(r=>`
-    <div style="background:var(--l1);border:1px solid var(--rim);border-radius:10px;padding:13px 16px;margin-bottom:7px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .14s" onclick="loadSavedR(${r.id})" onmouseover="this.style.borderColor='var(--cyan)'" onmouseout="this.style.borderColor=''">
-      <div style="font-size:22px">📅</div>
-      <div style="flex:1"><div style="font-size:13.5px;font-weight:700;color:var(--ink0)">${x(r.title)}</div>
-      <div style="font-size:11px;color:var(--ink3);font-family:'IBM Plex Mono',monospace;margin-top:2px">${r.agentCount} agents · ${r.targetWO} WOs · Saved ${new Date(r.savedAt).toLocaleDateString()} by ${x(r.savedBy)}</div></div>
-      <span class="chip ${r.approved?'cappr':'cpend'}">${r.approved?'✓ Published':'Draft'}</span>
-      ${!r.approved&&can('roster','approve')?`<button class="btn btn-e" style="font-size:11px;padding:4px 8px" onclick="event.stopPropagation();approveRoster(${r.id},this)">Approve</button>`:''}
-      <button class="btn btn-r" style="font-size:11px;padding:4px 8px" onclick="event.stopPropagation();delR(${r.id})">🗑</button>
-    </div>`).join('');
-  }catch(e){const el=document.getElementById('saved-list');if(el)el.innerHTML=`<div class="alrt aerr">${e.message}</div>`}
+  try{const list=await api('GET','/api/rosters');const el=document.getElementById('saved-list');if(!el)return;
+  if(!list.length){el.innerHTML='<div class="alrt ainfo">No saved rosters yet.</div>';return}
+  el.innerHTML=list.map(r=>`<div style="background:var(--l1);border:1px solid var(--rim);border-radius:10px;padding:13px 16px;margin-bottom:7px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .14s" onclick="loadSavedR(${r.id})" onmouseover="this.style.borderColor='var(--cyan)'" onmouseout="this.style.borderColor=''">
+    <div style="font-size:22px">📅</div>
+    <div style="flex:1"><div style="font-size:13.5px;font-weight:700;color:var(--ink0)">${x(r.title)}</div>
+    <div style="font-size:11px;color:var(--ink3);font-family:'IBM Plex Mono',monospace;margin-top:2px">${r.agentCount} agents · ${r.targetWO} WOs · Saved ${new Date(r.savedAt).toLocaleDateString()} by ${x(r.savedBy)}</div>
+    ${r.approved?`<div style="font-size:10.5px;color:var(--em);margin-top:2px">✓ Approved by ${x(r.approvedBy)} on ${new Date(r.approvedAt).toLocaleDateString()}</div>`:''}
+    </div>
+    <span class="chip ${r.approved?'cappr':'cpend'}">${r.approved?'✓ Published':'Draft'}</span>
+    ${!r.approved&&can('roster','approve')?`<button class="btn btn-e" style="font-size:11px;padding:4px 8px" onclick="event.stopPropagation();approveRoster(${r.id})">Approve</button>`:''}
+    <button class="btn btn-r" style="font-size:11px;padding:4px 8px" onclick="event.stopPropagation();delR(${r.id})">🗑</button>
+  </div>`).join('')}catch(e){const el=document.getElementById('saved-list');if(el)el.innerHTML=`<div class="alrt aerr">${e.message}</div>`}
 }
-async function approveRoster(id,btn){
-  try{await api('PUT',`/api/rosters/${id}/approve`);toast('Roster approved & published to operators','ok');loadSaved()}catch(e){toast(e.message,'err')}
-}
+async function approveRoster(id){try{await api('PUT',`/api/rosters/${id}/approve`);toast('Approved & published to operators','ok');loadSaved()}catch(e){toast(e.message,'err')}}
 async function loadSavedR(id){
-  try{
-    const d=await api('GET',`/api/rosters/${id}`);
-    const dow={};(d.dowSer||[]).forEach(([k,v])=>dow[+k]=v);
-    const uSet=new Set(d.univSetSer||[]);
-    const asn={};(d.asgnSer||[]).forEach(([day,prs])=>{asn[day]=prs.map(pair=>pair.map(n=>d.agents.find(a=>a.name===n)).filter(Boolean))});
-    const sc={};(d.schedSer||[]).forEach(([n,v])=>{sc[n]={};Object.entries(v).forEach(([dd,s])=>sc[n][+dd]=s)});
-    const dt={};(d.dtypeSer||[]).forEach(([k,v])=>dt[+k]=v);
-    ROSTER={yr:d.year,mo:d.month,days:d.days,dow,suns:d.sundays||[],wos:d.woSats||[],holDays:d.holDays||[],holNames:d.holNames||[],uSet,tgt:d.target,ex:d.extra,asn,sc,dt,agents:d.agents,savedId:d.id,approvedBy:d.approvedBy};
-    AG=d.agents;go('roster');renderAG();renderAll(ROSTER);
-    document.getElementById('expRow').style.display='flex';
-    if(can('roster','save')) document.getElementById('btnSv').style.display='inline-flex';
-    if(can('roster','approve')) document.getElementById('btnApprove').style.display='inline-flex';
-  }catch(e){toast('Failed to load: '+e.message,'err')}
+  try{const d=await api('GET',`/api/rosters/${id}`);const r=deserializeRoster(d);
+  ROSTER=r;AG=d.agents;go('roster');renderAG();renderAll(ROSTER);
+  document.getElementById('expRow').style.display='flex';
+  if(can('roster','save'))document.getElementById('btnSv').style.display='inline-flex';
+  if(can('roster','approve'))document.getElementById('btnApprove').style.display='inline-flex';
+  }catch(e){toast('Failed: '+e.message,'err')}
 }
 async function delR(id){if(!confirm('Delete roster?'))return;try{await api('DELETE',`/api/rosters/${id}`);loadSaved();toast('Deleted','ok')}catch(e){toast(e.message,'err')}}
 
-// ══ UTILS ══════════════════════════════════════════════════════════════
-function rAlert(msg,t){const b=document.getElementById('rAB');if(b){b.innerHTML=`<div class="alrt ${t==='ok'?'aok':t==='err'?'aerr':'awarn'}">${msg}</div>`;setTimeout(()=>b.innerHTML='',7000)}}
+// ══ UTILS ══════════════════════════════════════════════════════════════════════
+function rAlert(msg,t){const b=document.getElementById('rAB');if(b){b.innerHTML=`<div class="alrt ${t==='ok'?'aok':t==='err'?'aerr':'awarn'}">${msg}</div>`;setTimeout(()=>b.innerHTML='',8000)}}
 function openM(id){document.getElementById(id).classList.add('on')}
 function closeM(id){document.getElementById(id).classList.remove('on')}
 function showErr(id,msg){const e=document.getElementById(id);if(e){e.textContent='⚠ '+msg;e.className='auth-err on'}}
@@ -1529,12 +1557,10 @@ document.querySelectorAll('.mbg').forEach(bg=>bg.addEventListener('click',e=>{if
 
 // Bootstrap
 window.addEventListener('DOMContentLoaded',async()=>{
-  try{
-    const d=await api('GET','/api/me');
-    ME=d.user;MACCESS=d.moduleAccess||{};RULES=d.rules||{};RFMT=d.rosterFormat||{};
-    await Promise.all([loadAG(),loadHolidays()]);
-    initApp();
-  }catch{}
+  try{const d=await api('GET','/api/me');ME=d.user;MACCESS=d.moduleAccess||{};RULES=d.rules||{};RFMT=d.rosterFormat||{};
+  await Promise.all([loadAG(),loadHolidays()]);
+  if(isAdmin()) AGENTLEAVES=await api('GET','/api/agentleaves').catch(()=>({}));
+  initApp()}catch{}
 });
 </script>
 </body>
