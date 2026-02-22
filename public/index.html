@@ -721,6 +721,11 @@ function openDP(mode,agentName,monthKey,yr,mo){
   _dpSel=mode==='leave'?[...(al.leaves||[])]:mode==='fixedwo'?[...(al.fixedWOs||[])]:[];
   const dim=new Date(yr,mo+1,0).getDate();const days=Array.from({length:dim},(_,i)=>i+1);
   const lSet=new Set(al.leaves||[]);const fSet=new Set(al.fixedWOs||[]);
+  // Per-agent sat config
+  const agObj=AG.find(a=>a.name===agentName)||{satConfig:'all'};
+  const allSats=days.filter(d=>new Date(yr,mo,d).getDay()===6);
+  function agSatWOSet(){const sc=agObj.satConfig||'all';if(sc==='all')return new Set(allSats);if(sc==='1st3rd')return new Set([allSats[0],allSats[2]].filter(d=>d!=null));if(sc==='2nd4th')return new Set([allSats[1],allSats[3]].filter(d=>d!=null));return new Set();}
+  const agentSatWOs=agSatWOSet();
   const mholDays=new Set(HOLIDAYS.filter(h=>{const dt=new Date(h.date);return dt.getFullYear()===yr&&dt.getMonth()===mo}).map(h=>new Date(h.date).getDate()));
   if(mode==='leave'){
     document.getElementById('dp-title').textContent=`Set Leave Days — ${agentName} · ${MN[mo]} ${yr}`;
@@ -737,17 +742,21 @@ function openDP(mode,agentName,monthKey,yr,mo){
     const ds=`${yr}-${String(mo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const isSun=dow2===0,isSat=dow2===6,isHol=mholDays.has(d);
     const isLv=lSet.has(ds),isFW=fSet.has(ds);
-    const isUniv=isSun||isSat||isHol;
+    const isAgentSatWO=isSat&&agentSatWOs.has(d); // This sat is a WO for this agent
+    const isAgentSatWork=isSat&&!agentSatWOs.has(d); // This sat the agent WORKS
+    const isUniv=isSun||isAgentSatWO||isHol;
     let disabled=false;
-    if(mode==='fixedwo')disabled=isUniv||isLv;
+    if(mode==='fixedwo')disabled=isSun||isAgentSatWO||isHol||isLv; // can't set fixedWO on auto-WO days
+    // For leave mode, ALL days are clickable including working Saturdays
     const isSel=_dpSel.includes(ds);
     // Determine cell appearance
     let bdr,bg2,numCol,tagTxt,tagCol;
     if(isSel&&mode==='leave'){bdr='#C0392B';bg2='#FFBABA';numCol='#8B0000';tagTxt='LV';tagCol='#8B0000'}
     else if(isSel&&mode==='fixedwo'){bdr='var(--cyan)';bg2='rgba(0,212,255,.18)';numCol='var(--cyan)';tagTxt='WO';tagCol='var(--cyan)'}
     else if(isHol){bdr='#C47D0E';bg2='#F9CB9C';numCol='#7D4E00';tagTxt='HOL';tagCol='#7D4E00'}
-    else if(isSun){bdr='var(--sun-bg)';bg2='var(--sun-bg)';numCol='var(--sun-c)';tagTxt='SUN';tagCol='var(--sun-c)'}
-    else if(isSat){bdr='var(--sat-bg)';bg2='var(--sat-bg)';numCol='var(--sat-c)';tagTxt='SAT';tagCol='var(--sat-c)'}
+    else if(isSun){bdr='var(--sun-bg)';bg2='var(--sun-bg)';numCol='var(--sun-c)';tagTxt='SUN WO';tagCol='var(--sun-c)'}
+    else if(isAgentSatWO){bdr='var(--sat-bg)';bg2='var(--sat-bg)';numCol='var(--sat-c)';tagTxt='SAT WO';tagCol='var(--sat-c)'}
+    else if(isAgentSatWork){bdr='rgba(0,212,255,.2)';bg2='rgba(0,212,255,.06)';numCol='var(--cyan)';tagTxt='WORK';tagCol='var(--cyan)'}
     else if(isLv&&mode==='fixedwo'){bdr='#FFBABA';bg2='rgba(255,186,186,.15)';numCol='#C0392B';tagTxt='LV';tagCol='#C0392B'}
     else{bdr='var(--rim)';bg2='var(--l2)';numCol='var(--ink1)';tagTxt='';tagCol='transparent'}
     return`<div class="day-cell" data-ds="${ds}" data-disabled="${disabled}" style="border:2px solid ${bdr};background:${bg2};opacity:${disabled?'.4':'1'};cursor:${disabled?'not-allowed':'pointer'};border-radius:6px;padding:6px 3px;text-align:center;transition:all .12s;user-select:none">
@@ -801,14 +810,26 @@ async function saveDP(){
 function renderAG(){
   const el=document.getElementById('agCnt');if(el)el.textContent=`(${AG.length})`;
   const ed=can('roster','editAgents'),list=document.getElementById('agList');if(!list)return;
-  list.innerHTML=AG.map((a,i)=>`<div style="display:grid;grid-template-columns:48px 1fr 36px ${ed?'18px':''};gap:3px;padding:3px;border-radius:5px;align-items:center;margin-bottom:2px" onmouseover="this.style.background='var(--l2)'" onmouseout="this.style.background=''">
-    <input style="background:var(--l2);border:1px solid var(--rim);border-radius:4px;padding:2px 4px;color:var(--ink1);font-size:9.5px;outline:none;width:100%;font-family:'IBM Plex Mono',monospace" value="${x(a.emp)}" oninput="AG[${i}].emp=this.value" ${ed?'':'readonly'}>
-    <input style="background:var(--l2);border:1px solid var(--rim);border-radius:4px;padding:2px 4px;color:var(--ink1);font-size:11px;outline:none;width:100%" value="${x(a.name)}" oninput="AG[${i}].name=this.value" ${ed?'':'readonly'}>
-    <select style="background:var(--l2);border:1px solid var(--rim);border-radius:4px;padding:2px;color:var(--ink1);font-family:'IBM Plex Mono',monospace;font-size:9.5px;outline:none;width:100%;appearance:none" onchange="AG[${i}].level=+this.value" ${ed?'':'disabled'}>
-      ${[0,1,2,3,4,5,6,7].map(l=>`<option value="${l}"${l===a.level?' selected':''}>L${l}</option>`).join('')}
-    </select>
-    ${ed?`<button style="background:none;border:none;cursor:pointer;color:var(--ink4);font-size:11px" onmouseover="this.style.color='var(--rose)'" onmouseout="this.style.color=''" onclick="rmAg(${i})">✕</button>`:''}
-  </div>`).join('');
+  list.innerHTML=AG.map((a,i)=>{
+    // satConfig: 'all'=all sats WO, '1st3rd'=1st&3rd sat WO (works 2nd&4th), '2nd4th'=2nd&4th sat WO (works 1st&3rd), 'none'=no sat WO (works all sats)
+    const sc=a.satConfig||'all';
+    const scLabel={'all':'All Sat WO','1st3rd':'1st&3rd WO','2nd4th':'2nd&4th WO','none':'No Sat WO'}[sc]||'All Sat WO';
+    const scColor={'all':'var(--cyan)','1st3rd':'var(--amber)','2nd4th':'#f472b6','none':'var(--ink3)'}[sc];
+    return`<div style="border:1px solid var(--rim);border-radius:6px;padding:4px 6px;margin-bottom:4px;background:var(--l2)">
+      <div style="display:grid;grid-template-columns:48px 1fr 36px ${ed?'18px':''};gap:3px;align-items:center;margin-bottom:${ed?'5px':'0'}">
+        <input style="background:var(--l3);border:1px solid var(--rim);border-radius:4px;padding:2px 4px;color:var(--ink1);font-size:9.5px;outline:none;width:100%;font-family:'IBM Plex Mono',monospace" value="${x(a.emp)}" oninput="AG[${i}].emp=this.value" ${ed?'':'readonly'}>
+        <input style="background:var(--l3);border:1px solid var(--rim);border-radius:4px;padding:2px 4px;color:var(--ink1);font-size:11px;outline:none;width:100%" value="${x(a.name)}" oninput="AG[${i}].name=this.value" ${ed?'':'readonly'}>
+        <select style="background:var(--l3);border:1px solid var(--rim);border-radius:4px;padding:2px;color:var(--ink1);font-family:'IBM Plex Mono',monospace;font-size:9.5px;outline:none;width:100%;appearance:none" onchange="AG[${i}].level=+this.value" ${ed?'':'disabled'}>
+          ${[0,1,2,3,4,5,6,7].map(l=>`<option value="${l}"${l===a.level?' selected':''}>L${l}</option>`).join('')}
+        </select>
+        ${ed?`<button style="background:none;border:none;cursor:pointer;color:var(--ink4);font-size:11px" onmouseover="this.style.color='var(--rose)'" onmouseout="this.style.color=''" onclick="rmAg(${i})">✕</button>`:''}
+      </div>
+      ${ed?`<div style="display:flex;align-items:center;gap:5px">
+        <span style="font-size:9px;color:var(--ink3);flex:1">Sat WO:</span>
+        ${['all','1st3rd','2nd4th','none'].map(v=>`<button style="font-size:9px;padding:2px 6px;border-radius:4px;border:1px solid ${sc===v?scColor:'var(--rim)'};background:${sc===v?scColor+'22':'none'};color:${sc===v?scColor:'var(--ink3)'};cursor:pointer;font-weight:${sc===v?'700':'400'}" onclick="AG[${i}].satConfig='${v}';syncAG();renderAG()">${{'all':'All','1st3rd':'1st&3rd','2nd4th':'2nd&4th','none':'None'}[v]}</button>`).join('')}
+      </div>`:`<div style="font-size:9px;color:${scColor};margin-top:2px">Sat: ${scLabel}</div>`}
+    </div>`;
+  }).join('');
 }
 function addAgent(){AG.push({emp:'EP'+(Math.floor(Math.random()*900)+100),name:'New Agent',level:1,dept:'Customer Service',loc:'Gurgaon-US'});renderAG();syncAG()}
 function rmAg(i){AG.splice(i,1);renderAG();syncAG()}
@@ -837,24 +858,42 @@ function compute(){
   const R=RULES;
   const dim=new Date(yr,mo+1,0).getDate(),days=Array.from({length:dim},(_,i)=>i+1);
   const dow={};days.forEach(d=>dow[d]=new Date(yr,mo,d).getDay());
-  // ALL Saturdays and Sundays are universal WO (Requirement 3)
   const suns=days.filter(d=>dow[d]===0);
-  const sats=days.filter(d=>dow[d]===6);
+  const sats=days.filter(d=>dow[d]===6); // all sats in order: [sat1, sat2, sat3, sat4, sat5?]
   const mhols=HOLIDAYS.filter(h=>{const dt=new Date(h.date);return dt.getFullYear()===yr&&dt.getMonth()===mo});
   const holDays=new Set(mhols.map(h=>new Date(h.date).getDate()));
-  // Universal WO = all Sundays + all Saturdays (holidays are separate HOL, not counted in uSet)
-  const uSet=new Set([...suns,...sats]);
-  // Target extra WOs = base minus universal days (holidays are free days but NOT extra WO)
-  const univCount=uSet.size; // Sun+Sat count
-  const tgt=(R.targetWOBase||8)+(suns.length>=5&&R.extraWOIfFifthSunday?1:0);
-  const ex=Math.max(0,tgt-univCount);
+
+  // Per-agent Saturday WO set:
+  // satConfig: 'all' = all sats are WO, '1st3rd' = 1st & 3rd sat are WO, '2nd4th' = 2nd & 4th sat are WO, 'none' = no sat WO
+  function agentSatWOs(a){
+    const sc=a.satConfig||'all';
+    if(sc==='all')  return new Set(sats);
+    if(sc==='1st3rd')return new Set([sats[0],sats[2]].filter(d=>d!=null));
+    if(sc==='2nd4th')return new Set([sats[1],sats[3]].filter(d=>d!=null));
+    return new Set(); // 'none' = works all saturdays
+  }
+  // Universal WO = Sundays only (Sat WO is per-agent); Holidays are separate HOL
+  const uSet=new Set(suns); // only Sundays are truly universal
+
+  // For each agent build their personal WO-Saturday set and working-Saturday set
+  const agSatWO={},agSatWork={};
+  AG.forEach(a=>{
+    const satWOs=agentSatWOs(a);
+    agSatWO[a.name]=satWOs;
+    agSatWork[a.name]=new Set(sats.filter(d=>!satWOs.has(d)));
+  });
+
+  // Target WO per agent — includes their personal sat WOs + extra weekday WOs
+  // Base target is total WOs per month (e.g. 14), we subtract per-agent universal (Sun + their Sat WOs)
+  const tgtBase=(R.targetWOBase||8)+(suns.length>=5&&R.extraWOIfFifthSunday?1:0);
+
   const maxPD=R.maxAgentsOnWOPerDay||2;
   const monthKey=`${yr}-${String(mo+1).padStart(2,'0')}`;
 
   // Boundary rule
   const prevD=new Date(yr,mo,0);const prevMo=prevD.getMonth(),prevYr=prevD.getFullYear(),prevDt=prevD.getDate();
-  const prevDow=new Date(prevYr,prevMo,prevDt).getDay();
-  const prevIsWO=prevDow===0||prevDow===6||HOLIDAYS.find(h=>{const dt=new Date(h.date);return dt.getFullYear()===prevYr&&dt.getMonth()===prevMo&&dt.getDate()===prevDt});
+  const prevDow2=new Date(prevYr,prevMo,prevDt).getDay();
+  const prevIsWO=prevDow2===0||prevDow2===6||HOLIDAYS.find(h=>{const dt=new Date(h.date);return dt.getFullYear()===prevYr&&dt.getMonth()===prevMo&&dt.getDate()===prevDt});
   const firstIsWO=dow[1]===0||dow[1]===6||holDays.has(1);
   const blockDay2=!!(prevIsWO&&firstIsWO);
 
@@ -866,13 +905,22 @@ function compute(){
     agFW[a.name]=new Set((al.fixedWOs||[]).map(s=>+s.split('-')[2]));
   });
 
-  const qt={};AG.forEach(a=>{qt[a.name]=ex});
+  // Extra weekday WOs needed per agent = tgtBase - suns.length - agentSatWOs.size
+  const qt={};
+  AG.forEach(a=>{
+    const universalWOCount=suns.length+agSatWO[a.name].size;
+    qt[a.name]=Math.max(0,tgtBase-universalWOCount);
+  });
+
   const ew={};AG.forEach(a=>ew[a.name]=[]);
   const asn={},dWO={};
 
-  // Phase 1: Fixed WO days (agent preferred WO on working days only — not Sun/Sat/Hol)
+  // Phase 1: Fixed WO days on working days
   const allFWDays=new Set();
-  AG.forEach(a=>agFW[a.name].forEach(d=>{if(!uSet.has(d)&&!holDays.has(d))allFWDays.add(d)}));
+  AG.forEach(a=>agFW[a.name].forEach(d=>{
+    // Fixed WO only valid on days that aren't universal WO (Sun), not Sat WO for this agent, not holiday
+    if(!uSet.has(d)&&!agSatWO[a.name].has(d)&&!holDays.has(d))allFWDays.add(d);
+  }));
   for(const day of [...allFWDays].sort((a,b)=>a-b)){
     if(blockDay2&&day===2)continue;
     const fAgents=AG.filter(a=>agFW[a.name].has(day)&&!agLv[a.name].has(day)&&ew[a.name].length<qt[a.name]&&!ew[a.name].includes(day));
@@ -881,9 +929,10 @@ function compute(){
     if(pairs.length)asn[day]=(asn[day]||[]).concat(pairs);
   }
 
-  // Phase 2: Regular WO assignment on working days (not Sun/Sat/Hol/fixedWO days)
+  // Phase 2: Regular WO assignment — weekdays only (not Sun, not any Sat, not Hol)
   const w3=(a,d)=>{const s=new Set([...ew[a.name],d]);for(const xd of s)if(s.has(xd+1)&&s.has(xd+2))return true;return false};
-  const wd=days.filter(d=>!uSet.has(d)&&!holDays.has(d)&&!allFWDays.has(d)&&!(blockDay2&&d===2));
+  // Working days = not Sunday, not Saturday, not Holiday, not already handled by fixedWO phase
+  const wd=days.filter(d=>dow[d]!==0&&dow[d]!==6&&!holDays.has(d)&&!allFWDays.has(d)&&!(blockDay2&&d===2));
   for(const day of wd){
     if(AG.every(a=>ew[a.name].length>=qt[a.name]))continue;
     if((dWO[day]||0)>=maxPD)continue;
@@ -901,21 +950,26 @@ function compute(){
   const sh=AG.filter(a=>ew[a.name].length<qt[a.name]);
   if(sh.length)throw new Error(`Could not assign all extra WOs to: ${sh.map(a=>a.name).join(', ')}. Try reducing target or relaxing rules.`);
 
-  // Build schedule:
-  // SUN/SAT  → 'WO'  (universal weekend WO)
-  // HOL      → 'HOL' (holiday — separate color, agent is on holiday, not counted as extra WO)
-  // LV       → 'LV'  (agent leave — red)
-  // extra WO → 'WO'
-  // else     → 'ROI'
+  // Build schedule per agent per day:
+  // Sunday     → WO (universal)
+  // Saturday   → WO if in agent's satWO set, else ROI (they work that sat)
+  // Holiday    → HOL
+  // Leave      → LV
+  // Extra WO   → WO
+  // else       → ROI
   const sc={};AG.forEach(a=>{sc[a.name]={};days.forEach(d=>{
-    if(uSet.has(d))        sc[a.name][d]='WO';   // Sun or Sat
-    else if(holDays.has(d))sc[a.name][d]='HOL';  // Holiday — orange, separate
-    else if(agLv[a.name].has(d))sc[a.name][d]='LV'; // Leave — red
-    else if(ew[a.name].includes(d))sc[a.name][d]='WO'; // Extra WO — purple
-    else sc[a.name][d]='ROI';
+    if(dow[d]===0)               sc[a.name][d]='WO';   // Sunday
+    else if(holDays.has(d))       sc[a.name][d]='HOL';  // Holiday
+    else if(dow[d]===6){
+      if(agSatWO[a.name].has(d)) sc[a.name][d]='WO';   // Agent's WO Saturday
+      else                        sc[a.name][d]='ROI';  // Agent works this Saturday
+    }
+    else if(agLv[a.name].has(d)) sc[a.name][d]='LV';   // Leave
+    else if(ew[a.name].includes(d))sc[a.name][d]='WO'; // Weekday extra WO
+    else                          sc[a.name][d]='ROI';  // Working day
   })});
-  const dt={};days.forEach(d=>{dt[d]=suns.includes(d)?'SUN':sats.includes(d)?'SAT':holDays.has(d)?'HOL':'WORK'});
-  return{yr,mo,days,dow,suns,wos:sats,holDays:[...holDays],holNames:mhols,uSet,tgt,ex,asn,sc,dt,agents:[...AG],blockDay2};
+  const dt={};days.forEach(d=>{dt[d]=dow[d]===0?'SUN':dow[d]===6?'SAT':holDays.has(d)?'HOL':'WORK'});
+  return{yr,mo,days,dow,suns,wos:sats,holDays:[...holDays],holNames:mhols,uSet,tgt:tgtBase,ex:0,asn,sc,dt,agents:[...AG],blockDay2,agSatWO:Object.fromEntries(AG.map(a=>[a.name,[...agSatWO[a.name]]]))};
 }
 
 // RENDER ALL
@@ -946,25 +1000,25 @@ function cellStyle(s,dayType){
 
 function bCal(r,tid){
   const mn=MN[r.mo];const hSet=new Set(r.holDays||[]);
-  let h=`<thead><tr><th class="thsno">S#</th><th class="tha">${mn} ${r.yr}</th>`;
+  let h='<thead><tr><th class="thsno">S#</th><th class="tha">'+mn+' '+r.yr+'</th>';
   r.days.forEach(d=>{
     const dw=r.dow[d];const isSun=dw===0,isSat=dw===6,isHol=hSet.has(d);
     const cls=isSun?'thsun':isSat?'thsat':isHol?'thhol':'';
-    h+=`<th class="${cls}" style="min-width:30px">${DS[dw]}<br>${d}</th>`;
+    h+='<th class="'+cls+'" style="min-width:30px">'+DS[dw]+'<br>'+d+'</th>';
   });
-  h+=`<th class="tht">WO</th></tr></thead><tbody>`;
+  h+='<th class="tht">WO</th></tr></thead><tbody>';
   r.agents.forEach((a,ri)=>{
-    const c=LC[a.level]||LC[0];h+=`<tr>`;
-    h+=`<td class="tdsno">${ri+1}</td>`;
-    h+=`<td class="tda" style="border-left:3px solid ${c.fg}"><span style="color:var(--ink0)">${x(a.name)}</span><br><span style="font-size:8.5px;color:var(--ink4);font-family:'IBM Plex Mono',monospace">${x(a.emp)} L${a.level}</span></td>`;
+    const c=LC[a.level]||LC[0];h+='<tr>';
+    h+='<td class="tdsno">'+(ri+1)+'</td>';
+    h+='<td class="tda" style="border-left:3px solid '+c.fg+'"><span style="color:var(--ink0)">'+x(a.name)+'</span><br><span style="font-size:8.5px;color:var(--ink4);font-family:\'IBM Plex Mono\',monospace">'+x(a.emp)+' L'+a.level+'</span></td>';
     let tot=0;
     r.days.forEach(d=>{
       const s=r.sc[a.name]?.[d]||'ROI';const dayType=r.dt[d]||'WORK';
       if(s==='WO'||dayType==='HOL')tot++;
       const v=cellStyle(s,dayType);
-      h+=`<td style="background:${v.bg};color:${v.fg};font-weight:${v.fw};padding:3px 2px;font-size:8.5px;font-family:'IBM Plex Mono',monospace;text-align:center">${v.txt}</td>`;
+      h+='<td style="background:'+v.bg+';color:'+v.fg+';font-weight:'+v.fw+';padding:3px 2px;font-size:8.5px;font-family:\'IBM Plex Mono\',monospace;text-align:center">'+v.txt+'</td>';
     });
-    h+=`<td class="tdt"><b>${tot}</b></td></tr>`;
+    h+='<td class="tdt"><b>'+tot+'</b></td></tr>';
   });
   h+='</tbody>';document.getElementById(tid).innerHTML=h;
 }
