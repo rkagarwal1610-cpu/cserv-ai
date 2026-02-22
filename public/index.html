@@ -939,7 +939,22 @@ function compute(){
   }
 
   // Phase 2: Regular WO assignment — weekdays only (not Sun, not any Sat, not Hol)
-  const w3=(a,d)=>{const s=new Set([...ew[a.name],d]);for(const xd of s)if(s.has(xd+1)&&s.has(xd+2))return true;return false};
+  // Consecutive WO check: only count EXTRA weekday WOs in a run — universal WOs (Sun/Sat), HOL and LV days
+  // naturally BREAK a consecutive run so they must not be counted
+  const w3=(a,d)=>{
+    // Build the set of extra WO days if we add day d
+    const extraSet=new Set([...ew[a.name],d]);
+    // Check for 3 consecutive CALENDAR days that are ALL extra weekday WOs
+    // A holiday, leave, Sun, or Sat between them breaks the sequence
+    for(const xd of extraSet){
+      if(extraSet.has(xd+1)&&extraSet.has(xd+2)){
+        // All three must be true weekdays (not Sun/Sat/Hol/LV) to count as violation
+        const allWeek=[xd,xd+1,xd+2].every(dd=>dow[dd]!==0&&dow[dd]!==6&&!holDays.has(dd)&&!agLv[a.name].has(dd));
+        if(allWeek)return true;
+      }
+    }
+    return false;
+  };
   // Working days = not Sunday, not Saturday, not Holiday, not already handled by fixedWO phase
   const wd=days.filter(d=>dow[d]!==0&&dow[d]!==6&&!holDays.has(d)&&!allFWDays.has(d)&&!(blockDay2&&d===2));
   for(const day of wd){
@@ -956,7 +971,24 @@ function compute(){
     asn[day]=(asn[day]||[]);asn[day].push([a1,a2]);dWO[day]=(dWO[day]||0)+2;
   }
 
+  // Second pass: agents still under quota — try solo assignment (relaxed pairing)
+  const stillShort=AG.filter(a=>ew[a.name].length<qt[a.name]);
+  if(stillShort.length){
+    for(const day of wd){
+      if(stillShort.every(a=>ew[a.name].length>=qt[a.name]))break;
+      if((dWO[day]||0)>=maxPD)continue;
+      for(const a of stillShort){
+        if(ew[a.name].length>=qt[a.name])continue;
+        if(agLv[a.name].has(day))continue;
+        if(ew[a.name].includes(day))continue;
+        if(w3(a,day))continue;
+        ew[a.name].push(day);dWO[day]=(dWO[day]||0)+1;
+        // Add solo entry to asn for pairs view (single agent)
+        if(!asn[day])asn[day]=[];
+        // Only add to asn if not already recorded
   // Agents who couldn't reach full quota (due to leave days / pairing constraints)
+  const sh=AG.filter(a=>ew[a.name].length<qt[a.name]);
+  const warnings=sh.length?[`⚠ Fewer WOs assigned for: ${sh.map(a=>`${a.name} (${suns.length+agSatWO[a.name].size+ew[a.name].length} of ${tgtBase})`).join(', ')} — leave days reduced available slots.`]:[];
   const sh=AG.filter(a=>ew[a.name].length<qt[a.name]);
   const warnings=sh.length?[`⚠ Fewer WOs assigned for: ${sh.map(a=>`${a.name} (${suns.length+agSatWO[a.name].size+ew[a.name].length} of ${tgtBase})`).join(', ')} — leave days reduced available slots.`]:[];
 
