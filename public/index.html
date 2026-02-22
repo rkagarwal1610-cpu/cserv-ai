@@ -1061,61 +1061,87 @@ async function loadSL(){try{SLS=await api('GET','/api/shortleaves')}catch{SLS=[]
 function renderSLDash(){
   const el=document.getElementById('sl-dash');if(!el)return;
   const tot=SLS.length,appr=SLS.filter(s=>s.status==='Approved').length,reje=SLS.filter(s=>s.status==='Rejected').length,canc=SLS.filter(s=>s.status==='Cancelled').length,pend=SLS.filter(s=>s.status==='Pending').length;
-  const lim=RULES.shortLeaveMonthlyLimit||3;const now=new Date();const curMon=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const lim=RULES.shortLeaveMonthlyLimit||3;const now=new Date();const curMon=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
   const agents={};SLS.forEach(sl=>{if(!agents[sl.agentName])agents[sl.agentName]={name:sl.agentName,tot:0,appr:0,reje:0,canc:0,pend:0};agents[sl.agentName].tot++;agents[sl.agentName][{Approved:'appr',Rejected:'reje',Cancelled:'canc',Pending:'pend'}[sl.status]]++});
-  el.innerHTML=`<div class="kpi-row"><div class="kpi"><div class="kpiv">${tot}</div><div class="kpil">Total</div></div><div class="kpi"><div class="kpiv" style="color:var(--em)">${appr}</div><div class="kpil">Approved</div></div><div class="kpi"><div class="kpiv" style="color:var(--rose)">${reje}</div><div class="kpil">Rejected</div></div><div class="kpi"><div class="kpiv" style="color:var(--ink2)">${canc}</div><div class="kpil">Cancelled</div></div><div class="kpi"><div class="kpiv" style="color:var(--amber)">${pend}</div><div class="kpil">Pending</div></div></div>
-  <div style="font-size:13px;font-weight:700;color:var(--ink0);margin-bottom:10px;display:flex;align-items:center;gap:7px"><span style="width:3px;height:14px;background:var(--cyan);border-radius:2px;display:inline-block"></span>Agent Summary</div>
-  <div style="background:var(--l1);border:1px solid var(--rim);border-radius:10px;overflow:auto;margin-bottom:16px">
-  <table class="tbl"><thead><tr><th>Agent</th><th>Total</th><th>Approved</th><th>Rejected</th><th>Cancelled</th><th>Pending</th><th>Used (${curMon.slice(5)})</th><th>Balance</th></tr></thead>
-  <tbody>${Object.values(agents).map(a=>{const cu=SLS.filter(sl=>sl.agentName===a.name&&sl.shortLeaveDate.slice(0,7)===curMon&&sl.status!=='Cancelled').length;const bal=Math.max(0,lim-cu);
-  return`<tr><td style="font-weight:600;color:var(--ink0)">${x(a.name)}</td><td style="text-align:center">${a.tot}</td><td style="text-align:center;color:var(--em)">${a.appr}</td><td style="text-align:center;color:var(--rose)">${a.reje}</td><td style="text-align:center;color:var(--ink2)">${a.canc}</td><td style="text-align:center;color:var(--amber)">${a.pend}</td><td style="text-align:center">${cu}</td><td style="text-align:center;font-weight:700;color:${bal===0?'var(--rose)':'var(--em)'}">${bal}</td></tr>`}).join('')||'<tr><td colspan="8" style="text-align:center;color:var(--ink3);padding:18px">No data</td></tr>'}</tbody></table></div>
-  ${renderSLTable(SLS,true)}`;
+  const agRows=Object.values(agents).map(a=>{
+    const cu=SLS.filter(sl=>sl.agentName===a.name&&sl.shortLeaveDate.slice(0,7)===curMon&&sl.status!=='Cancelled').length;
+    const bal=Math.max(0,lim-cu);
+    return '<tr><td style="font-weight:600;color:var(--ink0)">'+x(a.name)+'<\/td><td style="text-align:center">'+a.tot+'<\/td><td style="text-align:center;color:var(--em)">'+a.appr+'<\/td><td style="text-align:center;color:var(--rose)">'+a.reje+'<\/td><td style="text-align:center;color:var(--ink2)">'+a.canc+'<\/td><td style="text-align:center;color:var(--amber)">'+a.pend+'<\/td><td style="text-align:center">'+cu+'<\/td><td style="text-align:center;font-weight:700;color:'+(bal===0?'var(--rose)':'var(--em)')+'">'+bal+'<\/td><\/tr>';
+  }).join('')||'<tr><td colspan="8" style="text-align:center;color:var(--ink3);padding:18px">No data<\/td><\/tr>';
+  el.innerHTML=''
+    +'<div class="kpi-row">'
+    +'<div class="kpi"><div class="kpiv">'+tot+'<\/div><div class="kpil">Total<\/div><\/div>'
+    +'<div class="kpi"><div class="kpiv" style="color:var(--em)">'+appr+'<\/div><div class="kpil">Approved<\/div><\/div>'
+    +'<div class="kpi"><div class="kpiv" style="color:var(--rose)">'+reje+'<\/div><div class="kpil">Rejected<\/div><\/div>'
+    +'<div class="kpi"><div class="kpiv" style="color:var(--ink2)">'+canc+'<\/div><div class="kpil">Cancelled<\/div><\/div>'
+    +'<div class="kpi"><div class="kpiv" style="color:var(--amber)">'+pend+'<\/div><div class="kpil">Pending<\/div><\/div>'
+    +'<\/div>'
+    +'<div style="font-size:13px;font-weight:700;color:var(--ink0);margin-bottom:10px;display:flex;align-items:center;gap:7px"><span style="width:3px;height:14px;background:var(--cyan);border-radius:2px;display:inline-block"><\/span>Agent Summary<\/div>'
+    +'<div style="background:var(--l1);border:1px solid var(--rim);border-radius:10px;overflow:auto;margin-bottom:16px">'
+    +'<table class="tbl"><thead><tr><th>Agent<\/th><th>Total<\/th><th>Approved<\/th><th>Rejected<\/th><th>Cancelled<\/th><th>Pending<\/th><th>Used ('+curMon.slice(5)+')<\/th><th>Balance<\/th><\/tr><\/thead>'
+    +'<tbody>'+agRows+'<\/tbody><\/table><\/div>'
+    +renderSLTable(SLS,true);
 }
 function renderSLMy(){
   const el=document.getElementById('sl-my');if(!el)return;
   const my=SLS.filter(s=>s.agentId===ME.id);const lim=RULES.shortLeaveMonthlyLimit||3;
-  const now=new Date();const curMon=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const now=new Date();const curMon=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
   const used=my.filter(s=>s.shortLeaveDate.slice(0,7)===curMon&&s.status!=='Cancelled').length;const bal=Math.max(0,lim-used);
-  el.innerHTML=`<div class="kpi-row" style="grid-template-columns:repeat(3,1fr);max-width:380px;margin-bottom:16px">
-    <div class="kpi"><div class="kpiv">${my.length}</div><div class="kpil">My Total</div></div>
-    <div class="kpi"><div class="kpiv">${used}</div><div class="kpil">Used This Month</div></div>
-    <div class="kpi"><div class="kpiv" style="color:${bal===0?'var(--rose)':'var(--em)'}">${bal}</div><div class="kpil">Balance</div></div>
-  </div>${bal===0?`<div class="alrt aerr" style="max-width:480px;margin-bottom:12px">⚠ Monthly limit of ${lim} reached.</div>`:''}${renderSLTable(my,false)}`;
+  el.innerHTML=''
+    +'<div class="kpi-row" style="grid-template-columns:repeat(3,1fr);max-width:380px;margin-bottom:16px">'
+    +'<div class="kpi"><div class="kpiv">'+my.length+'<\/div><div class="kpil">My Total<\/div><\/div>'
+    +'<div class="kpi"><div class="kpiv">'+used+'<\/div><div class="kpil">Used This Month<\/div><\/div>'
+    +'<div class="kpi"><div class="kpiv" style="color:'+(bal===0?'var(--rose)':'var(--em)')+'">'+bal+'<\/div><div class="kpil">Balance<\/div><\/div>'
+    +'<\/div>'
+    +(bal===0?'<div class="alrt aerr" style="max-width:480px;margin-bottom:12px">Monthly limit of '+lim+' short leave(s) reached.<\/div>':'')
+    +renderSLTable(my,false);
 }
 function renderSLAll(){const el=document.getElementById('sl-all');if(!el)return;el.innerHTML=renderSLTable(SLS,true)}
 
 // REQUIREMENT 1: Show Approved/Rejected/Cancelled By + Date in table
 function renderSLTable(list,admin=false){
-  if(!list.length)return`<div style="color:var(--ink3);font-size:13px;padding:16px 0">No records found.</div>`;
+  if(!list.length)return'<div style="color:var(--ink3);font-size:13px;padding:16px 0">No records found.<\/div>';
   const sorted=[...list].sort((a,b)=>b.createdAt.localeCompare(a.createdAt));
-  return`<div style="font-size:13px;font-weight:700;color:var(--ink0);margin-bottom:10px;display:flex;align-items:center;gap:7px"><span style="width:3px;height:14px;background:var(--cyan);border-radius:2px;display:inline-block"></span>${admin?'All Requests':'My Requests'}</div>
-  <div style="background:var(--l1);border:1px solid var(--rim);border-radius:10px;overflow:auto">
-  <table class="tbl" style="min-width:1050px"><thead><tr>
-    ${admin?'<th>Agent</th>':''}
-    <th>Leave Date</th><th>Half</th><th>Type</th><th>Status</th><th>Requested On</th><th>Reason</th>
-    <th>✅ Approved By / Date</th><th>❌ Rejected By / Date</th><th>🚫 Cancelled By / Date</th>
-    <th>Remarks</th><th>Actions</th>
-  </tr></thead><tbody>${sorted.map(sl=>{
+  const H=admin?'<th>Agent<\/th>':'';
+  const rows=sorted.map(sl=>{
     const isMine=sl.agentId===ME.id,isAdm=isAdmin();
     const acts=[];
-    if(isAdm&&sl.status==='Pending'){acts.push(`<button class="btn btn-e" style="font-size:11px;padding:3px 7px" onclick="openSLAct(${sl.id},'approve')">✓</button>`);acts.push(`<button class="btn btn-r" style="font-size:11px;padding:3px 7px" onclick="openSLAct(${sl.id},'reject')">✗</button>`)}
-    if(isMine&&sl.status==='Pending')acts.push(`<button class="btn btn-g" style="font-size:11px;padding:3px 7px" onclick="openSLAct(${sl.id},'cancel')">Cancel</button>`);
-    if(isAdm&&sl.status==='Approved')acts.push(`<button class="btn btn-r" style="font-size:11px;padding:3px 7px" onclick="openSLAct(${sl.id},'cancel')">Cancel</button>`);
-    return`<tr>
-      ${admin?`<td style="font-weight:600;color:var(--ink0);white-space:nowrap;font-size:12px">${x(sl.agentName)}</td>`:''}
-      <td style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:600;white-space:nowrap">${sl.shortLeaveDate}</td>
-      <td><span class="chip cplan">${x(sl.halfDay||'—')}</span></td>
-      <td><span class="chip ${sl.type==='Planned'?'cplan':'cunpl'}">${sl.type||'—'}</span></td>
-      <td><span class="chip ${sl.status==='Pending'?'cpend':sl.status==='Approved'?'cappr':sl.status==='Rejected'?'creje':'ccanc'}">${sl.status}</span></td>
-      <td style="font-size:11px;color:var(--ink2);white-space:nowrap">${sl.requestDate||'—'}</td>
-      <td style="font-size:11px;color:var(--ink2);max-width:120px;word-break:break-word">${x(sl.reason||'—')}</td>
-      <td style="font-size:10.5px;color:var(--em);white-space:nowrap">${sl.approvedBy?`${x(sl.approvedBy)}<br><span style="color:var(--ink3)">${fmtDT(sl.approvedAt)}</span>`:'—'}</td>
-      <td style="font-size:10.5px;color:var(--rose);white-space:nowrap">${sl.rejectedBy?`${x(sl.rejectedBy)}<br><span style="color:var(--ink3)">${fmtDT(sl.rejectedAt)}</span>`:'—'}</td>
-      <td style="font-size:10.5px;color:var(--ink2);white-space:nowrap">${sl.cancelledBy?`${x(sl.cancelledBy)}<br><span style="color:var(--ink3)">${fmtDT(sl.cancelledAt)}</span>`:'—'}</td>
-      <td style="font-size:11px;color:var(--ink3);max-width:100px;word-break:break-word">${x(sl.remarks||'—')}</td>
-      <td style="white-space:nowrap"><div style="display:flex;gap:4px">${acts.join('')}</div></td>
-    </tr>`;
-  }).join('')}</tbody></table></div>`;
+    if(isAdm&&sl.status==='Pending'){
+      acts.push('<button class="btn btn-e" style="font-size:11px;padding:3px 7px" onclick="openSLAct('+sl.id+',\'approve\')">✓<\/button>');
+      acts.push('<button class="btn btn-r" style="font-size:11px;padding:3px 7px" onclick="openSLAct('+sl.id+',\'reject\')">✗<\/button>');
+    }
+    if(isMine&&sl.status==='Pending') acts.push('<button class="btn btn-g" style="font-size:11px;padding:3px 7px" onclick="openSLAct('+sl.id+',\'cancel\')">Cancel<\/button>');
+    if(isAdm&&sl.status==='Approved') acts.push('<button class="btn btn-r" style="font-size:11px;padding:3px 7px" onclick="openSLAct('+sl.id+',\'cancel\')">Cancel<\/button>');
+    const agTd=admin?'<td style="font-weight:600;color:var(--ink0);white-space:nowrap;font-size:12px">'+x(sl.agentName)+'<\/td>':'';
+    const apprTd=sl.approvedBy?x(sl.approvedBy)+'<br><span style="color:var(--ink3)">'+fmtDT(sl.approvedAt)+'<\/span>':'—';
+    const rejTd=sl.rejectedBy?x(sl.rejectedBy)+'<br><span style="color:var(--ink3)">'+fmtDT(sl.rejectedAt)+'<\/span>':'—';
+    const canTd=sl.cancelledBy?x(sl.cancelledBy)+'<br><span style="color:var(--ink3)">'+fmtDT(sl.cancelledAt)+'<\/span>':'—';
+    const stCls=sl.status==='Pending'?'cpend':sl.status==='Approved'?'cappr':sl.status==='Rejected'?'creje':'ccanc';
+    const tyTd='<span class="chip '+(sl.type==='Planned'?'cplan':'cunpl')+'">'+(sl.type||'—')+'<\/span>';
+    return '<tr>'
+      +agTd
+      +'<td style="font-family:\'IBM Plex Mono\',monospace;font-size:10.5px;font-weight:600;white-space:nowrap">'+sl.shortLeaveDate+'<\/td>'
+      +'<td><span class="chip cplan">'+x(sl.halfDay||'—')+'<\/span><\/td>'
+      +'<td>'+tyTd+'<\/td>'
+      +'<td><span class="chip '+stCls+'">'+sl.status+'<\/span><\/td>'
+      +'<td style="font-size:11px;color:var(--ink2);white-space:nowrap">'+(sl.requestDate||'—')+'<\/td>'
+      +'<td style="font-size:11px;color:var(--ink2);max-width:120px;word-break:break-word">'+x(sl.reason||'—')+'<\/td>'
+      +'<td style="font-size:10.5px;color:var(--em);white-space:nowrap">'+apprTd+'<\/td>'
+      +'<td style="font-size:10.5px;color:var(--rose);white-space:nowrap">'+rejTd+'<\/td>'
+      +'<td style="font-size:10.5px;color:var(--ink2);white-space:nowrap">'+canTd+'<\/td>'
+      +'<td style="font-size:11px;color:var(--ink3);max-width:100px;word-break:break-word">'+x(sl.remarks||'—')+'<\/td>'
+      +'<td style="white-space:nowrap"><div style="display:flex;gap:4px">'+acts.join('')+'<\/div><\/td>'
+      +'<\/tr>';
+  }).join('');
+  return '<div style="font-size:13px;font-weight:700;color:var(--ink0);margin-bottom:10px;display:flex;align-items:center;gap:7px">'
+    +'<span style="width:3px;height:14px;background:var(--cyan);border-radius:2px;display:inline-block"><\/span>'+(admin?'All Requests':'My Requests')+'<\/div>'
+    +'<div style="background:var(--l1);border:1px solid var(--rim);border-radius:10px;overflow:auto">'
+    +'<table class="tbl" style="min-width:1050px"><thead><tr>'
+    +H
+    +'<th>Leave Date<\/th><th>Half<\/th><th>Type<\/th><th>Status<\/th><th>Requested On<\/th><th>Reason<\/th>'
+    +'<th>Approved By \/ Date<\/th><th>Rejected By \/ Date<\/th><th>Cancelled By \/ Date<\/th>'
+    +'<th>Remarks<\/th><th>Actions<\/th>'
+    +'<\/tr><\/thead><tbody>'+rows+'<\/tbody><\/table><\/div>';
 }
 
 function openApplySL(){
@@ -1321,274 +1347,6 @@ window.addEventListener('DOMContentLoaded',async()=>{
   try{const d=await api('GET','/api/me');ME=d.user;MACCESS=d.moduleAccess||{};RULES=d.rules||{};RFMT=d.rosterFormat||{};
   await Promise.all([loadAG(),loadHolidays()]);
   if(isAdmin())AGENTLEAVES=await api('GET','/api/agentleaves').catch(()=>({}));
-  initApp()}catch{}
-});
-</script>
-</body>
-</html>
-="font-size:11px;color:var(--ink3);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${x(sl.reason)||'—'}</td>
-      <td style="font-size:10.5px;white-space:nowrap">${sl.status==='Approved'?`<span style="color:var(--em);font-weight:600">${x(sl.approvedBy||'—')}</span><br><span style="color:var(--ink3);font-family:'IBM Plex Mono',monospace;font-size:9.5px">${fmtDT(sl.approvedAt)}</span>`:'<span style="color:var(--ink4)">—</span>'}</td>
-      <td style="font-size:10.5px;white-space:nowrap">${sl.status==='Rejected'?`<span style="color:var(--rose);font-weight:600">${x(sl.rejectedBy||'—')}</span><br><span style="color:var(--ink3);font-family:'IBM Plex Mono',monospace;font-size:9.5px">${fmtDT(sl.rejectedAt)}</span>`:'<span style="color:var(--ink4)">—</span>'}</td>
-      <td style="font-size:10.5px;white-space:nowrap">${sl.status==='Cancelled'?`<span style="color:var(--ink2);font-weight:600">${x(sl.cancelledBy||'—')}</span><br><span style="color:var(--ink3);font-family:'IBM Plex Mono',monospace;font-size:9.5px">${fmtDT(sl.cancelledAt)}</span>`:'<span style="color:var(--ink4)">—</span>'}</td>
-      <td style="font-size:11px;color:var(--ink3);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${x(sl.remarks||'—')}</td>
-      <td><div style="display:flex;gap:4px">${acts.join('')}</div></td>
-    </tr>`;
-  }).join('')}</tbody></table></div>`;
-}
-
-function openApplySL(){
-  document.getElementById('sl-date').value='';
-  document.getElementById('half1').checked=false;document.getElementById('half2').checked=false;
-  document.getElementById('sl-reason').value='';
-  document.getElementById('sl-err').className='auth-err';
-  const now=new Date();const curMon=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
-  const lim=RULES.shortLeaveMonthlyLimit||3;
-  const used=SLS.filter(s=>s.agentId===ME.id&&s.shortLeaveDate.slice(0,7)===curMon&&s.status!=='Cancelled').length;
-  const bal=Math.max(0,lim-used);
-  document.getElementById('sl-bal-info').textContent=`${used} of ${lim} short leaves used this month. Balance: ${bal}`;
-  document.getElementById('sl-bal-info').style.display='block';
-  openM('m-applysl');
-}
-function submitSL(){
-  const date=document.getElementById('sl-date').value;
-  const halfDay=document.querySelector('input[name="halfday"]:checked')?.value;
-  const reason=document.getElementById('sl-reason').value.trim();
-  const errEl=document.getElementById('sl-err');errEl.className='auth-err';
-  if(!date){showErr('sl-err','Please select a date');return}
-  if(!halfDay){showErr('sl-err','Please select 1st Half or 2nd Half');return}
-  const btn=document.getElementById('sl-submit-btn');btn.disabled=true;btn.textContent='Submitting…';
-  fetch('/api/shortleaves',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({shortLeaveDate:date,halfDay,reason})})
-  .then(r=>r.json().then(d=>({ok:r.ok,d})))
-  .then(({ok,d})=>{
-    btn.disabled=false;btn.textContent='Submit Request';
-    if(!ok){showErr('sl-err',d.error||'Server error');return}
-    closeM('m-applysl');loadSL();toast('Short leave submitted','ok');
-  }).catch(e=>{btn.disabled=false;btn.textContent='Submit Request';showErr('sl-err',e.message)});
-}
-function openSLAct(id,type){
-  document.getElementById('slact-id').value=id;document.getElementById('slact-type').value=type;
-  document.getElementById('slact-remarks').value='';document.getElementById('slact-err').className='auth-err';
-  const titles={approve:'✅ Approve Short Leave',reject:'❌ Reject Short Leave',cancel:'🚫 Cancel Short Leave'};
-  const btns={approve:'Approve',reject:'Reject',cancel:'Cancel Leave'};
-  const cls={approve:'btn-e',reject:'btn-r',cancel:'btn-r'};
-  document.getElementById('slact-h').textContent=titles[type];
-  const btn=document.getElementById('slact-btn');btn.textContent=btns[type];btn.className='btn '+cls[type];
-  openM('m-slact');
-}
-function doSLAct(){
-  const id=document.getElementById('slact-id').value,type=document.getElementById('slact-type').value;
-  const remarks=document.getElementById('slact-remarks').value.trim();
-  const btn=document.getElementById('slact-btn');btn.disabled=true;
-  api('PUT',`/api/shortleaves/${id}/${type}`,{remarks})
-  .then(()=>{closeM('m-slact');loadSL();toast('Done','ok')})
-  .catch(e=>{showErr('slact-err',e.message)})
-  .finally(()=>btn.disabled=false);
-}
-
-// ══ RULES ══════════════════════════════════════════════════════════════════════
-function buildRulesPage(){
-  const pg=document.getElementById('pg-rules');
-  pg.innerHTML=`<div class="mbar"><div class="bc"><span class="bch" onclick="go('home')">🏠</span><span class="bcs">›</span><span class="bcc">📋 Rules Manager</span></div></div>
-  <div class="asc">
-    <div class="ah">Rules Manager</div>
-    <div class="as">Configure roster generation rules and short leave limits.</div>
-    <div class="agrid">
-      <div class="acard">
-        <div class="act">WO Targets</div>
-        <div class="fg"><label class="fl">Base WO Count per Agent</label><input class="fi" type="number" id="rl-two" value="${RULES.targetWOBase||8}" min="1" max="15" style="background:var(--l2)"></div>
-        <div class="fg" style="display:flex;align-items:center;justify-content:space-between">
-          <label class="fl" style="margin:0">Extra WO if 5th Sunday</label>
-          <label class="tog"><input type="checkbox" id="rl-5s" ${RULES.extraWOIfFifthSunday?'checked':''}><span class="tog-sl"></span></label>
-        </div>
-      </div>
-      <div class="acard">
-        <div class="act">WO Constraints</div>
-        <div class="fg"><label class="fl">Max Agents on WO per Day</label><input class="fi" type="number" id="rl-mpd" value="${RULES.maxAgentsOnWOPerDay||2}" min="1" max="6" style="background:var(--l2)"></div>
-        <div class="fg"><label class="fl">Max Consecutive Extra WO</label><input class="fi" type="number" id="rl-mcw" value="${RULES.maxConsecutiveWO||3}" min="1" max="7" style="background:var(--l2)"></div>
-      </div>
-      <div class="acard">
-        <div class="act">Pairing & Holiday</div>
-        <div class="fg"><label class="fl">Pairing Rule</label>
-          <select class="ctrl" id="rl-pair">
-            <option value="senior_junior" ${RULES.pairingRule==='senior_junior'?'selected':''}>Senior + Junior</option>
-            <option value="any" ${RULES.pairingRule==='any'?'selected':''}>Any Combination</option>
-          </select>
-        </div>
-        <div class="fg"><label class="fl">Max Agents WO on Holiday</label><input class="fi" type="number" id="rl-hma" value="${RULES.holidayMaxAgents||2}" min="1" max="4" style="background:var(--l2)"></div>
-      </div>
-      <div class="acard">
-        <div class="act">Short Leave</div>
-        <div class="fg"><label class="fl">Monthly Short Leave Limit per Agent</label><input class="fi" type="number" id="rl-sll" value="${RULES.shortLeaveMonthlyLimit||3}" min="1" max="10" style="background:var(--l2)"></div>
-      </div>
-    </div>
-    <div style="margin-top:14px"><button class="btn btn-p" onclick="saveRules()" style="padding:9px 22px">💾 Save Rules</button></div>
-  </div>`;
-}
-async function saveRules(){
-  const rules={
-    targetWOBase:+document.getElementById('rl-two').value,
-    extraWOIfFifthSunday:document.getElementById('rl-5s').checked,
-    maxAgentsOnWOPerDay:+document.getElementById('rl-mpd').value,
-    maxConsecutiveWO:+document.getElementById('rl-mcw').value,
-    pairingRule:document.getElementById('rl-pair').value,
-    holidayMaxAgents:+document.getElementById('rl-hma').value,
-    shortLeaveMonthlyLimit:+document.getElementById('rl-sll').value,
-  };
-  try{await api('PUT','/api/rules',rules);RULES={...RULES,...rules};toast('Rules saved','ok')}catch(e){toast(e.message,'err')}
-}
-
-// ══ USERS ══════════════════════════════════════════════════════════════════════
-function buildUsersPage(){
-  document.getElementById('pg-users').innerHTML=`<div class="mbar"><div class="bc"><span class="bch" onclick="go('home')">🏠</span><span class="bcs">›</span><span class="bcc">👥 User Management</span></div></div>
-  <div class="asc">
-    <div class="ah">User Management</div>
-    <div class="as">Create accounts and control permissions for each user.</div>
-    <div style="margin-bottom:11px"><button class="btn btn-p" onclick="openAddUser()">+ Add User</button></div>
-    <div style="background:var(--l1);border:1px solid var(--rim);border-radius:10px;overflow:auto;margin-bottom:16px">
-      <table class="tbl"><thead><tr><th>Name</th><th>Username</th><th>Role</th><th>Roster Perms</th><th>SL Perms</th><th>Actions</th></tr></thead>
-      <tbody id="uTbl"><tr><td colspan="6" style="text-align:center;color:var(--ink3);padding:18px">Loading…</td></tr></tbody></table>
-    </div>
-    <div style="background:var(--l1);border:1px solid var(--rim);border-radius:10px;padding:16px;max-width:380px">
-      <div class="act">🔑 Change My Password</div>
-      <div class="fg" style="margin-bottom:8px"><label class="fl">New Password</label><input class="fi" type="password" id="np1" style="background:var(--l2)"></div>
-      <div class="fg" style="margin-bottom:8px"><label class="fl">Confirm Password</label><input class="fi" type="password" id="np2" style="background:var(--l2)"></div>
-      <div id="pwd-msg" style="margin-bottom:7px"></div>
-      <button class="btn btn-p" style="width:100%" onclick="chgPwd()">Update Password</button>
-    </div>
-  </div>`;
-}
-async function loadUsers(){
-  try{const us=await api('GET','/api/users');
-  document.getElementById('uTbl').innerHTML=us.map(u=>{
-    const rp=u.permissions?.roster||{},slp=u.permissions?.shortleave||{};
-    const rPerms=[rp.view&&'View',rp.generate&&'Gen',rp.save&&'Save',rp.export&&'Export',rp.editAgents&&'Agents',rp.editRules&&'Rules',rp.approve&&'Approve'].filter(Boolean).join(', ')||'—';
-    const slPerms=[slp.view&&'View',slp.apply&&'Apply',slp.approve&&'Approve',slp.reject&&'Reject',slp.cancel&&'Cancel',slp.dashboard&&'Dash'].filter(Boolean).join(', ')||'—';
-    const rc={superadmin:'rb-sa',admin:'rb-a',operator:'rb-o'}[u.role]||'rb-o';
-    return`<tr><td style="font-weight:600;color:var(--ink0)">${x(u.name)}</td>
-      <td style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink2)">${x(u.username)}</td>
-      <td><span class="rb ${rc}">${u.role.toUpperCase()}</span></td>
-      <td style="font-size:11px;color:var(--ink2)">${rPerms}</td>
-      <td style="font-size:11px;color:var(--ink2)">${slPerms}</td>
-      <td style="display:flex;gap:5px">
-        <button class="btn btn-g" style="font-size:11px;padding:4px 8px" onclick='openEditUser(${JSON.stringify(u)})'>Edit</button>
-        ${u.username!=='superadmin'?`<button class="btn btn-r" style="font-size:11px;padding:4px 8px" onclick="delUser(${u.id})">Del</button>`:''}
-      </td></tr>`;
-  }).join('')}catch(e){document.getElementById('uTbl').innerHTML=`<tr><td colspan="6" style="color:var(--rose)">${e.message}</td></tr>`}
-}
-function openAddUser(){['au-name','au-user','au-pass'].forEach(id=>document.getElementById(id).value='');document.getElementById('au-role').value='operator';document.getElementById('au-err').className='auth-err';openM('m-adduser')}
-async function createUser(){
-  const n=document.getElementById('au-name').value.trim(),u=document.getElementById('au-user').value.trim(),p=document.getElementById('au-pass').value,r=document.getElementById('au-role').value;
-  if(!n||!u||!p){showErr('au-err','All fields required');return}
-  if(p.length<6){showErr('au-err','Password min 6 chars');return}
-  const defPerms={operator:{roster:{view:true},shortleave:{view:true,apply:true}},admin:{roster:{view:true,generate:true,save:true,export:true,editAgents:true,editRules:false,approve:true},shortleave:{view:true,approve:true,reject:true,cancel:true,dashboard:true}}};
-  try{await api('POST','/api/users',{name:n,username:u,password:p,role:r,permissions:defPerms[r]||{}});closeM('m-adduser');loadUsers();toast('User created','ok')}catch(e){showErr('au-err',e.message)}
-}
-function openEditUser(u){
-  document.getElementById('eu-id').value=u.id;document.getElementById('eu-name').value=u.name;document.getElementById('eu-role').value=u.role;document.getElementById('eu-pw').value='';
-  const rp=u.permissions?.roster||{},slp=u.permissions?.shortleave||{};
-  [['ep-r-view',rp.view],['ep-r-gen',rp.generate],['ep-r-save',rp.save],['ep-r-export',rp.export],['ep-r-agents',rp.editAgents],['ep-r-rules',rp.editRules],['ep-r-approve',rp.approve],
-   ['ep-sl-view',slp.view],['ep-sl-apply',slp.apply],['ep-sl-approve',slp.approve],['ep-sl-reject',slp.reject],['ep-sl-cancel',slp.cancel],['ep-sl-dash',slp.dashboard]]
-  .forEach(([id,v])=>{const el=document.getElementById(id);if(el)el.checked=!!v});
-  document.getElementById('eu-err').className='auth-err';openM('m-edituser');
-}
-async function updUser(){
-  const id=document.getElementById('eu-id').value,n=document.getElementById('eu-name').value.trim(),pw=document.getElementById('eu-pw').value,r=document.getElementById('eu-role').value;
-  const perms={roster:{view:$cb('ep-r-view'),generate:$cb('ep-r-gen'),save:$cb('ep-r-save'),export:$cb('ep-r-export'),editAgents:$cb('ep-r-agents'),editRules:$cb('ep-r-rules'),approve:$cb('ep-r-approve')},shortleave:{view:$cb('ep-sl-view'),apply:$cb('ep-sl-apply'),approve:$cb('ep-sl-approve'),reject:$cb('ep-sl-reject'),cancel:$cb('ep-sl-cancel'),dashboard:$cb('ep-sl-dash')}};
-  const pl={name:n,role:r,permissions:perms};if(pw){if(pw.length<6){showErr('eu-err','Password min 6 chars');return}pl.password=pw}
-  try{await api('PUT',`/api/users/${id}`,pl);closeM('m-edituser');loadUsers();toast('User updated','ok')}catch(e){showErr('eu-err',e.message)}
-}
-async function delUser(id){if(!confirm('Delete this user?'))return;try{await api('DELETE',`/api/users/${id}`);loadUsers();toast('Deleted','ok')}catch(e){toast(e.message,'err')}}
-async function chgPwd(){
-  const p1=document.getElementById('np1').value,p2=document.getElementById('np2').value,el=document.getElementById('pwd-msg');
-  if(!p1||!p2){el.innerHTML='<div class="alrt awarn">Fill both fields.</div>';return}
-  if(p1!==p2){el.innerHTML='<div class="alrt aerr">Passwords do not match.</div>';return}
-  if(p1.length<6){el.innerHTML='<div class="alrt aerr">Min 6 characters.</div>';return}
-  try{await api('PUT',`/api/users/${ME.id}/password`,{password:p1});el.innerHTML='<div class="alrt aok">✓ Password updated!</div>';document.getElementById('np1').value='';document.getElementById('np2').value='';setTimeout(()=>el.innerHTML='',4000)}catch(e){el.innerHTML=`<div class="alrt aerr">${e.message}</div>`}
-}
-function $cb(id){return!!document.getElementById(id)?.checked}
-
-// ══ BACKUP ═════════════════════════════════════════════════════════════════════
-function buildBackupPage(){
-  document.getElementById('pg-backup').innerHTML=`<div class="mbar"><div class="bc"><span class="bch" onclick="go('home')">🏠</span><span class="bcs">›</span><span class="bcc">💾 Backup & Restore</span></div></div>
-  <div class="asc">
-    <div class="ah">Backup & Restore</div>
-    <div class="as">Auto-backup every 24h · Up to 30 snapshots retained.</div>
-    <div class="agrid">
-      <div class="acard">
-        <div class="act">Create Backup</div>
-        <p style="font-size:12.5px;color:var(--ink3);margin-bottom:11px">Snapshot all data: agents, rosters, users, short leaves, rules.</p>
-        <button class="btn btn-p" style="width:100%" onclick="createBackup()">📦 Create Backup Now</button>
-        <div id="bk-msg" style="margin-top:8px"></div>
-      </div>
-      <div class="acard">
-        <div class="act">Auto Backup</div>
-        <p style="font-size:12.5px;color:var(--ink3)">Automatic daily backup is active. Last 30 snapshots are retained.</p>
-        <div class="alrt aok" style="margin-top:10px;font-size:12px">✓ Auto backup enabled</div>
-      </div>
-      <div class="acard full">
-        <div class="act" style="justify-content:space-between">Backup Files <button class="btn btn-g" style="font-size:11px;margin-left:auto" onclick="loadBackups()">↺ Refresh</button></div>
-        <div id="bk-list"><div style="color:var(--ink3)">Loading…</div></div>
-      </div>
-    </div>
-  </div>`;
-}
-async function createBackup(){try{const r=await api('POST','/api/backup');document.getElementById('bk-msg').innerHTML=`<div class="alrt aok">✓ ${r.file} (${(r.size/1024).toFixed(1)}KB)</div>`;loadBackups()}catch(e){document.getElementById('bk-msg').innerHTML=`<div class="alrt aerr">⚠ ${e.message}</div>`}}
-async function loadBackups(){
-  try{const bks=await api('GET','/api/backups');const el=document.getElementById('bk-list');if(!el)return;
-  if(!bks.length){el.innerHTML='<div style="color:var(--ink3);font-size:13px">No backups yet.</div>';return}
-  el.innerHTML=bks.map(b=>`<div class="bk-item"><div style="font-size:20px">📦</div><div class="bk-info"><div class="bk-name">${x(b.name)}</div><div class="bk-size">${(b.size/1024).toFixed(1)}KB · ${new Date(b.created).toLocaleString()}</div></div><div style="display:flex;gap:5px"><a class="btn btn-g" style="font-size:11px;padding:4px 8px;text-decoration:none" href="/api/backups/${encodeURIComponent(b.name)}/download">⬇</a>${ME.role==='superadmin'?`<button class="btn btn-e" style="font-size:11px;padding:4px 8px" onclick="confirmRestore('${b.name}')">↺</button><button class="btn btn-r" style="font-size:11px;padding:4px 8px" onclick="delBackup('${b.name}')">🗑</button>`:''}</div></div>`).join('')}catch{}
-}
-function confirmRestore(name){document.getElementById('restore-name').textContent=name;openM('m-restore')}
-async function doRestore(){const name=document.getElementById('restore-name').textContent;try{await api('POST',`/api/backups/${encodeURIComponent(name)}/restore`);closeM('m-restore');alert('✓ Restored! Reloading…');location.reload()}catch(e){alert('Error: '+e.message)}}
-async function delBackup(name){if(!confirm('Delete backup?'))return;try{await api('DELETE',`/api/backups/${encodeURIComponent(name)}`);loadBackups()}catch(e){toast(e.message,'err')}}
-
-// ══ SAVED ROSTERS ══════════════════════════════════════════════════════════════
-function buildSavedPage(){
-  document.getElementById('pg-saved').innerHTML=`<div class="mbar"><div class="bc"><span class="bch" onclick="go('home')">🏠</span><span class="bcs">›</span><span class="bcc">🗄 Saved Rosters</span></div></div>
-  <div style="flex:1;overflow-y:auto;padding:20px 24px">
-    <div style="font-size:18px;font-weight:800;color:var(--ink0);margin-bottom:3px">Saved Rosters</div>
-    <div style="font-size:13px;color:var(--ink3);margin-bottom:14px">Click to load. Use "Approve & Publish" to make a roster visible to operators.</div>
-    <div id="saved-list"><div style="color:var(--ink3)">Loading…</div></div>
-  </div>`;
-}
-async function loadSaved(){
-  try{const list=await api('GET','/api/rosters');const el=document.getElementById('saved-list');if(!el)return;
-  if(!list.length){el.innerHTML='<div class="alrt ainfo">No saved rosters yet.</div>';return}
-  el.innerHTML=list.map(r=>`<div style="background:var(--l1);border:1px solid var(--rim);border-radius:10px;padding:13px 16px;margin-bottom:7px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .14s" onclick="loadSavedR(${r.id})" onmouseover="this.style.borderColor='var(--cyan)'" onmouseout="this.style.borderColor=''">
-    <div style="font-size:22px">📅</div>
-    <div style="flex:1"><div style="font-size:13.5px;font-weight:700;color:var(--ink0)">${x(r.title)}</div>
-    <div style="font-size:11px;color:var(--ink3);font-family:'IBM Plex Mono',monospace;margin-top:2px">${r.agentCount} agents · ${r.targetWO} WOs · Saved ${new Date(r.savedAt).toLocaleDateString()} by ${x(r.savedBy)}</div>
-    ${r.approved?`<div style="font-size:10.5px;color:var(--em);margin-top:2px">✓ Approved by ${x(r.approvedBy)} on ${new Date(r.approvedAt).toLocaleDateString()}</div>`:''}
-    </div>
-    <span class="chip ${r.approved?'cappr':'cpend'}">${r.approved?'✓ Published':'Draft'}</span>
-    ${!r.approved&&can('roster','approve')?`<button class="btn btn-e" style="font-size:11px;padding:4px 8px" onclick="event.stopPropagation();approveRoster(${r.id})">Approve</button>`:''}
-    <button class="btn btn-r" style="font-size:11px;padding:4px 8px" onclick="event.stopPropagation();delR(${r.id})">🗑</button>
-  </div>`).join('')}catch(e){const el=document.getElementById('saved-list');if(el)el.innerHTML=`<div class="alrt aerr">${e.message}</div>`}
-}
-async function approveRoster(id){try{await api('PUT',`/api/rosters/${id}/approve`);toast('Approved & published to operators','ok');loadSaved()}catch(e){toast(e.message,'err')}}
-async function loadSavedR(id){
-  try{const d=await api('GET',`/api/rosters/${id}`);const r=deserializeRoster(d);
-  ROSTER=r;AG=d.agents;go('roster');renderAG();renderAll(ROSTER);
-  document.getElementById('expRow').style.display='flex';
-  if(can('roster','save'))document.getElementById('btnSv').style.display='inline-flex';
-  if(can('roster','approve'))document.getElementById('btnApprove').style.display='inline-flex';
-  }catch(e){toast('Failed: '+e.message,'err')}
-}
-async function delR(id){if(!confirm('Delete roster?'))return;try{await api('DELETE',`/api/rosters/${id}`);loadSaved();toast('Deleted','ok')}catch(e){toast(e.message,'err')}}
-
-// ══ UTILS ══════════════════════════════════════════════════════════════════════
-function rAlert(msg,t){const b=document.getElementById('rAB');if(b){b.innerHTML=`<div class="alrt ${t==='ok'?'aok':t==='err'?'aerr':'awarn'}">${msg}</div>`;setTimeout(()=>b.innerHTML='',8000)}}
-function openM(id){document.getElementById(id).classList.add('on')}
-function closeM(id){document.getElementById(id).classList.remove('on')}
-function showErr(id,msg){const e=document.getElementById(id);if(e){e.textContent='⚠ '+msg;e.className='auth-err on'}}
-function x(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
-document.querySelectorAll('.mbg').forEach(bg=>bg.addEventListener('click',e=>{if(e.target===bg)bg.classList.remove('on')}));
-
-// Bootstrap
-window.addEventListener('DOMContentLoaded',async()=>{
-  try{const d=await api('GET','/api/me');ME=d.user;MACCESS=d.moduleAccess||{};RULES=d.rules||{};RFMT=d.rosterFormat||{};
-  await Promise.all([loadAG(),loadHolidays()]);
-  if(isAdmin()) AGENTLEAVES=await api('GET','/api/agentleaves').catch(()=>({}));
   initApp()}catch{}
 });
 </script>
