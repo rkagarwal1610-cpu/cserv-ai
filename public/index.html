@@ -1107,7 +1107,7 @@ function bCal(r,tid){
     let tot=0;
     r.days.forEach(d=>{
       const s=r.sc[a.name]?.[d]||'ROI';const dayType=r.dt[d]||'WORK';
-      if(s==='WO'||dayType==='HOL')tot++;
+      if(s==='WO')tot++;
       const v=cellStyle(s,dayType);
       h+='<td style="background:'+v.bg+';color:'+v.fg+';font-weight:'+v.fw+';padding:3px 2px;font-size:8.5px;font-family:\'IBM Plex Mono\',monospace;text-align:center">'+v.txt+'</td>';
     });

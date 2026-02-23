@@ -335,12 +335,11 @@ app.post('/api/rosters/export/xlsx', perm('roster','export'), async (req,res)=>{
         if(col===1||col===3) c.alignment={horizontal:'center',vertical:'middle'};
       });
 
-      // Total WO col (E): count WO + HOL days
+      // Total WO col (E): count only WO days (not HOL)
       let woCount=0;
       days.forEach(d=>{
         const s=sc[d]||'ROI';
-        const t=dt[d]||'WORK';
-        if(s==='WO'||s==='HOL'||t==='HOL') woCount++;
+        if(s==='WO') woCount++;
       });
       const twoCell=row.getCell(5);
       twoCell.value=woCount;
