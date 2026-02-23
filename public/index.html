@@ -970,7 +970,13 @@ function compute(){
   // ── PHASE 1: Fixed WO days ───────────────────────────────────────────
   for(const day of [...allFWDays].sort((a,b)=>a-b)){
     if(blockDay2&&day===2)continue;
-    const fAgents=AG.filter(a=>agFW[a.name].has(day)&&!agLv[a.name].has(day)&&ew[a.name].length<qt[a.name]&&!ew[a.name].includes(day)&&!w3(a,day,ew[a.name])&&!l0LeaveBlock(a,day,ew));
+    let fAgents=AG.filter(a=>agFW[a.name].has(day)&&!agLv[a.name].has(day)&&ew[a.name].length<qt[a.name]&&!ew[a.name].includes(day)&&!w3(a,day,ew[a.name]));
+    // L0 leave protection: if a peer L0 is on leave, at most 1 L0 can take WO
+    const l0PeerOnLeaveP1=l0Agents.some(a=>agLv[a.name].has(day));
+    if(l0PeerOnLeaveP1){
+      let l0count=0;
+      fAgents=fAgents.filter(a=>{if(a.level===0){if(l0count>=1)return false;l0count++;} return true;});
+    }
     for(const a of fAgents){ew[a.name].push(day);dWO[day]=(dWO[day]||0)+1}
     const pairs=[];for(let i=0;i<fAgents.length;i+=2)if(fAgents[i+1])pairs.push([fAgents[i],fAgents[i+1]]);
     if(pairs.length)asn[day]=(asn[day]||[]).concat(pairs);
@@ -990,7 +996,17 @@ function compute(){
     for(let i=0;i<el.length;i++)for(let j=i+1;j<el.length;j++)if(vPair(el[i],el[j]))pr.push([el[i],el[j]]);
     if(!pr.length)continue;
     pr.sort((p,q)=>{const sp=(qt[p[0].name]-ew[p[0].name].length)+(qt[p[1].name]-ew[p[1].name].length);const sq=(qt[q[0].name]-ew[q[0].name].length)+(qt[q[1].name]-ew[q[1].name].length);return sq-sp});
-    const ch=pr.find(([a,b])=>ew[a.name].length<qt[a.name]&&ew[b.name].length<qt[b.name]);
+    // Prefer pairs where neither is L0 if a peer L0 is on leave that day
+    const l0PeerOnLeave=l0Agents.some(a=>agLv[a.name].has(day));
+    let ch;
+    if(l0PeerOnLeave){
+      // Prefer pairs with at most 1 L0 (avoid pairing 2 L0s when a 3rd is on leave)
+      ch=pr.find(([a,b])=>ew[a.name].length<qt[a.name]&&ew[b.name].length<qt[b.name]&&!(a.level===0&&b.level===0));
+      // Fallback: if only L0+L0 pairs exist, allow 1 L0 max by picking best non-L0+L0 pair, else skip day
+      if(!ch)ch=pr.find(([a,b])=>ew[a.name].length<qt[a.name]&&ew[b.name].length<qt[b.name]);
+    } else {
+      ch=pr.find(([a,b])=>ew[a.name].length<qt[a.name]&&ew[b.name].length<qt[b.name]);
+    }
     if(!ch)continue;
     const[a1,a2]=ch;ew[a1.name].push(day);ew[a2.name].push(day);
     asn[day]=(asn[day]||[]);asn[day].push([a1,a2]);dWO[day]=(dWO[day]||0)+2;
