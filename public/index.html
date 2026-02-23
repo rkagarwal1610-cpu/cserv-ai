@@ -932,35 +932,71 @@ function compute(){
   }));
   for(const day of [...allFWDays].sort((a,b)=>a-b)){
     if(blockDay2&&day===2)continue;
-    const fAgents=AG.filter(a=>agFW[a.name].has(day)&&!agLv[a.name].has(day)&&ew[a.name].length<qt[a.name]&&!ew[a.name].includes(day));
+    const fAgents=AG.filter(a=>agFW[a.name].has(day)&&!agLv[a.name].has(day)&&ew[a.name].length<qt[a.name]&&!ew[a.name].includes(day)&&!w3(a,day,ew[a.name])&&!l0LeaveBlock(a,day,ew));
     for(const a of fAgents){ew[a.name].push(day);dWO[day]=(dWO[day]||0)+1}
     const pairs=[];for(let i=0;i<fAgents.length;i+=2)if(fAgents[i+1])pairs.push([fAgents[i],fAgents[i+1]]);
     if(pairs.length)asn[day]=(asn[day]||[]).concat(pairs);
   }
 
-  // Phase 2: Regular WO assignment — weekdays only (not Sun, not any Sat, not Hol)
-  // Consecutive WO check: only count EXTRA weekday WOs in a run — universal WOs (Sun/Sat), HOL and LV days
-  // naturally BREAK a consecutive run so they must not be counted
-  const w3=(a,d)=>{
-    // Build the set of extra WO days if we add day d
-    const extraSet=new Set([...ew[a.name],d]);
-    // Check for 3 consecutive CALENDAR days that are ALL extra weekday WOs
-    // A holiday, leave, Sun, or Sat between them breaks the sequence
-    for(const xd of extraSet){
-      if(extraSet.has(xd+1)&&extraSet.has(xd+2)){
-        // All three must be true weekdays (not Sun/Sat/Hol/LV) to count as violation
-        const allWeek=[xd,xd+1,xd+2].every(dd=>dow[dd]!==0&&dow[dd]!==6&&!holDays.has(dd)&&!agLv[a.name].has(dd));
-        if(allWeek)return true;
-      }
+  // Helper: full WO status of an agent on a day (including Sun/Sat/HOL/extra)
+  // Used for consecutive check across ALL WO types
+  function isWODay(a,d,extraWOs){
+    if(dow[d]===0) return true;                    // Sunday = WO
+    if(agSatWO[a.name].has(d)) return true;        // Agent's WO Saturday
+    if(holDays.has(d)) return true;                // Holiday = treated as WO for consecutive purposes
+    if(agLv[a.name].has(d)) return false;          // Leave breaks the chain
+    if(extraWOs.includes(d)) return true;          // Already assigned extra WO
+    return false;
+  }
+
+  // Consecutive WO check: no agent can have 3 or more consecutive days ALL being WO
+  // (counting Sun, WO-Sat, HOL, and extra weekday WOs — Leave/ROI/working-Sat break the chain)
+  const w3=(a,d,extraWOs)=>{
+    const testExtra=[...extraWOs,d];
+    // Check a window of 5 days around d to catch any 3-consecutive run
+    for(let start=d-2;start<=d;start++){
+      if(start<1||start+2>days[days.length-1])continue;
+      if(isWODay(a,start,testExtra)&&isWODay(a,start+1,testExtra)&&isWODay(a,start+2,testExtra))return true;
     }
     return false;
   };
-  // Working days = not Sunday, not Saturday, not Holiday, not already handled by fixedWO phase
+
+  // L0 agents list
+  const l0Agents=AG.filter(a=>a.level===0);
+
+  // L0 leave protection check for a given day:
+  // If any L0 is on leave on this day, remaining L0s should not BOTH be on WO.
+  // Returns true if assigning this L0 agent WO on this day would violate the rule.
+  function l0LeaveBlock(agent,day,currentEW){
+    if(agent.level!==0)return false; // only applies to L0
+    const otherL0onLeave=l0Agents.some(a=>a.name!==agent.name&&agLv[a.name].has(day));
+    if(!otherL0onLeave)return false; // no L0 peer on leave — no restriction
+    // A peer L0 is on leave. Check if another L0 is ALREADY assigned WO on this day.
+    const anotherL0AlreadyWO=l0Agents.some(a=>a.name!==agent.name&&!agLv[a.name].has(day)&&currentEW[a.name]?.includes(day));
+    if(anotherL0AlreadyWO) return true; // would make 2 L0s on WO while 3rd is on leave — block
+    // Check if this agent has no other possible day left (last resort allowance)
+    const quota=qt[agent.name];
+    const assigned=(currentEW[agent.name]||[]).length;
+    const remaining=quota-assigned;
+    if(remaining<=0)return false;
+    // Count remaining available days after today
+    const futureDays=wd.filter(fd=>fd>day&&!agLv[agent.name].has(fd)&&!(currentEW[agent.name]||[]).includes(fd));
+    // If no future days at all AND this is the last chance, allow it (last resort)
+    if(futureDays.length===0&&remaining===1)return false; // last resort — allow
+    return false; // First L0 on this day while peer is on leave — allow (it's the 2nd that gets blocked)
+  }
+
+  // Phase 2: Regular WO assignment — weekdays only (not Sun, not any Sat, not Hol)
   const wd=days.filter(d=>dow[d]!==0&&dow[d]!==6&&!holDays.has(d)&&!allFWDays.has(d)&&!(blockDay2&&d===2));
   for(const day of wd){
     if(AG.every(a=>ew[a.name].length>=qt[a.name]))continue;
     if((dWO[day]||0)>=maxPD)continue;
-    const el=AG.filter(a=>!agLv[a.name].has(day)&&ew[a.name].length<qt[a.name]&&!w3(a,day));
+    const el=AG.filter(a=>
+      !agLv[a.name].has(day)&&
+      ew[a.name].length<qt[a.name]&&
+      !w3(a,day,ew[a.name])&&
+      !l0LeaveBlock(a,day,ew)
+    );
     let pr=[];
     for(let i=0;i<el.length;i++)for(let j=i+1;j<el.length;j++)if(vPair(el[i],el[j]))pr.push([el[i],el[j]]);
     if(!pr.length)continue;
@@ -981,7 +1017,8 @@ function compute(){
         if(ew[a.name].length>=qt[a.name])continue;
         if(agLv[a.name].has(day))continue;
         if(ew[a.name].includes(day))continue;
-        if(w3(a,day))continue;
+        if(w3(a,day,ew[a.name]))continue;
+        if(l0LeaveBlock(a,day,ew))continue;
         if((dWO[day]||0)>=maxPD)continue;
         ew[a.name].push(day);dWO[day]=(dWO[day]||0)+1;
         if(!asn[day])asn[day]=[];
