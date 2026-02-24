@@ -36,29 +36,46 @@ function initDB() {
         permissions:{ roster:{ view:true }, shortleave:{ view:true,apply:true } }}
     ],
     agents:[
-      {emp:'EP0200',name:'Shrikant Nayak',level:0,dept:'Customer Service',loc:'Gurgaon-US'},
-      {emp:'EP0269',name:'Ritu Singh',level:0,dept:'Customer Service',loc:'Gurgaon-US'},
-      {emp:'EP0505',name:'Rohit Kumar Agarwal',level:0,dept:'Customer Service',loc:'Gurgaon-US'},
-      {emp:'EP0563',name:'Himanshi Khowal',level:2,dept:'Customer Service',loc:'Gurgaon-US'},
-      {emp:'EP0564',name:'Chetan Goel',level:1,dept:'Customer Service',loc:'Gurgaon-US'},
-      {emp:'EP0523',name:'Sushant Kumar Suman',level:2,dept:'Customer Service',loc:'Gurgaon-US'},
-      {emp:'EP0560',name:'Mohit Singh',level:3,dept:'Customer Service',loc:'Gurgaon-US'},
-      {emp:'EP0678',name:'Abhay Pratap',level:4,dept:'Customer Service',loc:'Gurgaon-US'},
-      {emp:'EP0726',name:'Swagata Bhoumik',level:6,dept:'Customer Service',loc:'Gurgaon-US'},
-      {emp:'EP0848',name:'Deepak Gupta',level:7,dept:'Customer Service',loc:'Gurgaon-US'},
-      {emp:'EP0442',name:'Shivam Garg',level:1,dept:'Customer Service',loc:'Gurgaon-US'},
-      {emp:'EP0524',name:'Anurag Tiwari',level:4,dept:'Customer Service',loc:'Gurgaon-US'},
-      {emp:'EP0567',name:'Triloki Varshney',level:1,dept:'Customer Service',loc:'Gurgaon-US'},
-      {emp:'EP0557',name:'Sujit Kumar',level:3,dept:'Customer Service',loc:'Gurgaon-US'},
-      {emp:'EP0741',name:'Amarnath Vishwakarma',level:5,dept:'Customer Service',loc:'Gurgaon-US'},
-      {emp:'EP0673',name:'Dhruv Mishra',level:5,dept:'Customer Service',loc:'Gurgaon-US'},
-      {emp:'EP0798',name:'Naveen Kumar S',level:6,dept:'Customer Service',loc:'Gurgaon-US'}
+      {emp:'EP0200',satConfig:'1st3rd',name:'Shrikant Nayak',level:0,dept:'Customer Service',loc:'Gurgaon-US'},
+      {emp:'EP0269',satConfig:'2nd4th',name:'Ritu Singh',level:0,dept:'Customer Service',loc:'Gurgaon-US'},
+      {emp:'EP0505',satConfig:'2nd4th',name:'Rohit Kumar Agarwal',level:0,dept:'Customer Service',loc:'Gurgaon-US'},
+      {emp:'EP0563',satConfig:'1st3rd',name:'Himanshi Khowal',level:2,dept:'Customer Service',loc:'Gurgaon-US'},
+      {emp:'EP0564',satConfig:'1st3rd',name:'Chetan Goel',level:1,dept:'Customer Service',loc:'Gurgaon-US'},
+      {emp:'EP0523',satConfig:'1st3rd',name:'Sushant Kumar Suman',level:2,dept:'Customer Service',loc:'Gurgaon-US'},
+      {emp:'EP0560',satConfig:'1st3rd',name:'Mohit Singh',level:3,dept:'Customer Service',loc:'Gurgaon-US'},
+      {emp:'EP0678',satConfig:'1st3rd',name:'Abhay Pratap',level:4,dept:'Customer Service',loc:'Gurgaon-US'},
+      {emp:'EP0726',satConfig:'1st3rd',name:'Swagata Bhoumik',level:6,dept:'Customer Service',loc:'Gurgaon-US'},
+      {emp:'EP0848',satConfig:'1st3rd',name:'Deepak Gupta',level:7,dept:'Customer Service',loc:'Gurgaon-US'},
+      {emp:'EP0442',satConfig:'2nd4th',name:'Shivam Garg',level:1,dept:'Customer Service',loc:'Gurgaon-US'},
+      {emp:'EP0524',satConfig:'2nd4th',name:'Anurag Tiwari',level:4,dept:'Customer Service',loc:'Gurgaon-US'},
+      {emp:'EP0567',satConfig:'2nd4th',name:'Triloki Varshney',level:1,dept:'Customer Service',loc:'Gurgaon-US'},
+      {emp:'EP0557',satConfig:'2nd4th',name:'Sujit Kumar',level:3,dept:'Customer Service',loc:'Gurgaon-US'},
+      {emp:'EP0741',satConfig:'2nd4th',name:'Amarnath Vishwakarma',level:5,dept:'Customer Service',loc:'Gurgaon-US'},
+      {emp:'EP0673',satConfig:'2nd4th',name:'Dhruv Mishra',level:5,dept:'Customer Service',loc:'Gurgaon-US'},
+      {emp:'EP0798',satConfig:'2nd4th',name:'Naveen Kumar S',level:6,dept:'Customer Service',loc:'Gurgaon-US'}
     ],
     // agentLeaves: { "AgentName": { "2026-03": { leaves:[dates], fixedWOs:[dates] } } }
     agentLeaves:{},
     rosters:[],
     shortLeaves:[],
-    holidays:[],
+    holidays:[
+      {name:'Republic Day',        date:'2026-01-26'},
+      {name:'Holi',                date:'2026-03-04'},
+      {name:'Ram Navami',          date:'2026-03-27'},
+      {name:'Good Friday',         date:'2026-04-03'},
+      {name:'Ambedkar Jayanti',    date:'2026-04-14'},
+      {name:'Maharashtra Day',     date:'2026-05-01'},
+      {name:'Buddha Purnima',      date:'2026-05-12'},
+      {name:'Eid ul-Adha',         date:'2026-06-17'},
+      {name:'Muharram',            date:'2026-07-06'},
+      {name:'Independence Day',    date:'2026-08-15'},
+      {name:'Janmashtami',         date:'2026-08-23'},
+      {name:'Gandhi Jayanti',      date:'2026-10-02'},
+      {name:'Dussehra',            date:'2026-10-09'},
+      {name:'Diwali',              date:'2026-10-28'},
+      {name:'Guru Nanak Jayanti',  date:'2026-11-14'},
+      {name:'Christmas',           date:'2026-12-25'},
+    ],
     notifications:[],
     rules:{
       targetWOBase:8, extraWOIfFifthSunday:true,
@@ -369,10 +386,10 @@ app.post('/api/rosters/export/xlsx', perm('roster','export'), async (req,res)=>{
           cell.value='WO';
           cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF2D0A0F'}};
           cell.font={bold:true,color:{argb:'FFffb830'},size:8};
-        } else if(t==='HOL'){// Holiday
-          cell.value='H';
-          cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF0D2D1E'}};
-          cell.font={bold:true,color:{argb:'FF00e5a0'},size:8};
+        } else if(t==='HOL'){// Holiday — ROI text, Orange Accent 6 bg
+          cell.value='ROI';
+          cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFED7D31'}};
+          cell.font={bold:false,color:{argb:'FF000000'},size:8};
         } else if(dowVal===6){// Saturday
           if(s==='WO'){
             cell.value='WO';
@@ -383,10 +400,10 @@ app.post('/api/rosters/export/xlsx', perm('roster','export'), async (req,res)=>{
             cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF2D1F00'}};
             cell.font={bold:false,color:{argb:'FF8a7040'},size:8};
           }
-        } else if(s==='LV'){// Leave
-          cell.value='LV';
-          cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF2D0A0F'}};
-          cell.font={bold:true,color:{argb:'FFff3d5a'},size:8};
+        } else if(s==='LV'){// Leave — ROI text, Red bg
+          cell.value='ROI';
+          cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFFF0000'}};
+          cell.font={bold:false,color:{argb:'FF000000'},size:8};
         } else if(s==='WO'){// Extra weekday WO
           cell.value='WO';
           cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF1A1540'}};
@@ -440,8 +457,8 @@ app.post('/api/rosters/export/xlsx/inline', perm('roster','export'), async (req,
     const fHdr ={type:'pattern',pattern:'solid',fgColor:{argb:'FFD3D3D3'}};
     const fTop ={type:'pattern',pattern:'solid',fgColor:{argb:'FFADD8E6'}};
     const fWO  ={type:'pattern',pattern:'solid',fgColor:{argb:'FFCCC0D9'}};
-    const fHol ={type:'pattern',pattern:'solid',fgColor:{argb:'FFFFC000'}};
-    const fLv  ={type:'pattern',pattern:'solid',fgColor:{argb:'FF92D050'}};
+    const fHol ={type:'pattern',pattern:'solid',fgColor:{argb:'FFED7D31'}}; // Orange Accent 6 (Excel standard)
+    const fLv  ={type:'pattern',pattern:'solid',fgColor:{argb:'FFFF0000'}}; // Red for Leave
     const fNone={type:'pattern',pattern:'solid',fgColor:{argb:'FFFFFFFF'}};
     const fSunH={type:'pattern',pattern:'solid',fgColor:{argb:'FFFF9999'}};
     const fSatH={type:'pattern',pattern:'solid',fgColor:{argb:'FFDDD0EA'}};
@@ -504,18 +521,15 @@ app.post('/api/rosters/export/xlsx/inline', perm('roster','export'), async (req,
         const c=5+i; const v=agSc[d]||'ROI'; const dw=+dow[d];
         const cell=row.getCell(c);
         cell.border=bdr; cell.alignment=center;
-        // Holiday: show "ROI" text but orange bg
-        // Leave: show "Leave" with green bg
-        // WO: purple bg bold
-        // ROI: white no color
+        // WO=purple bold | Holiday=ROI text + Orange Accent 6 | Leave=ROI text + Red | ROI=white
         if(v==='WO'){
-          cell.value='WO'; cell.fill=fWO; cell.font={size:9,bold:true};
+          cell.value='WO';  cell.fill=fWO;   cell.font={size:9,bold:true, color:{argb:'FF000000'}};
         } else if(v==='HOL'||v==='H'){
-          cell.value='ROI'; cell.fill=fHol; cell.font={size:9,bold:false}; // ROI text, orange bg
+          cell.value='ROI'; cell.fill=fHol;  cell.font={size:9,bold:false,color:{argb:'FF000000'}};
         } else if(v==='LV'){
-          cell.value='Leave'; cell.fill=fLv; cell.font={size:9,bold:false};
+          cell.value='ROI'; cell.fill=fLv;   cell.font={size:9,bold:false,color:{argb:'FF000000'}};
         } else {
-          cell.value='ROI'; cell.fill=fNone; cell.font={size:9,bold:false};
+          cell.value='ROI'; cell.fill=fNone; cell.font={size:9,bold:false,color:{argb:'FF000000'}};
         }
       });
       // COUNTIF Total WO formula
@@ -538,7 +552,7 @@ app.post('/api/rosters/export/xlsx/inline', perm('roster','export'), async (req,
     });
 
     // Legend
-    const legends=[[crIdx+3,'WO',fWO],[crIdx+4,'Leave',fLv],[crIdx+5,'Sunday and Holiday Working',fTop],[crIdx+6,'Holiday',fHol]];
+    const legends=[[crIdx+3,'WO',fWO],[crIdx+4,'Leave (shown as ROI)',fLv],[crIdx+5,'Sunday/Holiday (shown as ROI)',fHol],[crIdx+6,'Holiday',fHol]];
     legends.forEach(([lr,txt,fill])=>{
       const cell=ws.getRow(lr).getCell(2);
       cell.value=txt; cell.fill=fill;

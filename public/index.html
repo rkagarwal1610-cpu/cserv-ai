@@ -735,7 +735,7 @@ function openDP(mode,agentName,monthKey,yr,mo){
   // Per-agent sat config
   const agObj=AG.find(a=>a.name===agentName)||{satConfig:'all'};
   const allSats=days.filter(d=>new Date(yr,mo,d).getDay()===6);
-  function agSatWOSet(){const sc=agObj.satConfig||'all';if(sc==='all')return new Set(allSats);if(sc==='1st3rd')return new Set([allSats[0],allSats[2]].filter(d=>d!=null));if(sc==='2nd4th')return new Set([allSats[1],allSats[3]].filter(d=>d!=null));return new Set();}
+  function agSatWOSet(){const sc=agObj.satConfig==='2nd4th'?'2nd4th':'1st3rd';if(sc==='1st3rd')return new Set([allSats[0],allSats[2]].filter(d=>d!=null));return new Set([allSats[1],allSats[3]].filter(d=>d!=null));}
   const agentSatWOs=agSatWOSet();
   const mholDays=new Set(HOLIDAYS.filter(h=>{const dt=parseLocalDate(h.date);return dt.getFullYear()===yr&&dt.getMonth()===mo}).map(h=>parseLocalDate(h.date).getDate()));
   if(mode==='leave'){
@@ -822,10 +822,10 @@ function renderAG(){
   const el=document.getElementById('agCnt');if(el)el.textContent=`(${AG.length})`;
   const ed=can('roster','editAgents'),list=document.getElementById('agList');if(!list)return;
   list.innerHTML=AG.map((a,i)=>{
-    // satConfig: 'all'=all sats WO, '1st3rd'=1st&3rd sat WO (works 2nd&4th), '2nd4th'=2nd&4th sat WO (works 1st&3rd), 'none'=no sat WO (works all sats)
-    const sc=a.satConfig||'all';
-    const scLabel={'all':'All Sat WO','1st3rd':'1st&3rd WO','2nd4th':'2nd&4th WO','none':'No Sat WO'}[sc]||'All Sat WO';
-    const scColor={'all':'var(--cyan)','1st3rd':'var(--amber)','2nd4th':'#f472b6','none':'var(--ink3)'}[sc];
+    // satConfig: '1st3rd'=1st&3rd sat WO (works 2nd&4th), '2nd4th'=2nd&4th sat WO (works 1st&3rd)
+    const sc=a.satConfig==='2nd4th'?'2nd4th':'1st3rd'; // default 1st3rd, only 2 options
+    const scColor=sc==='1st3rd'?'var(--amber)':'#f472b6';
+    const scLabel=sc==='1st3rd'?'1st & 3rd Sat = WO':'2nd & 4th Sat = WO';
     return`<div style="border:1px solid var(--rim);border-radius:6px;padding:4px 6px;margin-bottom:4px;background:var(--l2)">
       <div style="display:grid;grid-template-columns:48px 1fr 36px ${ed?'18px':''};gap:3px;align-items:center;margin-bottom:${ed?'5px':'0'}">
         <input style="background:var(--l3);border:1px solid var(--rim);border-radius:4px;padding:2px 4px;color:var(--ink1);font-size:9.5px;outline:none;width:100%;font-family:'IBM Plex Mono',monospace" value="${x(a.emp)}" oninput="AG[${i}].emp=this.value" ${ed?'':'readonly'}>
@@ -836,8 +836,9 @@ function renderAG(){
         ${ed?`<button style="background:none;border:none;cursor:pointer;color:var(--ink4);font-size:11px" onmouseover="this.style.color='var(--rose)'" onmouseout="this.style.color=''" onclick="rmAg(${i})">✕</button>`:''}
       </div>
       ${ed?`<div style="display:flex;align-items:center;gap:5px">
-        <span style="font-size:9px;color:var(--ink3);flex:1">Sat WO:</span>
-        ${['all','1st3rd','2nd4th','none'].map(v=>`<button style="font-size:9px;padding:2px 6px;border-radius:4px;border:1px solid ${sc===v?scColor:'var(--rim)'};background:${sc===v?scColor+'22':'none'};color:${sc===v?scColor:'var(--ink3)'};cursor:pointer;font-weight:${sc===v?'700':'400'}" onclick="AG[${i}].satConfig='${v}';syncAG();renderAG()">${{'all':'All','1st3rd':'1st&3rd','2nd4th':'2nd&4th','none':'None'}[v]}</button>`).join('')}
+        <span style="font-size:9px;color:var(--ink3)">Sat WO:</span>
+        <button style="flex:1;font-size:9px;padding:2px 6px;border-radius:4px;border:2px solid ${sc==='1st3rd'?'var(--amber)':'var(--rim)'};background:${sc==='1st3rd'?'rgba(251,191,36,.15)':'none'};color:${sc==='1st3rd'?'var(--amber)':'var(--ink3)'};cursor:pointer;font-weight:${sc==='1st3rd'?'800':'400'}" onclick="AG[${i}].satConfig='1st3rd';syncAG();renderAG()">1st &amp; 3rd</button>
+        <button style="flex:1;font-size:9px;padding:2px 6px;border-radius:4px;border:2px solid ${sc==='2nd4th'?'#f472b6':'var(--rim)'};background:${sc==='2nd4th'?'rgba(244,114,182,.15)':'none'};color:${sc==='2nd4th'?'#f472b6':'var(--ink3)'};cursor:pointer;font-weight:${sc==='2nd4th'?'800':'400'}" onclick="AG[${i}].satConfig='2nd4th';syncAG();renderAG()">2nd &amp; 4th</button>
       </div>`:`<div style="font-size:9px;color:${scColor};margin-top:2px">Sat: ${scLabel}</div>`}
     </div>`;
   }).join('');
@@ -910,11 +911,10 @@ function compute(){
   // Per-agent Saturday WO set:
   // satConfig: 'all' = all sats are WO, '1st3rd' = 1st & 3rd sat are WO, '2nd4th' = 2nd & 4th sat are WO, 'none' = no sat WO
   function agentSatWOs(a){
-    const sc=a.satConfig||'1st3rd'; // default 1st&3rd sat WO
-    if(sc==='all')   return new Set(sats);
+    // Only 1st3rd or 2nd4th — default 1st3rd
+    const sc=a.satConfig==='2nd4th'?'2nd4th':'1st3rd';
     if(sc==='1st3rd')return new Set([sats[0],sats[2]].filter(d=>d!=null));
-    if(sc==='2nd4th')return new Set([sats[1],sats[3]].filter(d=>d!=null));
-    return new Set(); // 'none' = works all saturdays
+    return new Set([sats[1],sats[3]].filter(d=>d!=null));
   }
   // Universal WO = Sundays only (Sat WO is per-agent); Holidays are separate HOL
   const uSet=new Set(suns); // only Sundays are truly universal
@@ -1003,24 +1003,23 @@ function compute(){
   // L0 agents
   const l0Agents=AG.filter(a=>a.level===0);
 
-  // L0 leave protection: if a peer L0 is on leave, at most 1 other L0 can take WO that day
+  // L0 same-day rule: on any weekday (Mon-Fri), at most 1 L0 can have extra weekday WO
+  // Sundays are universal WO for all — not affected. Sat WO is per-agent config — not affected.
   function l0LeaveBlock(agent,day,currentEW){
     if(agent.level!==0)return false;
-    const otherL0onLeave=l0Agents.some(a=>a.name!==agent.name&&agLv[a.name].has(day));
-    if(!otherL0onLeave)return false;
-    // Peer L0 is on leave — check if another L0 already has WO this day
-    const anotherL0AlreadyWO=l0Agents.some(a=>a.name!==agent.name&&!agLv[a.name].has(day)&&(currentEW[a.name]||[]).includes(day));
-    if(anotherL0AlreadyWO)return true; // 2nd L0 on WO while peer on leave → block
-    return false; // first L0 taking WO while peer on leave is allowed
+    // Only applies to weekday extra WOs (dow 1-5)
+    if(dow[day]===0||dow[day]===6)return false;
+    // Check if any other L0 already has extra WO on this day
+    const anotherL0AlreadyWO=l0Agents.some(a=>a.name!==agent.name&&(currentEW[a.name]||[]).includes(day));
+    return anotherL0AlreadyWO; // block if any other L0 already has WO today
   }
 
   // ── PHASE 1: Fixed WO days ───────────────────────────────────────────
   for(const day of [...allFWDays].sort((a,b)=>a-b)){
     if(blockDay2&&day===2)continue;
     let fAgents=AG.filter(a=>agFW[a.name].has(day)&&!agLv[a.name].has(day)&&ew[a.name].length<qt[a.name]&&!ew[a.name].includes(day)&&!w3(a,day,ew[a.name]));
-    // L0 leave protection: if a peer L0 is on leave, at most 1 L0 can take WO
-    const l0PeerOnLeaveP1=l0Agents.some(a=>agLv[a.name].has(day));
-    if(l0PeerOnLeaveP1){
+    // L0 hard rule: on weekdays, at most 1 L0 can have extra WO on the same day (Sunday excepted)
+    if(dow[day]!==0&&dow[day]!==6){
       let l0count=0;
       fAgents=fAgents.filter(a=>{if(a.level===0){if(l0count>=1)return false;l0count++;} return true;});
     }
@@ -1043,17 +1042,12 @@ function compute(){
     for(let i=0;i<el.length;i++)for(let j=i+1;j<el.length;j++)if(vPair(el[i],el[j]))pr.push([el[i],el[j]]);
     if(!pr.length)continue;
     pr.sort((p,q)=>{const sp=(qt[p[0].name]-ew[p[0].name].length)+(qt[p[1].name]-ew[p[1].name].length);const sq=(qt[q[0].name]-ew[q[0].name].length)+(qt[q[1].name]-ew[q[1].name].length);return sq-sp});
-    // Prefer pairs where neither is L0 if a peer L0 is on leave that day
-    const l0PeerOnLeave=l0Agents.some(a=>agLv[a.name].has(day));
-    let ch;
-    if(l0PeerOnLeave){
-      // Prefer pairs with at most 1 L0 (avoid pairing 2 L0s when a 3rd is on leave)
-      ch=pr.find(([a,b])=>ew[a.name].length<qt[a.name]&&ew[b.name].length<qt[b.name]&&!(a.level===0&&b.level===0));
-      // Fallback: if only L0+L0 pairs exist, allow 1 L0 max by picking best non-L0+L0 pair, else skip day
-      if(!ch)ch=pr.find(([a,b])=>ew[a.name].length<qt[a.name]&&ew[b.name].length<qt[b.name]);
-    } else {
-      ch=pr.find(([a,b])=>ew[a.name].length<qt[a.name]&&ew[b.name].length<qt[b.name]);
+    // Weekday hard rule: never allow L0+L0 pair (at most 1 L0 extra WO per weekday)
+    // Filter out L0+L0 pairs on weekdays completely — no fallback
+    if(dow[day]!==0&&dow[day]!==6){
+      pr=pr.filter(([a,b])=>!(a.level===0&&b.level===0));
     }
+    const ch=pr.find(([a,b])=>ew[a.name].length<qt[a.name]&&ew[b.name].length<qt[b.name]);
     if(!ch)continue;
     const[a1,a2]=ch;ew[a1.name].push(day);ew[a2.name].push(day);
     asn[day]=(asn[day]||[]);asn[day].push([a1,a2]);dWO[day]=(dWO[day]||0)+2;
@@ -1397,11 +1391,9 @@ async function doSLAct(){
 function buildRulesPage(){
   const R=RULES;
   const satOpts=[
-    {v:'all',   l:'All Saturdays = WO (everyone)'},
     {v:'1st3rd',l:'1st & 3rd Sat = WO (works 2nd & 4th)'},
     {v:'2nd4th',l:'2nd & 4th Sat = WO (works 1st & 3rd)'},
-    {v:'none',  l:'No Saturday WO (works all Sats)'},
-    {v:'custom',l:'Custom per-agent (set in agent list)'},
+    {v:'custom',l:'Custom per-agent (set individually in agent list)'},
   ];
   document.getElementById('pg-rules').innerHTML=`<div class="mbar"><div class="bc"><span class="bch" onclick="go('home')">🏠</span><span class="bcs">›</span><span class="bcc">📋 Rules Manager</span></div></div>
   <div class="asc"><div class="ah">Rules Manager</div><div class="as">Configure scheduling rules for roster generation.</div>
@@ -1414,7 +1406,7 @@ function buildRulesPage(){
     <div class="acard"><div class="act">📅 Saturday Working Config</div>
       <div class="as" style="margin-bottom:10px;font-size:11.5px">Apply one Saturday WO pattern to <b>all agents</b>. Choose "Custom" to set individually per agent in the agent list.</div>
       ${satOpts.map(o=>`<label class="perm-item" style="margin-bottom:7px;align-items:flex-start">
-        <input type="radio" name="globalSat" value="${o.v}" ${(R.globalSatConfig||'all')===o.v?'checked':''}> 
+        <input type="radio" name="globalSat" value="${o.v}" ${(R.globalSatConfig||'1st3rd')===o.v?'checked':''}> 
         <span style="font-size:12px;line-height:1.4">${o.l}</span>
       </label>`).join('')}
       <button class="btn btn-g" style="width:100%;margin-top:8px;font-size:11px" onclick="applyGlobalSat()">↺ Apply to All Agents Now</button>
@@ -1434,13 +1426,13 @@ function buildRulesPage(){
   </div>`;
 }
 async function applyGlobalSat(){
-  const gsc=document.querySelector('input[name="globalSat"]:checked')?.value||'all';
+  const gsc=document.querySelector('input[name="globalSat"]:checked')?.value||'1st3rd';
   if(gsc==='custom'){toast('Custom mode: set Saturday config per agent in the agent list','warn');return}
   AG.forEach(a=>a.satConfig=gsc);
   try{await api('PUT','/api/agents',AG);renderAG();toast('Saturday config applied to all agents','ok')}catch(e){toast(e.message,'err')}
 }
 async function saveRules(){
-  const gsc=document.querySelector('input[name="globalSat"]:checked')?.value||'all';
+  const gsc=document.querySelector('input[name="globalSat"]:checked')?.value||'1st3rd';
   const R={
     targetWOBase:+document.getElementById('r-tgt').value,
     extraWOIfFifthSunday:document.getElementById('r-fifth').checked,
