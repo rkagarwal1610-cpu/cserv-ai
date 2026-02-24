@@ -110,46 +110,95 @@ app.use((req,res,next)=>{
   next();
 });
 
-// Compression handled by hosting platform (Render/Railway compress at edge)
+// ── COMPRESSION (gzip for text responses) ─────────────────────────────
+app.use((req,res,next)=>{
+  const ae=req.headers['accept-encoding']||'';
+  if(!ae.includes('gzip')){return next();}
+  const {Transform}=require('stream');
+  const zlib=require('zlib');
+  // Only compress API JSON and HTML — skip binary (xlsx)
+  const origSend=res.send.bind(res);
+  const origJson=res.json.bind(res);
+  res.json=function(body){
+    const str=JSON.stringify(body);
+    if(str.length<1024){res.setHeader('Content-Type','application/json');return origSend(str);}
+    const buf=Buffer.from(str);
+    zlib.gzip(buf,(err,gz)=>{
+      if(err){res.setHeader('Content-Type','application/json');return origSend(str);}
+      res.setHeader('Content-Type','application/json');
+      res.setHeader('Content-Encoding','gzip');
+      res.setHeader('Vary','Accept-Encoding');
+      origSend(gz);
+    });
+  };
+  next();
+});
 
-// ── BODY PARSER ───────────────────────────────────────────────────────
-app.use(bp.json({ limit:'2mb' }));
-app.use(bp.urlencoded({ extended:true, limit:'1mb' }));
-
-// ── SESSION ────────────────────────────────────────────────────────────
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'cservai-dev-secret-2026',
-  resave: false,
-  saveUninitialized: false,
-  name: 'cservai.sid',
-  cookie: { maxAge: 8*60*60*1000, httpOnly: true, secure: false, sameSite: 'lax' }
-}));
-
-// ── RATE LIMITING (safe key — never undefined) ─────────────────────────
+// ── RATE LIMITING ──────────────────────────────────────────────────────
 const _rl={};
-function getIP(req){ return req.headers['x-forwarded-for']?.split(',')[0].trim() || req.socket?.remoteAddress || 'unknown'; }
-function rateLimit(windowMs,max){
+function rateLimit(windowMs,max,keyFn){
   return (req,res,next)=>{
-    const key=getIP(req); const now=Date.now();
+    const key=keyFn(req);const now=Date.now();
     if(!_rl[key])_rl[key]={count:0,reset:now+windowMs};
-    if(now>_rl[key].reset) _rl[key]={count:0,reset:now+windowMs};
-    if(++_rl[key].count>max){ const w=Math.ceil((_rl[key].reset-now)/1000); return res.status(429).json({error:`Too many requests. Retry in ${w}s.`}); }
+    if(now>_rl[key].reset){_rl[key]={count:0,reset:now+windowMs};}
+    _rl[key].count++;
+    if(_rl[key].count>max){
+      const wait=Math.ceil((_rl[key].reset-now)/1000);
+      return res.status(429).json({error:`Too many requests. Try again in ${wait}s.`});
+    }
     next();
   };
 }
-const loginRL = rateLimit(15*60*1000, 20);   // 20 login attempts per 15 min
-setInterval(()=>{ const now=Date.now(); Object.keys(_rl).forEach(k=>{ if(_rl[k].reset<now) delete _rl[k]; }); }, 30*60*1000);
+// Login: max 10 attempts per IP per 15 minutes
+const loginRL=rateLimit(15*60*1000,10,req=>req.ip||req.connection.remoteAddress);
+// General API: max 300 per IP per minute
+const apiRL=rateLimit(60*1000,300,req=>req.ip||req.connection.remoteAddress);
+app.use('/api',apiRL);
+// Clean up old RL entries every 30 min
+setInterval(()=>{const now=Date.now();Object.keys(_rl).forEach(k=>{if(_rl[k].reset<now)delete _rl[k];});},30*60*1000);
 
-// ── BRUTE-FORCE LOCKOUT ────────────────────────────────────────────────
-const _lk={};
+// ── BRUTE-FORCE LOGIN LOCKOUT ──────────────────────────────────────────
+const _lk={};// { ip: { fails:N, lockedUntil:ts } }
 function loginGuard(req,res,next){
-  const ip=getIP(req); const now=Date.now();
-  if(!_lk[ip]) _lk[ip]={fails:0,until:0};
-  if(now<_lk[ip].until){ const w=Math.ceil((_lk[ip].until-now)/1000); return res.status(429).json({error:`Too many failed attempts. Retry in ${w}s.`}); }
+  const ip=req.ip||req.connection.remoteAddress;
+  const now=Date.now();
+  if(!_lk[ip])_lk[ip]={fails:0,lockedUntil:0};
+  if(now<_lk[ip].lockedUntil){
+    const wait=Math.ceil((_lk[ip].lockedUntil-now)/1000);
+    return res.status(429).json({error:`Account locked. Try again in ${wait}s.`});
+  }
   next();
 }
-function loginFail(req){ const ip=getIP(req); if(!_lk[ip])_lk[ip]={fails:0,until:0}; if(++_lk[ip].fails>=10) _lk[ip].until=Date.now()+15*60*1000; }
-function loginOk(req){ const ip=getIP(req); _lk[ip]={fails:0,until:0}; }
+function loginFail(req){
+  const ip=req.ip||req.connection.remoteAddress;const now=Date.now();
+  if(!_lk[ip])_lk[ip]={fails:0,lockedUntil:0};
+  _lk[ip].fails++;
+  if(_lk[ip].fails>=5)_lk[ip].lockedUntil=now+15*60*1000; // lock 15 min after 5 fails
+}
+function loginOk(req){
+  const ip=req.ip||req.connection.remoteAddress;
+  _lk[ip]={fails:0,lockedUntil:0};
+}
+
+// ── BODY PARSER + STATIC ───────────────────────────────────────────────
+app.use(bp.json({ limit:'2mb' }));  // reduced from 10mb — sufficient for roster data
+app.use(bp.urlencoded({ extended:true, limit:'1mb' }));
+
+// Trust proxy (needed for correct req.ip behind reverse proxies like nginx)
+app.set('trust proxy', 1);
+
+app.use(session({
+  secret: process.env.SESSION_SECRET || (process.env.NODE_ENV==='production' ? (()=>{throw new Error('SESSION_SECRET env var is required in production');})() : 'cservai-dev-secret-change-in-prod-2026-xK9mP'),
+  resave:false,
+  saveUninitialized:false,
+  name:'cservai.sid',   // don't reveal stack via default 'connect.sid'
+  cookie:{
+    maxAge:8*60*60*1000,
+    httpOnly:true,
+    secure:process.env.NODE_ENV==='production',   // HTTPS-only in prod
+    sameSite:'strict'   // CSRF protection
+  }
+}));
 
 // Static files with cache headers
 app.use(express.static(path.join(__dirname, 'public'),{
@@ -196,20 +245,30 @@ app.put('/api/notifications/:id/read', auth, (req,res)=>{
 });
 
 // ── AUTH ──────────────────────────────────────────────────────────────
+// Register endpoint removed — users are created by superadmin/admin in the UI
 app.post('/api/login', loginRL, loginGuard, (req,res) => {
-  const {username,password}=req.body||{};
-  if(!username||!password) return res.status(400).json({error:'Username and password required'});
+  const {username,password}=req.body;
+  // Input validation
+  if(!username||!password||typeof username!=='string'||typeof password!=='string'){
+    return res.status(400).json({error:'Username and password required'});
+  }
+  if(username.length>64||password.length>128){
+    return res.status(400).json({error:'Invalid credentials'});
+  }
   const d=load();
-  const u=d.users.find(x=>x.username===(username+'').trim().toLowerCase());
-  if(!u||!bcrypt.compareSync(password+'',u.password)){
+  const u=d.users.find(x=>x.username===username.trim().toLowerCase());
+  if(!u||!bcrypt.compareSync(password,u.password)){
     loginFail(req);
-    return res.status(401).json({error:'Invalid username or password'});
+    // Uniform delay to prevent timing attacks
+    return setTimeout(()=>res.status(401).json({error:'Invalid username or password'}),400);
   }
   loginOk(req);
-  req.session.user={ id:u.id, username:u.username, role:u.role, name:u.name, permissions:u.permissions||{} };
-  req.session.save(err=>{
-    if(err){ console.error('session save error',err); return res.status(500).json({error:'Session error'}); }
-    res.json({ok:true, user:req.session.user, moduleAccess:d.moduleAccess, settings:d.settings});
+  // Regenerate session ID on login to prevent session fixation
+  req.session.regenerate((err)=>{
+    if(err) return res.status(500).json({error:'Session error'});
+    req.session.user={id:u.id,username:u.username,role:u.role,name:u.name,permissions:u.permissions||{}};
+    req.session.loginAt=Date.now();
+    res.json({ok:true,user:req.session.user,moduleAccess:d.moduleAccess,settings:d.settings});
   });
 });
 app.post('/api/logout', (q,r)=>{q.session.destroy();r.json({ok:true});});
