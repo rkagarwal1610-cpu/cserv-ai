@@ -184,21 +184,38 @@ function loginOk(req){
 app.use(bp.json({ limit:'2mb' }));  // reduced from 10mb — sufficient for roster data
 app.use(bp.urlencoded({ extended:true, limit:'1mb' }));
 
-// Trust proxy (needed for correct req.ip behind reverse proxies like nginx)
-app.set('trust proxy', 1);
+// Trust all proxy hops (Render/Railway/Heroku can have multiple layers)
+app.set('trust proxy', true);
+
+// Detect HTTPS correctly across proxy layers
+function isHttps(req) {
+  return req.secure ||
+    (req.headers['x-forwarded-proto'] || '').split(',')[0].trim() === 'https' ||
+    req.headers['x-forwarded-ssl'] === 'on';
+}
 
 app.use(session({
-  secret: process.env.SESSION_SECRET || (process.env.NODE_ENV==='production' ? (()=>{throw new Error('SESSION_SECRET env var is required in production');})() : 'cservai-dev-secret-change-in-prod-2026-xK9mP'),
-  resave:false,
-  saveUninitialized:false,
-  name:'cservai.sid',   // don't reveal stack via default 'connect.sid'
-  cookie:{
-    maxAge:8*60*60*1000,
-    httpOnly:true,
-    secure:process.env.NODE_ENV==='production',   // HTTPS-only in prod
-    sameSite:'strict'   // CSRF protection
+  secret: process.env.SESSION_SECRET || 'cservai-dev-secret-change-in-prod-2026-xK9mP',
+  resave: false,
+  saveUninitialized: false,
+  name: 'cservai.sid',
+  cookie: {
+    maxAge: 8 * 60 * 60 * 1000,
+    httpOnly: true,
+    // secure:true only when actually served over HTTPS — detect from proxy headers
+    secure: process.env.NODE_ENV === 'production' && process.env.DISABLE_SECURE_COOKIE !== '1',
+    sameSite: 'lax'   // 'strict' blocks cookie on login POST from fresh navigation
   }
 }));
+
+// Middleware: upgrade cookie.secure dynamically based on actual request protocol
+// This ensures secure cookies work on HTTPS hosts even without NODE_ENV=production
+app.use((req, _res, next) => {
+  if (req.session && isHttps(req)) {
+    req.session.cookie.secure = true;
+  }
+  next();
+});
 
 // Static files with cache headers
 app.use(express.static(path.join(__dirname, 'public'),{
@@ -264,11 +281,16 @@ app.post('/api/login', loginRL, loginGuard, (req,res) => {
   }
   loginOk(req);
   // Regenerate session ID on login to prevent session fixation
-  req.session.regenerate((err)=>{
-    if(err) return res.status(500).json({error:'Session error'});
-    req.session.user={id:u.id,username:u.username,role:u.role,name:u.name,permissions:u.permissions||{}};
-    req.session.loginAt=Date.now();
-    res.json({ok:true,user:req.session.user,moduleAccess:d.moduleAccess,settings:d.settings});
+  req.session.regenerate((err) => {
+    if (err) return res.status(500).json({ error: 'Session error' });
+    req.session.user = { id:u.id, username:u.username, role:u.role, name:u.name, permissions:u.permissions||{} };
+    req.session.loginAt = Date.now();
+    // Explicitly save session before responding — ensures cookie is persisted
+    // before the browser fires the next request (GET /api/me)
+    req.session.save((saveErr) => {
+      if (saveErr) return res.status(500).json({ error: 'Session save error' });
+      res.json({ ok:true, user:req.session.user, moduleAccess:d.moduleAccess, settings:d.settings });
+    });
   });
 });
 app.post('/api/logout', (q,r)=>{q.session.destroy();r.json({ok:true});});

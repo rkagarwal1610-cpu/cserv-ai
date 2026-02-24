@@ -676,11 +676,16 @@ async function doAuth(){
   try{
     const d=await api('POST','/api/login',{username:user,password:pass});
     ME=d.user;MACCESS=d.moduleAccess||{};
+    // Small delay ensures session cookie is fully set by browser before next request
+    await new Promise(r=>setTimeout(r,80));
     const rd=await api('GET','/api/me');RULES=rd.rules||{};RFMT=rd.rosterFormat||{};
     await Promise.all([loadAG(),loadHolidays()]);
     if(isAdmin())AGENTLEAVES=await api('GET','/api/agentleaves').catch(()=>({}));
     initApp();
-  }catch(e){showAuthErr(e.message);}
+    return; // success — don't re-enable/reset the button (auth panel is now hidden)
+  }catch(e){
+    showAuthErr(e.message||'Login failed — please try again');
+  }
   btn.disabled=false;sp.style.display='none';tx.textContent='Sign In';
 }
 
