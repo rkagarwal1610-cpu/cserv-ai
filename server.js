@@ -112,73 +112,44 @@ app.use((req,res,next)=>{
 
 // Compression handled by hosting platform (Render/Railway compress at edge)
 
-// ── RATE LIMITING ──────────────────────────────────────────────────────
-const _rl={};
-function rateLimit(windowMs,max,keyFn){
-  return (req,res,next)=>{
-    const key=keyFn(req);const now=Date.now();
-    if(!_rl[key])_rl[key]={count:0,reset:now+windowMs};
-    if(now>_rl[key].reset){_rl[key]={count:0,reset:now+windowMs};}
-    _rl[key].count++;
-    if(_rl[key].count>max){
-      const wait=Math.ceil((_rl[key].reset-now)/1000);
-      return res.status(429).json({error:`Too many requests. Try again in ${wait}s.`});
-    }
-    next();
-  };
-}
-// Login: max 10 attempts per IP per 15 minutes
-const loginRL=rateLimit(15*60*1000,10,req=>req.ip||req.connection.remoteAddress);
-// General API: max 300 per IP per minute
-const apiRL=rateLimit(60*1000,300,req=>req.ip||req.connection.remoteAddress);
-app.use('/api',apiRL);
-// Clean up old RL entries every 30 min
-setInterval(()=>{const now=Date.now();Object.keys(_rl).forEach(k=>{if(_rl[k].reset<now)delete _rl[k];});},30*60*1000);
-
-// ── BRUTE-FORCE LOGIN LOCKOUT ──────────────────────────────────────────
-const _lk={};// { ip: { fails:N, lockedUntil:ts } }
-function loginGuard(req,res,next){
-  const ip=req.ip||req.connection.remoteAddress;
-  const now=Date.now();
-  if(!_lk[ip])_lk[ip]={fails:0,lockedUntil:0};
-  if(now<_lk[ip].lockedUntil){
-    const wait=Math.ceil((_lk[ip].lockedUntil-now)/1000);
-    return res.status(429).json({error:`Account locked. Try again in ${wait}s.`});
-  }
-  next();
-}
-function loginFail(req){
-  const ip=req.ip||req.connection.remoteAddress;const now=Date.now();
-  if(!_lk[ip])_lk[ip]={fails:0,lockedUntil:0};
-  _lk[ip].fails++;
-  if(_lk[ip].fails>=5)_lk[ip].lockedUntil=now+15*60*1000; // lock 15 min after 5 fails
-}
-function loginOk(req){
-  const ip=req.ip||req.connection.remoteAddress;
-  _lk[ip]={fails:0,lockedUntil:0};
-}
-
-// ── BODY PARSER + STATIC ───────────────────────────────────────────────
-app.use(bp.json({ limit:'2mb' }));  // reduced from 10mb — sufficient for roster data
+// ── BODY PARSER ───────────────────────────────────────────────────────
+app.use(bp.json({ limit:'2mb' }));
 app.use(bp.urlencoded({ extended:true, limit:'1mb' }));
 
-// Trust all proxy hops (Render/Railway/Heroku can have multiple layers)
-app.set('trust proxy', true);
-
+// ── SESSION ────────────────────────────────────────────────────────────
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'cservai-dev-secret-change-in-prod-2026-xK9mP',
+  secret: process.env.SESSION_SECRET || 'cservai-dev-secret-2026',
   resave: false,
   saveUninitialized: false,
   name: 'cservai.sid',
-  cookie: {
-    maxAge: 8 * 60 * 60 * 1000,
-    httpOnly: true,
-    // Never force secure:true — let the hosting platform handle HTTPS at edge
-    // Setting secure:true on a platform that terminates SSL at the proxy breaks login
-    secure: false,
-    sameSite: 'lax'
-  }
+  cookie: { maxAge: 8*60*60*1000, httpOnly: true, secure: false, sameSite: 'lax' }
 }));
+
+// ── RATE LIMITING (safe key — never undefined) ─────────────────────────
+const _rl={};
+function getIP(req){ return req.headers['x-forwarded-for']?.split(',')[0].trim() || req.socket?.remoteAddress || 'unknown'; }
+function rateLimit(windowMs,max){
+  return (req,res,next)=>{
+    const key=getIP(req); const now=Date.now();
+    if(!_rl[key])_rl[key]={count:0,reset:now+windowMs};
+    if(now>_rl[key].reset) _rl[key]={count:0,reset:now+windowMs};
+    if(++_rl[key].count>max){ const w=Math.ceil((_rl[key].reset-now)/1000); return res.status(429).json({error:`Too many requests. Retry in ${w}s.`}); }
+    next();
+  };
+}
+const loginRL = rateLimit(15*60*1000, 20);   // 20 login attempts per 15 min
+setInterval(()=>{ const now=Date.now(); Object.keys(_rl).forEach(k=>{ if(_rl[k].reset<now) delete _rl[k]; }); }, 30*60*1000);
+
+// ── BRUTE-FORCE LOCKOUT ────────────────────────────────────────────────
+const _lk={};
+function loginGuard(req,res,next){
+  const ip=getIP(req); const now=Date.now();
+  if(!_lk[ip]) _lk[ip]={fails:0,until:0};
+  if(now<_lk[ip].until){ const w=Math.ceil((_lk[ip].until-now)/1000); return res.status(429).json({error:`Too many failed attempts. Retry in ${w}s.`}); }
+  next();
+}
+function loginFail(req){ const ip=getIP(req); if(!_lk[ip])_lk[ip]={fails:0,until:0}; if(++_lk[ip].fails>=10) _lk[ip].until=Date.now()+15*60*1000; }
+function loginOk(req){ const ip=getIP(req); _lk[ip]={fails:0,until:0}; }
 
 // Static files with cache headers
 app.use(express.static(path.join(__dirname, 'public'),{
@@ -225,35 +196,20 @@ app.put('/api/notifications/:id/read', auth, (req,res)=>{
 });
 
 // ── AUTH ──────────────────────────────────────────────────────────────
-// Register endpoint removed — users are created by superadmin/admin in the UI
 app.post('/api/login', loginRL, loginGuard, (req,res) => {
-  const {username,password}=req.body;
-  // Input validation
-  if(!username||!password||typeof username!=='string'||typeof password!=='string'){
-    return res.status(400).json({error:'Username and password required'});
-  }
-  if(username.length>64||password.length>128){
-    return res.status(400).json({error:'Invalid credentials'});
-  }
+  const {username,password}=req.body||{};
+  if(!username||!password) return res.status(400).json({error:'Username and password required'});
   const d=load();
-  const u=d.users.find(x=>x.username===username.trim().toLowerCase());
-  if(!u||!bcrypt.compareSync(password,u.password)){
+  const u=d.users.find(x=>x.username===(username+'').trim().toLowerCase());
+  if(!u||!bcrypt.compareSync(password+'',u.password)){
     loginFail(req);
-    // Uniform delay to prevent timing attacks
-    return setTimeout(()=>res.status(401).json({error:'Invalid username or password'}),400);
+    return res.status(401).json({error:'Invalid username or password'});
   }
   loginOk(req);
-  // Regenerate session ID on login to prevent session fixation
-  req.session.regenerate((err) => {
-    if (err) return res.status(500).json({ error: 'Session error' });
-    req.session.user = { id:u.id, username:u.username, role:u.role, name:u.name, permissions:u.permissions||{} };
-    req.session.loginAt = Date.now();
-    // Explicitly save session before responding — ensures cookie is persisted
-    // before the browser fires the next request (GET /api/me)
-    req.session.save((saveErr) => {
-      if (saveErr) return res.status(500).json({ error: 'Session save error' });
-      res.json({ ok:true, user:req.session.user, moduleAccess:d.moduleAccess, settings:d.settings });
-    });
+  req.session.user={ id:u.id, username:u.username, role:u.role, name:u.name, permissions:u.permissions||{} };
+  req.session.save(err=>{
+    if(err){ console.error('session save error',err); return res.status(500).json({error:'Session error'}); }
+    res.json({ok:true, user:req.session.user, moduleAccess:d.moduleAccess, settings:d.settings});
   });
 });
 app.post('/api/logout', (q,r)=>{q.session.destroy();r.json({ok:true});});

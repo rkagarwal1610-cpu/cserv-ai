@@ -644,8 +644,13 @@ const THEMES=[{id:'dark',label:'🌑',tip:'Dark'},{id:'light',label:'☀️',tip
 async function api(m,u,b){
   const o={method:m,headers:{'Content-Type':'application/json'},credentials:'include'};
   if(b!==undefined)o.body=JSON.stringify(b);
-  const r=await fetch(u,o);const d=await r.json();
-  if(!r.ok)throw new Error(d.error||'Server error');
+  let r,d;
+  try{ r=await fetch(u,o); }
+  catch(e){ throw new Error('Network error: '+e.message); }
+  const txt=await r.text();
+  try{ d=JSON.parse(txt); }
+  catch(e){ console.error('Non-JSON response from',u,':',txt.slice(0,200)); throw new Error('Server returned invalid response ('+r.status+')'); }
+  if(!r.ok) throw new Error(d.error||'Server error ('+r.status+')');
   return d;
 }
 function setTheme(id){document.documentElement.setAttribute('data-theme',id);localStorage.setItem('cserv_theme',id);document.querySelectorAll('.th-btn').forEach(b=>b.classList.toggle('on',b.dataset.t===id))}
@@ -676,15 +681,15 @@ async function doAuth(){
   try{
     const d=await api('POST','/api/login',{username:user,password:pass});
     ME=d.user;MACCESS=d.moduleAccess||{};
-    // Small delay ensures session cookie is fully set by browser before next request
-    await new Promise(r=>setTimeout(r,80));
-    const rd=await api('GET','/api/me');RULES=rd.rules||{};RFMT=rd.rosterFormat||{};
+    const rd=await api('GET','/api/me');
+    RULES=rd.rules||{};RFMT=rd.rosterFormat||{};
     await Promise.all([loadAG(),loadHolidays()]);
     if(isAdmin())AGENTLEAVES=await api('GET','/api/agentleaves').catch(()=>({}));
     initApp();
-    return; // success — don't re-enable/reset the button (auth panel is now hidden)
+    return;
   }catch(e){
-    showAuthErr(e.message||'Login failed — please try again');
+    console.error('Login error:',e);
+    showAuthErr(e.message||'Login failed — check console for details');
   }
   btn.disabled=false;sp.style.display='none';tx.textContent='Sign In';
 }
