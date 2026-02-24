@@ -1585,11 +1585,11 @@ function buildPerfPage() {
       <div style="display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:20px" id="perf-charts-row">
         <div style="background:var(--l1);border:1px solid var(--rim);border-radius:12px;padding:16px">
           <div style="font-size:12px;font-weight:700;color:var(--ink2);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px">Processed vs Target — L1 Agents</div>
-          <div style="position:relative;height:220px"><canvas id="perf-bar-chart"></canvas></div>
+          <div id="perf-bar-chart" style="width:100%;height:220px;overflow:hidden"></div>
         </div>
         <div style="background:var(--l1);border:1px solid var(--rim);border-radius:12px;padding:16px">
           <div style="font-size:12px;font-weight:700;color:var(--ink2);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px">Priority Breakdown</div>
-          <div style="position:relative;height:220px"><canvas id="perf-pie-chart"></canvas></div>
+          <div id="perf-pie-chart" style="width:100%;height:220px;overflow:hidden"></div>
         </div>
       </div>
 
@@ -1802,112 +1802,92 @@ function renderPerfDashboard(d) {
     <div style="font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:700;color:${f.color}">${f.val}</div>
   </div>`).join('');
 
-  // Charts (destroy old first)
-  Object.values(_perfCharts).forEach(c => { try { c.destroy(); } catch {} });
-  _perfCharts = {};
-  // Wait one frame after display:block so offsetWidth is non-zero
-  requestAnimationFrame(() => renderPerfCharts(d));
+  renderPerfCharts(d);
 }
 
 function renderPerfCharts(d) {
-  if (typeof Chart === 'undefined') {
-    setTimeout(() => renderPerfCharts(d), 300); return;
-  }
-
   const l1 = d.agentRows.filter(r => r.role === 'L1');
   const isDark = !document.documentElement.dataset.theme ||
     ['dark','ocean','forest','sunset'].includes(document.documentElement.dataset.theme || 'dark');
-  const txtColor  = isDark ? 'rgba(188,205,224,.7)' : 'rgba(45,63,90,.7)';
-  const gridColor = isDark ? 'rgba(30,45,69,.6)'    : 'rgba(203,213,224,.5)';
 
-  // Destroy old chart instances first to fully release canvas
-  Object.values(_perfCharts).forEach(c => { try { c.destroy(); } catch {} });
-  _perfCharts = {};
+  // ── Pure SVG bar chart — zero dependency on DOM size measurement ─────
+  (function drawBar() {
+    const el = document.getElementById('perf-bar-chart');
+    if (!el || !l1.length) return;
+    const W = 900, H = 210, padL = 34, padR = 12, padT = 20, padB = 56;
+    const chartW = W - padL - padR, chartH = H - padT - padB;
+    const maxVal = Math.max(...l1.map(r => Math.max(r.processed || 0, r.target || 0)), 1);
+    const gap    = chartW / l1.length;
+    const barW   = Math.min(Math.floor(gap * 0.55), 40);
+    const tc = isDark ? 'rgba(188,205,224,.7)' : 'rgba(45,63,90,.7)';
+    const gc = isDark ? 'rgba(255,255,255,.06)' : 'rgba(0,0,0,.07)';
 
-  // Set explicit pixel dimensions on canvas so Chart.js never gets 0x0
-  function sizeCanvas(id, h) {
-    const el = document.getElementById(id);
-    if (!el) return null;
-    const w = el.parentElement.offsetWidth || el.parentElement.clientWidth || 600;
-    el.width  = w;
-    el.height = h;
-    el.style.width  = w + 'px';
-    el.style.height = h + 'px';
-    return el;
-  }
-
-  const H = 200; // fixed chart height px
-
-  // ── Bar chart: Processed vs Target — L1 only ──────────────────────────
-  const barCanvas = sizeCanvas('perf-bar-chart', H);
-  if (barCanvas && l1.length > 0) {
-    _perfCharts.bar = new Chart(barCanvas, {
-      type: 'bar',
-      data: {
-        labels: l1.map(r => r.name.split(' ')[0]),
-        datasets: [
-          { label: 'Processed',
-            data: l1.map(r => r.processed),
-            backgroundColor: l1.map(r => r.hitTarget ? 'rgba(34,197,94,.75)' : 'rgba(0,212,255,.65)'),
-            borderRadius: 5, borderSkipped: false, barPercentage: 0.65 },
-          { label: 'Target',
-            data: l1.map(r => r.target || 0),
-            type: 'line', borderColor: 'rgba(255,184,48,.9)', borderWidth: 2,
-            borderDash: [4, 3], pointBackgroundColor: 'rgba(255,184,48,1)',
-            pointRadius: 4, fill: false, tension: 0.3, order: 0 }
-        ]
-      },
-      options: {
-        responsive: false,
-        animation: { duration: 600 },
-        plugins: {
-          legend: { labels: { color: txtColor, font: { size: 10 }, boxWidth: 12, padding: 12 } },
-          tooltip: { mode: 'index', intersect: false }
-        },
-        scales: {
-          x: { ticks: { color: txtColor, font: { size: 9 }, maxRotation: 40 }, grid: { color: gridColor } },
-          y: { ticks: { color: txtColor, font: { size: 9 } }, grid: { color: gridColor }, beginAtZero: true,
-               suggestedMax: Math.max(...l1.map(r => Math.max(r.processed || 0, r.target || 0))) + 2 }
-        }
-      }
+    let gridLines = '', yLabels = '', bars = '', xLabels = '', tpts = [];
+    for (let i = 0; i <= 5; i++) {
+      const v = Math.round(maxVal * i / 5);
+      const y = padT + chartH - (chartH * i / 5);
+      gridLines += `<line x1="${padL}" y1="${y.toFixed(1)}" x2="${W-padR}" y2="${y.toFixed(1)}" stroke="${gc}" stroke-width="1"/>`;
+      yLabels   += `<text x="${padL-4}" y="${(y+4).toFixed(1)}" text-anchor="end" font-size="9" fill="${tc}">${v}</text>`;
+    }
+    l1.forEach((r, i) => {
+      const cx  = padL + i * gap + gap / 2;
+      const bh  = chartH * (r.processed || 0) / maxVal;
+      const by  = padT + chartH - bh;
+      const col = r.hitTarget ? 'rgba(34,197,94,.8)' : 'rgba(0,212,255,.72)';
+      const ty  = padT + chartH - chartH * (r.target || 0) / maxVal;
+      bars    += `<rect x="${(cx-barW/2).toFixed(1)}" y="${by.toFixed(1)}" width="${barW}" height="${Math.max(bh,0).toFixed(1)}" fill="${col}" rx="3"><title>${r.name}: processed ${r.processed}${r.target?' / target '+r.target:''}</title></rect>`;
+      xLabels += `<text x="${cx.toFixed(1)}" y="${H-4}" text-anchor="end" font-size="8.5" fill="${tc}" transform="rotate(-38,${cx.toFixed(1)},${H-4})">${r.name.split(' ')[0]}</text>`;
+      tpts.push([cx, ty]);
     });
-  }
+    let tline = '';
+    if (tpts.length > 1) {
+      tline = `<polyline points="${tpts.map(p=>p.map(v=>v.toFixed(1)).join(',')).join(' ')}" fill="none" stroke="rgba(255,184,48,.9)" stroke-width="2" stroke-dasharray="5,3"/>`;
+      tpts.forEach(([x,y]) => { tline += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.5" fill="rgba(255,184,48,1)"/>`; });
+    }
+    const leg = `<rect x="${padL}" y="4" width="10" height="10" fill="rgba(0,212,255,.72)" rx="2"/><text x="${padL+14}" y="13" font-size="9" fill="${tc}">Processed</text><line x1="${padL+86}" y1="9" x2="${padL+100}" y2="9" stroke="rgba(255,184,48,.9)" stroke-width="2" stroke-dasharray="4,2"/><circle cx="${padL+93}" cy="9" r="3" fill="rgba(255,184,48,1)"/><text x="${padL+106}" y="13" font-size="9" fill="${tc}">Target</text>`;
+    el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:100%">${gridLines}${yLabels}${bars}${tline}${xLabels}${leg}</svg>`;
+  })();
 
-  // ── Pie chart: L1 Priority Breakdown ─────────────────────────────────
-  const pieCanvas = sizeCanvas('perf-pie-chart', H);
-  if (pieCanvas) {
-    const l1High   = d.totals.high   || 0;
-    const l1Urgent = d.totals.urgent || 0;
-    const l1Normal = Math.max(0, (d.totals.resolved || 0) - l1High - l1Urgent);
-    const hasData  = (l1Normal + l1High + l1Urgent) > 0;
-    _perfCharts.pie = new Chart(pieCanvas, {
-      type: 'doughnut',
-      data: {
-        labels: ['Normal', 'High', 'Urgent'],
-        datasets: [{
-          data: hasData ? [l1Normal, l1High, l1Urgent] : [1, 0, 0],
-          backgroundColor: hasData
-            ? ['rgba(0,212,255,.75)', 'rgba(249,115,22,.8)', 'rgba(239,68,68,.8)']
-            : ['rgba(40,60,90,.35)', 'rgba(40,60,90,.2)', 'rgba(40,60,90,.1)'],
-          borderColor: isDark ? '#0d1526' : '#ffffff',
-          borderWidth: 2, hoverOffset: 8
-        }]
-      },
-      options: {
-        responsive: false,
-        animation: { duration: 600 }, cutout: '62%',
-        plugins: {
-          legend: { position: 'bottom', labels: { color: txtColor, font: { size: 10 }, padding: 12, boxWidth: 12 } },
-          tooltip: { callbacks: { label: ctx => {
-            if (!hasData) return ' No L1 data';
-            const total = l1Normal + l1High + l1Urgent;
-            const pct = total > 0 ? Math.round(ctx.raw / total * 100) : 0;
-            return ` ${ctx.label}: ${ctx.raw} (${pct}%)`;
-          }}}
+  // ── Pure SVG donut chart ─────────────────────────────────────────────
+  (function drawDonut() {
+    const el = document.getElementById('perf-pie-chart');
+    if (!el) return;
+    const hi = d.totals.high || 0, ur = d.totals.urgent || 0;
+    const no = Math.max(0, (d.totals.resolved || 0) - hi - ur);
+    const total = no + hi + ur;
+    const cols  = ['rgba(0,212,255,.9)', 'rgba(249,115,22,.9)', 'rgba(239,68,68,.9)'];
+    const labs  = ['Normal', 'High', 'Urgent'];
+    const vals  = [no, hi, ur];
+    const tc    = isDark ? 'rgba(188,205,224,.75)' : 'rgba(45,63,90,.75)';
+    const bg    = isDark ? '#0a1120' : '#ffffff';
+    const cx=95, cy=100, R=75, ri=46;
+    let arcs = '';
+    if (total === 0) {
+      arcs = `<circle cx="${cx}" cy="${cy}" r="${R}" fill="rgba(40,60,90,.3)"/><circle cx="${cx}" cy="${cy}" r="${ri}" fill="${bg}"/><text x="${cx}" y="${cy+5}" text-anchor="middle" font-size="11" fill="${tc}">No data</text>`;
+    } else {
+      let a = -Math.PI/2;
+      vals.forEach((v, i) => {
+        if (!v) return;
+        const sw = (v/total)*2*Math.PI, lg = sw > Math.PI ? 1 : 0;
+        const x1=cx+R*Math.cos(a), y1=cy+R*Math.sin(a), x2=cx+R*Math.cos(a+sw), y2=cy+R*Math.sin(a+sw);
+        const xi1=cx+ri*Math.cos(a), yi1=cy+ri*Math.sin(a), xi2=cx+ri*Math.cos(a+sw), yi2=cy+ri*Math.sin(a+sw);
+        arcs += `<path d="M${x1.toFixed(2)},${y1.toFixed(2)} A${R},${R} 0 ${lg} 1 ${x2.toFixed(2)},${y2.toFixed(2)} L${xi2.toFixed(2)},${yi2.toFixed(2)} A${ri},${ri} 0 ${lg} 0 ${xi1.toFixed(2)},${yi1.toFixed(2)} Z" fill="${cols[i]}" stroke="${bg}" stroke-width="2"><title>${labs[i]}: ${v} (${Math.round(v/total*100)}%)</title></path>`;
+        if (v/total > 0.08) {
+          const ma=a+sw/2, mr=(R+ri)/2;
+          arcs += `<text x="${(cx+mr*Math.cos(ma)).toFixed(1)}" y="${(cy+mr*Math.sin(ma)+4).toFixed(1)}" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">${Math.round(v/total*100)}%</text>`;
         }
-      }
-    });
-  }
+        a += sw;
+      });
+      arcs += `<circle cx="${cx}" cy="${cy}" r="${ri}" fill="${bg}"/><text x="${cx}" y="${cy-3}" text-anchor="middle" font-size="13" font-weight="700" fill="${tc}">${total}</text><text x="${cx}" y="${cy+13}" text-anchor="middle" font-size="8" fill="${tc}">L1 total</text>`;
+    }
+    let legY = 38;
+    const legend = vals.map((v,i) => {
+      const pct = total > 0 ? Math.round(v/total*100) : 0;
+      const s = `<rect x="188" y="${legY-9}" width="10" height="10" fill="${cols[i]}" rx="2"/><text x="202" y="${legY}" font-size="10" fill="${tc}">${labs[i]}</text><text x="290" y="${legY}" text-anchor="end" font-size="10" font-weight="700" fill="${cols[i]}">${v} · ${pct}%</text>`;
+      legY += 28; return s;
+    }).join('');
+    el.innerHTML = `<svg viewBox="0 0 300 200" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:100%">${arcs}${legend}</svg>`;
+  })();
 }
 
 // ── Agent Editor modal ──────────────────────────────────────────────────────
