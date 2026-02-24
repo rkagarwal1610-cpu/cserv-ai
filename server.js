@@ -413,6 +413,129 @@ app.post('/api/rosters/export/xlsx', perm('roster','export'), async (req,res)=>{
   }catch(e){console.error(e);res.status(500).json({error:e.message});}
 });
 
+// ── XLSX INLINE EXPORT (Shifts & Weekly Offs Import format) ───────────
+app.post('/api/rosters/export/xlsx/inline', perm('roster','export'), async (req,res)=>{
+  try{
+    const r=req.body;
+    const MN2=['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const yr=r.yr, mo=r.mo, agents=r.agents||[], days=r.days||[], sc=r.sc||{};
+    const dow=r.dow||{};
+    const agSatWO=r.agSatWO||{};
+    const holDays=new Set(r.holDays||[]);
+    const vLabel=r.versionLabel||'';
+
+    const wb=new ExcelJS.Workbook();
+    wb.creator='C-Serv.AI';wb.created=new Date();
+    const ws=wb.addWorksheet('Shifts & Weekly Offs Import');
+
+    // Fills & fonts
+    const fHdr ={type:'pattern',pattern:'solid',fgColor:{argb:'FFD3D3D3'}};
+    const fTop ={type:'pattern',pattern:'solid',fgColor:{argb:'FFADD8E6'}};
+    const fWO  ={type:'pattern',pattern:'solid',fgColor:{argb:'FFCCC0D9'}};
+    const fHol ={type:'pattern',pattern:'solid',fgColor:{argb:'FFFFC000'}};
+    const fLv  ={type:'pattern',pattern:'solid',fgColor:{argb:'FF92D050'}};
+    const fNone={type:'pattern',pattern:'solid',fgColor:{argb:'FFFFFFFF'}};
+    const fSunH={type:'pattern',pattern:'solid',fgColor:{argb:'FFFF9999'}};
+    const fSatH={type:'pattern',pattern:'solid',fgColor:{argb:'FFDDD0EA'}};
+    const fCnt ={type:'pattern',pattern:'solid',fgColor:{argb:'FFE2EFDA'}};
+    const thinBdr={style:'thin',color:{argb:'FF999999'}};
+    const bdr={top:thinBdr,bottom:thinBdr,left:thinBdr,right:thinBdr};
+    const center={horizontal:'center',vertical:'middle'};
+    const left={horizontal:'left',vertical:'middle'};
+
+    // Column widths
+    ws.getColumn(1).width=19; ws.getColumn(2).width=29;
+    ws.getColumn(3).width=18; ws.getColumn(4).width=12;
+    for(let i=5;i<=4+days.length;i++) ws.getColumn(i).width=12.9;
+    ws.getColumn(5+days.length).width=10;
+
+    const nd=days.length;
+
+    // Row 1: light blue bar
+    const r1=ws.getRow(1); r1.height=14;
+    for(let c=1;c<=5+nd;c++){
+      const cell=r1.getCell(c);
+      cell.fill=fTop; cell.border=bdr;
+    }
+    r1.getCell(1).value='  ';
+
+    // Row 2: grey headers + date columns
+    const r2=ws.getRow(2); r2.height=32;
+    [['Employee Number',1],['Employee Name',2],['Department',3],['Location',4]].forEach(([h,c])=>{
+      const cell=r2.getCell(c);
+      cell.value=h; cell.fill=fHdr; cell.border=bdr;
+      cell.font={bold:true,size:9};
+      cell.alignment=left;
+    });
+    days.forEach((d,i)=>{
+      const c=5+i; const dw=+dow[d];
+      const cell=r2.getCell(c);
+      cell.value=new Date(yr,mo,d);
+      cell.numFmt='dd/mmm/yyyy';
+      cell.fill=dw===0?fSunH:(dw===6?fSatH:fHdr);
+      cell.font={bold:true,size:9};
+      cell.alignment=left;
+      cell.border=bdr;
+    });
+    const twHdr=r2.getCell(5+nd);
+    twHdr.value='Total WO'; twHdr.fill=fHdr; twHdr.border=bdr;
+    twHdr.font={bold:true,size:9}; twHdr.alignment=center;
+
+    // Agent rows
+    agents.forEach((ag,ri)=>{
+      const rowIdx=3+ri; const agSc=sc[ag.name]||{};
+      const row=ws.getRow(rowIdx); row.height=16;
+      [[1,ag.emp],[2,ag.name],[3,ag.dept||''],[4,ag.loc||'']].forEach(([c,v])=>{
+        const cell=row.getCell(c);
+        cell.value=v; cell.fill=fNone; cell.border=bdr;
+        cell.font={size:9}; cell.alignment=c<=2?left:center;
+      });
+      days.forEach((d,i)=>{
+        const c=5+i; const v=agSc[d]||'ROI'; const dw=+dow[d];
+        const cell=row.getCell(c);
+        cell.border=bdr; cell.font={size:9,bold:v==='WO'};
+        cell.alignment=center;
+        if(v==='WO'){cell.value='WO';cell.fill=fWO;}
+        else if(v==='HOL'||v==='Holiday'){cell.value='Holiday';cell.fill=fHol;}
+        else if(v==='LV'||v==='Leave'){cell.value='Leave';cell.fill=fLv;}
+        else{cell.value='ROI';cell.fill=fNone;}
+      });
+      // COUNTIF Total WO formula
+      const cs=ws.getColumn(5).letter; const ce=ws.getColumn(4+nd).letter;
+      const twCell=row.getCell(5+nd);
+      twCell.value={formula:`COUNTIF(${cs}${rowIdx}:${ce}${rowIdx},"WO")`};
+      twCell.fill=fNone; twCell.border=bdr;
+      twCell.font={bold:true,size:9}; twCell.alignment=center;
+    });
+
+    // Count row
+    const crIdx=3+agents.length;
+    const cr=ws.getRow(crIdx); cr.height=14;
+    days.forEach((d,i)=>{
+      const c=5+i; const col=ws.getColumn(c).letter;
+      const cell=cr.getCell(c);
+      cell.value={formula:`COUNTIF(${col}3:${col}${2+agents.length},"ROI")`};
+      cell.fill=fCnt; cell.border=bdr;
+      cell.font={size:8,italic:true}; cell.alignment=center;
+    });
+
+    // Legend
+    const legends=[[crIdx+3,'WO',fWO],[crIdx+4,'Leave',fLv],[crIdx+5,'Sunday and Holiday Working',fTop],[crIdx+6,'Holiday',fHol]];
+    legends.forEach(([lr,txt,fill])=>{
+      const cell=ws.getRow(lr).getCell(2);
+      cell.value=txt; cell.fill=fill;
+      cell.font={size:9}; cell.alignment=left;
+    });
+
+    ws.views=[{state:'frozen',xSplit:4,ySplit:2}];
+
+    const fn=`Roster_${MN2[mo]}_${yr}${vLabel?'_'+vLabel:''}.xlsx`;
+    res.setHeader('Content-Type','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition',`attachment; filename="${fn}"`);
+    await wb.xlsx.write(res); res.end();
+  }catch(e){console.error(e);res.status(500).json({error:e.message});}
+});
+
 // ── SHORT LEAVE ───────────────────────────────────────────────────────
 app.get('/api/shortleaves', auth, (req,res)=>{
   const d=load(); const u=req.session.user;

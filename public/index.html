@@ -578,8 +578,17 @@ function buildRosterPage(){
         <button style="width:100%;padding:10px;background:linear-gradient(135deg,var(--cyan),var(--cyan2));color:var(--bg);border:none;border-radius:8px;font-size:13.5px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:6px;transition:all .2s" id="btnGen" onclick="generate()" ${!can('roster','generate')?'disabled':''}>
           <span id="btnT">⚡ Generate Roster</span><div class="sp" id="btnSp" style="display:none;border-top-color:var(--bg)"></div>
         </button>
+        ${can('roster','generate')?`<button style="width:100%;padding:8px;background:var(--l3);color:var(--cyan);border:1px solid var(--cyan);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:6px" onclick="generate3()"><span id="btn3T">🔀 Generate 3 Versions</span><div class="sp" id="btn3Sp" style="display:none"></div></button>`:''}
         <div id="expRow" style="display:none;gap:6px;margin-bottom:6px">
           ${can('roster','export')?`<button class="btn btn-g" style="flex:1;font-size:11px" onclick="doCSV()">⬇ CSV</button><button class="btn btn-g" style="flex:1;font-size:11px" onclick="doXLSX()">⬇ XLSX</button><button class="btn btn-g" style="flex:1;font-size:11px" onclick="window.print()">🖨</button>`:''}
+        </div>
+        <div id="v3Row" style="display:none;gap:5px;flex-direction:column;margin-bottom:6px">
+          <div style="font-size:10px;color:var(--ink3);font-weight:600;letter-spacing:.5px;margin-bottom:2px">3 VERSIONS READY:</div>
+          <div style="display:flex;gap:5px">
+            <button class="btn btn-g" style="flex:1;font-size:11px" onclick="dlVersion(1)">⬇ V1</button>
+            <button class="btn btn-g" style="flex:1;font-size:11px" onclick="dlVersion(2)">⬇ V2</button>
+            <button class="btn btn-g" style="flex:1;font-size:11px" onclick="dlVersion(3)">⬇ V3</button>
+          </div>
         </div>
         ${can('roster','save')?`<button class="btn btn-e" style="width:100%;margin-bottom:5px;display:none" id="btnSv" onclick="saveR()">💾 Save Roster</button>`:''}
         ${can('roster','approve')?`<button class="btn btn-a" style="width:100%;display:none" id="btnApprove" onclick="approveCurrentR()">✓ Approve & Publish</button>`:''}
@@ -841,11 +850,14 @@ async function syncAG(){try{await api('PUT','/api/agents',AG)}catch{}}
 function vPair(a,b){if(RULES.pairingRule==='any')return true;const la=a.level,lb=b.level;if(la===0&&lb===0)return true;if(la===0||lb===0)return false;const S=new Set([1,2,3]),J=new Set([4,5,6,7]);return(S.has(la)&&J.has(lb))||(J.has(la)&&S.has(lb))}
 
 // GENERATE
+let ROSTERS=[null,null,null]; // store all 3 versions
 function generate(){
   const btn=document.getElementById('btnGen'),sp=document.getElementById('btnSp'),tx=document.getElementById('btnT');
   btn.disabled=true;sp.style.display='block';tx.textContent='Generating…';
+  document.getElementById('v3Row').style.display='none';
   setTimeout(()=>{
     try{
+      RULES.rosterVersion=1;
       ROSTER=compute();renderAll(ROSTER);
       document.getElementById('expRow').style.display='flex';
       if(can('roster','save'))document.getElementById('btnSv').style.display='inline-flex';
@@ -853,6 +865,35 @@ function generate(){
     }catch(e){rAlert('⚠ '+e.message,'err')}
     btn.disabled=false;sp.style.display='none';tx.textContent='⚡ Generate Roster';
   },60);
+}
+function generate3(){
+  const btn3=document.querySelector('[onclick="generate3()"]'),sp3=document.getElementById('btn3Sp'),tx3=document.getElementById('btn3T');
+  if(btn3)btn3.disabled=true;if(sp3)sp3.style.display='block';if(tx3)tx3.textContent='Generating…';
+  document.getElementById('v3Row').style.display='none';
+  setTimeout(()=>{
+    try{
+      ROSTERS=[null,null,null];
+      for(let v=1;v<=3;v++){RULES.rosterVersion=v;ROSTERS[v-1]=compute();}
+      RULES.rosterVersion=1;
+      ROSTER=ROSTERS[0];renderAll(ROSTER);
+      document.getElementById('expRow').style.display='flex';
+      document.getElementById('v3Row').style.display='flex';
+      if(can('roster','save'))document.getElementById('btnSv').style.display='inline-flex';
+      if(can('roster','approve'))document.getElementById('btnApprove').style.display='inline-flex';
+      rAlert('✓ 3 versions generated — download below','ok');
+    }catch(e){rAlert('⚠ '+e.message,'err')}
+    if(btn3)btn3.disabled=false;if(sp3)sp3.style.display='none';if(tx3)tx3.textContent='🔀 Generate 3 Versions';
+  },60);
+}
+function dlVersion(v){
+  const r=ROSTERS[v-1];
+  if(!r){rAlert('Generate 3 versions first','err');return;}
+  // Trigger export for this version via server with inline data
+  const payload={...r,versionLabel:`v${v}`};
+  fetch('/api/rosters/export/xlsx/inline',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+    .then(res=>res.ok?res.blob():res.json().then(e=>{throw new Error(e.error)}))
+    .then(blob=>{const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download=`Roster_${MN[r.mo]}_${r.yr}_v${v}.xlsx`;a.click();URL.revokeObjectURL(u);})
+    .catch(e=>rAlert('⚠ '+e.message,'err'));
 }
 
 function compute(){
@@ -869,8 +910,8 @@ function compute(){
   // Per-agent Saturday WO set:
   // satConfig: 'all' = all sats are WO, '1st3rd' = 1st & 3rd sat are WO, '2nd4th' = 2nd & 4th sat are WO, 'none' = no sat WO
   function agentSatWOs(a){
-    const sc=a.satConfig||'all';
-    if(sc==='all')  return new Set(sats);
+    const sc=a.satConfig||'1st3rd'; // default 1st&3rd sat WO
+    if(sc==='all')   return new Set(sats);
     if(sc==='1st3rd')return new Set([sats[0],sats[2]].filter(d=>d!=null));
     if(sc==='2nd4th')return new Set([sats[1],sats[3]].filter(d=>d!=null));
     return new Set(); // 'none' = works all saturdays
@@ -931,7 +972,13 @@ function compute(){
   AG.forEach(a=>agFW[a.name].forEach(d=>{
     if(!uSet.has(d)&&!agSatWO[a.name].has(d)&&!holDays.has(d))allFWDays.add(d);
   }));
-  const wd=days.filter(d=>dow[d]!==0&&dow[d]!==6&&!holDays.has(d)&&!allFWDays.has(d)&&!(blockDay2&&d===2));
+  // WO Priority: Tue/Wed/Thu (mid-week) first, Mon/Fri second
+  // Version rotation shifts start point within each tier for 3 different distributions
+  const _vr=R.rosterVersion||1;
+  const _mid=days.filter(d=>[2,3,4].includes(dow[d])&&!holDays.has(d)&&!allFWDays.has(d)&&!(blockDay2&&d===2));
+  const _end=days.filter(d=>[1,5].includes(dow[d])&&!holDays.has(d)&&!allFWDays.has(d)&&!(blockDay2&&d===2));
+  const _rot=(arr,n)=>arr.length?[...arr.slice(n%arr.length),...arr.slice(0,n%arr.length)]:arr;
+  const wd=[..._rot(_mid,(_vr-1)*3),..._rot(_end,(_vr-1)*2)];
 
   // Full WO status of an agent on a day (Sun/WO-Sat/HOL/extra all count; Leave & ROI-Sat break chain)
   function isWODay(a,d,extraWOs){
