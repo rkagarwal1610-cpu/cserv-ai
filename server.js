@@ -184,18 +184,8 @@ function loginOk(req){
 app.use(bp.json({ limit:'2mb' }));  // reduced from 10mb — sufficient for roster data
 app.use(bp.urlencoded({ extended:true, limit:'1mb' }));
 
-// Static files with cache headers
-app.use(express.static(path.join(__dirname, 'public'),{
-  maxAge:'1d',          // cache static assets 1 day
-  etag:true,
-  lastModified:true,
-  setHeaders:(res,filePath)=>{
-    // No-cache for index.html so app updates are picked up immediately
-    if(filePath.endsWith('index.html')){
-      res.setHeader('Cache-Control','no-cache, no-store, must-revalidate');
-    }
-  }
-}));
+// Trust proxy (needed for correct req.ip behind reverse proxies like nginx)
+app.set('trust proxy', 1);
 
 app.use(session({
   secret: process.env.SESSION_SECRET || (process.env.NODE_ENV==='production' ? (()=>{throw new Error('SESSION_SECRET env var is required in production');})() : 'cservai-dev-secret-change-in-prod-2026-xK9mP'),
@@ -207,6 +197,19 @@ app.use(session({
     httpOnly:true,
     secure:process.env.NODE_ENV==='production',   // HTTPS-only in prod
     sameSite:'strict'   // CSRF protection
+  }
+}));
+
+// Static files with cache headers
+app.use(express.static(path.join(__dirname, 'public'),{
+  maxAge:'1d',          // cache static assets 1 day
+  etag:true,
+  lastModified:true,
+  setHeaders:(res,filePath)=>{
+    // No-cache for index.html so app updates are picked up immediately
+    if(filePath.endsWith('index.html')){
+      res.setHeader('Cache-Control','no-cache, no-store, must-revalidate');
+    }
   }
 }));
 

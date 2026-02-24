@@ -641,7 +641,7 @@ const LC=[{bg:'rgba(192,132,252,.12)',fg:'#c084fc',b:'rgba(192,132,252,.25)'},{b
 const THEMES=[{id:'dark',label:'🌑',tip:'Dark'},{id:'light',label:'☀️',tip:'Light'},{id:'ocean',label:'🌊',tip:'Ocean'},{id:'forest',label:'🌿',tip:'Forest'},{id:'sunset',label:'🌅',tip:'Sunset'}];
 
 async function api(m,u,b){
-  const o={method:m,headers:{'Content-Type':'application/json'}};
+  const o={method:m,headers:{'Content-Type':'application/json'},credentials:'include'};
   if(b!==undefined)o.body=JSON.stringify(b);
   const r=await fetch(u,o);const d=await r.json();
   if(!r.ok)throw new Error(d.error||'Server error');
