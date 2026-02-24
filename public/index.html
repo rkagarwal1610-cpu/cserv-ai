@@ -10,6 +10,7 @@
 <meta name="theme-color" content="#04060d">
 <title>C-Serv.AI</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root,[data-theme="dark"]{--bg:#04060d;--base:#080e1a;--l1:#0d1526;--l2:#111d33;--l3:#172340;--rim:#1e2d45;--rim2:#263549;--ink0:#f2f8ff;--ink1:#bccde0;--ink2:#7a9bbf;--ink3:#4a6080;--ink4:#2d3f5a;--cyan:#00d4ff;--cyan2:#0099cc;--cdim:rgba(0,212,255,.07);--em:#00e5a0;--amber:#ffb830;--rose:#ff3d5a;--violet:#a78bfa;--wo:#ff3d5a;--wo-bg:rgba(255,61,90,.12);--roi:#00e5a0;--roi-bg:rgba(0,229,160,.08);--sun-c:#ffb830;--sun-bg:rgba(255,184,48,.1);--sat-c:#a78bfa;--sat-bg:rgba(167,139,250,.1);--hol-c:#00e5a0;--hol-bg:rgba(0,229,160,.1);--shadow:0 24px 60px rgba(0,0,0,.6)}
 [data-theme="light"]{--bg:#f0f4f8;--base:#fff;--l1:#f7f9fc;--l2:#edf2f7;--l3:#e2e8f0;--rim:#cbd5e0;--rim2:#b2bfcc;--ink0:#0d1526;--ink1:#2d3f5a;--ink2:#4a6080;--ink3:#7a9bbf;--ink4:#bccde0;--cyan:#0077cc;--cyan2:#005fa3;--cdim:rgba(0,119,204,.07);--em:#007a42;--amber:#b07600;--rose:#cc1122;--violet:#6d28d9;--wo:#cc1122;--wo-bg:rgba(204,17,34,.1);--roi:#007a42;--roi-bg:rgba(0,122,66,.08);--sun-c:#b07600;--sun-bg:rgba(176,118,0,.1);--sat-c:#6d28d9;--sat-bg:rgba(109,40,217,.08);--hol-c:#007a42;--hol-bg:rgba(0,122,66,.1);--shadow:0 12px 40px rgba(0,0,0,.12)}
@@ -434,6 +435,7 @@ input,select,button,textarea{font-family:'Outfit',sans-serif}
         <div class="nl" id="nl-roster" onclick="go('roster')" style="display:none"><span class="ni">📅</span><span class="nt">Roster Generator</span><span class="nbadge nb-live">LIVE</span></div>
         <div class="nl" id="nl-myrosters" onclick="go('myrosters')" style="display:none"><span class="ni">📅</span><span class="nt">Monthly Roster</span><span class="nbadge nb-live">LIVE</span></div>
         <div class="nl" id="nl-shortleave" onclick="go('shortleave')"><span class="ni">🕐</span><span class="nt">Short Leave</span></div>
+        <div class="nl" id="nl-perf" onclick="go('perf')"><span class="ni">📊</span><span class="nt">Performance</span><span class="nbadge" style="background:rgba(167,139,250,.12);color:#a78bfa;border:1px solid rgba(167,139,250,.25)">NEW</span></div>
       </div>
       <div class="nd"></div>
       <div class="ng" id="nav-admin-group" style="display:none">
@@ -457,6 +459,7 @@ input,select,button,textarea{font-family:'Outfit',sans-serif}
       <div class="pg" id="pg-users"></div>
       <div class="pg" id="pg-backup"></div>
       <div class="pg" id="pg-saved"></div>
+      <div class="pg" id="pg-perf"></div>
     </div>
   </div>
 </div>
@@ -601,6 +604,33 @@ input,select,button,textarea{font-family:'Outfit',sans-serif}
   <p style="font-size:13px;color:var(--ink2)">Backup: <code id="restore-name" style="color:var(--amber)"></code></p>
   <div class="mft"><button class="btn btn-g" onclick="closeM('m-restore')">Cancel</button><button class="btn btn-r" onclick="doRestore()">Yes, Restore</button></div>
 </div></div>
+
+<div class="mbg" id="m-perf-agents"><div class="mc wide" style="max-height:88vh;overflow-y:auto">
+  <div class="mh">⚙ Agents, Roles &amp; Targets</div>
+  <p style="font-size:12px;color:var(--ink3);margin-bottom:12px">Set each agent's role (L1/L2), daily processed target, and display sort order. Changes apply to all future reports.</p>
+  <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
+    <table style="width:100%;border-collapse:collapse;min-width:420px">
+      <thead>
+        <tr style="border-bottom:2px solid var(--rim)">
+          <th style="text-align:left;padding:6px 8px;font-size:9.5px;font-family:'IBM Plex Mono',monospace;color:var(--ink3);letter-spacing:1px;text-transform:uppercase;white-space:nowrap">Sort #</th>
+          <th style="text-align:left;padding:6px 8px;font-size:9.5px;font-family:'IBM Plex Mono',monospace;color:var(--ink3);letter-spacing:1px;text-transform:uppercase">Agent Name</th>
+          <th style="text-align:center;padding:6px 8px;font-size:9.5px;font-family:'IBM Plex Mono',monospace;color:var(--ink3);letter-spacing:1px;text-transform:uppercase">Role</th>
+          <th style="text-align:center;padding:6px 8px;font-size:9.5px;font-family:'IBM Plex Mono',monospace;color:var(--ink3);letter-spacing:1px;text-transform:uppercase">Target</th>
+          <th style="text-align:center;padding:6px 8px;font-size:9.5px;font-family:'IBM Plex Mono',monospace;color:var(--ink3);letter-spacing:1px;text-transform:uppercase">Del</th>
+        </tr>
+      </thead>
+      <tbody id="perf-agent-rows"></tbody>
+    </table>
+  </div>
+  <div style="margin-top:10px">
+    <button class="btn btn-g" style="font-size:12px" onclick="addPerfAgentRow()">+ Add Agent</button>
+  </div>
+  <div id="perf-agents-err" class="auth-err" style="margin-top:10px;display:none"></div>
+  <div class="mft">
+    <button class="btn btn-g" onclick="closeM('m-perf-agents')">Cancel</button>
+    <button class="btn btn-p" id="perf-save-agents-btn">💾 Save Agents</button>
+  </div>
+</div></div>
 <script>
 'use strict';
 let ME=null,AG=[],ROSTER=null,RULES={},RFMT={},HOLIDAYS=[],MACCESS={},SLS=[],NOTIFS=[],AGENTLEAVES={};
@@ -671,7 +701,7 @@ function initApp(){
     const mbnR=document.getElementById('mbn-roster');if(mbnR)mbnR.style.display='flex';
   }
   if(window.innerWidth<=768)document.getElementById('mbtn').style.display='flex';
-  buildThemeRow();buildHome();buildRosterPage();buildMyRostersPage();buildSLPage();
+  buildThemeRow();buildHome();buildRosterPage();buildMyRostersPage();buildSLPage();buildPerfPage();
   if(isAdm){buildRulesPage();buildUsersPage();buildBackupPage();buildSavedPage();}
   go('home');startNotifPoll();
 }
@@ -694,7 +724,7 @@ function closeNav(){
     const b=document.getElementById('mbn-'+k);
     if(b)b.classList.remove('on');
   });
-  const mobMap={home:'home',roster:'roster',myrosters:'roster',shortleave:'sl'};
+  const mobMap={home:'home',roster:'roster',myrosters:'roster',shortleave:'sl',perf:'perf'};
   const mbnId=mobMap[id];
   if(mbnId){const b=document.getElementById('mbn-'+mbnId);if(b)b.classList.add('on');}
   document.getElementById('nav-overlay').classList.remove('on');
@@ -752,7 +782,7 @@ function buildHome(){
   <div style="padding:20px 28px">
     <div style="font-size:13.5px;font-weight:700;color:var(--ink0);margin-bottom:12px;display:flex;align-items:center;gap:7px"><span style="width:3px;height:15px;background:var(--cyan);border-radius:2px;display:inline-block"></span>Quick Access</div>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(240px,100%),1fr));gap:11px">
-      ${(isAdm?[{id:'roster',ico:'📅',n:'Roster Generator',d:'Generate WO rosters with agent leaves, fixed WOs, boundary rules & pairing.',c:'#00d4ff'},{id:'shortleave',ico:'🕐',n:'Short Leave Manager',d:'Review, approve and reject short leave requests.',c:'#00e5a0'}]:[{id:'myrosters',ico:'📅',n:'Monthly Roster',d:'View your approved monthly roster schedules.',c:'#00d4ff'},{id:'shortleave',ico:'🕐',n:'Short Leave',d:'Apply for short leaves and track your history.',c:'#00e5a0'}]).map(m=>`<div style="background:var(--l1);border:1px solid var(--rim);border-radius:12px;padding:18px;cursor:pointer;transition:all .2s" onclick="go('${m.id}')" onmouseover="this.style.borderColor='${m.c}';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='';this.style.transform=''"><div style="width:42px;height:42px;border-radius:10px;background:${m.c}18;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:11px">${m.ico}</div><div style="font-size:13.5px;font-weight:700;color:var(--ink0);margin-bottom:4px">${m.n}</div><div style="font-size:12px;color:var(--ink2);line-height:1.6">${m.d}</div></div>`).join('')}
+      ${(isAdm?[{id:'roster',ico:'📅',n:'Roster Generator',d:'Generate WO rosters with agent leaves, fixed WOs, boundary rules & pairing.',c:'#00d4ff'},{id:'shortleave',ico:'🕐',n:'Short Leave Manager',d:'Review, approve and reject short leave requests.',c:'#00e5a0'},{id:'perf',ico:'📊',n:'Performance Dashboard',d:'Upload ticket data and generate an interactive team performance report.',c:'#a78bfa'}]:[{id:'myrosters',ico:'📅',n:'Monthly Roster',d:'View your approved monthly roster schedules.',c:'#00d4ff'},{id:'shortleave',ico:'🕐',n:'Short Leave',d:'Apply for short leaves and track your history.',c:'#00e5a0'}]).map(m=>`<div style="background:var(--l1);border:1px solid var(--rim);border-radius:12px;padding:18px;cursor:pointer;transition:all .2s" onclick="go('${m.id}')" onmouseover="this.style.borderColor='${m.c}';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='';this.style.transform=''"><div style="width:42px;height:42px;border-radius:10px;background:${m.c}18;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:11px">${m.ico}</div><div style="font-size:13.5px;font-weight:700;color:var(--ink0);margin-bottom:4px">${m.n}</div><div style="font-size:12px;color:var(--ink2);line-height:1.6">${m.d}</div></div>`).join('')}
     </div>
   </div></div>`;
 }
@@ -1482,6 +1512,530 @@ function bSum(r,tid){
 }
 
 function swTab(id,el){['cal','pairs','sum'].forEach(t=>document.getElementById('tab-'+t).style.display=t===id?'block':'none');document.querySelectorAll('.tab-row .ttb').forEach(b=>b.classList.remove('on'));el.classList.add('on')}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// MODULE 3 — PERFORMANCE DASHBOARD
+// ══════════════════════════════════════════════════════════════════════════════
+let _perfData = null;
+let _perfCfg  = null;
+let _perfCharts = {};
+
+function buildPerfPage() {
+  document.getElementById('pg-perf').innerHTML = `
+  <div class="mbar" style="flex-wrap:wrap;gap:6px;min-height:46px;height:auto;padding:8px 14px">
+    <div class="bc"><span class="bch" onclick="go('home')">🏠</span><span class="bcs">›</span><span class="bcc">📊 Performance Dashboard</span></div>
+    <div style="display:flex;gap:6px;margin-left:auto;flex-wrap:wrap">
+      <button class="btn btn-g" style="font-size:12px" onclick="openPerfAgentEditor()">⚙ Agents & Targets</button>
+      <button class="btn btn-p" style="font-size:12px" id="perfUploadBtn" onclick="document.getElementById('perfFileInput').click()">⬆ Upload Data</button>
+      <input type="file" id="perfFileInput" accept=".xlsx,.xls,.csv" style="display:none" onchange="handlePerfFile(this)">
+    </div>
+  </div>
+  <div style="flex:1;overflow-y:auto;background:var(--bg)">
+
+    <!-- Upload panel (shown until data loaded) -->
+    <div id="perf-upload-panel" style="padding:40px 20px;display:flex;flex-direction:column;align-items:center;gap:0">
+      <div style="max-width:520px;width:100%;background:var(--l1);border:1px solid var(--rim2);border-radius:16px;padding:36px 32px;text-align:center">
+        <div style="font-size:48px;margin-bottom:14px">📊</div>
+        <div style="font-size:20px;font-weight:800;color:var(--ink0);margin-bottom:8px">Performance Dashboard</div>
+        <div style="font-size:13px;color:var(--ink2);line-height:1.7;margin-bottom:24px">Upload your Salesforce or CRM export (.xlsx / .csv) to generate an interactive team performance report.</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">
+          <div><label class="fl" style="text-align:left;display:block;margin-bottom:4px">Total Inward</label>
+            <input type="number" class="fi" id="perf-inward" placeholder="0" min="0" style="background:var(--l2)"></div>
+          <div><label class="fl" style="text-align:left;display:block;margin-bottom:4px">Closing Unresolved (L1)</label>
+            <input type="number" class="fi" id="perf-unresolved" placeholder="0" min="0" style="background:var(--l2)"></div>
+        </div>
+        <div id="perf-drop-zone"
+          style="border:2px dashed var(--rim2);border-radius:10px;padding:28px 20px;cursor:pointer;transition:all .2s;margin-bottom:16px"
+          ondragover="event.preventDefault();this.style.borderColor='var(--cyan)';this.style.background='var(--cdim)'"
+          ondragleave="this.style.borderColor='';this.style.background=''"
+          ondrop="event.preventDefault();this.style.borderColor='';this.style.background='';handlePerfFileDrop(event)">
+          <div style="font-size:28px;margin-bottom:8px">📂</div>
+          <div style="font-size:13px;color:var(--ink2)">Drag & drop your file here or</div>
+          <button class="btn btn-p" style="margin-top:10px" onclick="document.getElementById('perfFileInput').click()">Browse File</button>
+        </div>
+        <div id="perf-upload-err" class="alrt aerr" style="display:none;text-align:left"></div>
+        <div id="perf-upload-loading" style="display:none;text-align:center;color:var(--cyan);font-size:13px;padding:8px">
+          <div class="sp" style="display:inline-block;margin-right:8px;border-top-color:var(--cyan)"></div> Processing…
+        </div>
+      </div>
+    </div>
+
+    <!-- Dashboard (shown after data loaded) -->
+    <div id="perf-dashboard" style="display:none;padding:20px 20px 40px">
+
+      <!-- Header row -->
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:18px">
+        <div>
+          <div style="font-size:20px;font-weight:800;color:var(--ink0);letter-spacing:-.5px" id="perf-title">Team Performance Report</div>
+          <div style="font-size:11.5px;color:var(--ink3);font-family:'IBM Plex Mono',monospace;margin-top:3px" id="perf-subtitle">—</div>
+        </div>
+        <div style="display:flex;gap:7px;flex-wrap:wrap">
+          <button class="btn btn-g" style="font-size:12px" onclick="perfUploadNew()">🔄 New Report</button>
+          <button class="btn btn-e" style="font-size:12px" onclick="downloadPerfReport()">⬇ Download Report</button>
+        </div>
+      </div>
+
+      <!-- KPI Summary cards -->
+      <div id="perf-kpis" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:20px"></div>
+
+      <!-- Charts row -->
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:20px" id="perf-charts-row">
+        <div style="background:var(--l1);border:1px solid var(--rim);border-radius:12px;padding:16px">
+          <div style="font-size:12px;font-weight:700;color:var(--ink2);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px">Processed vs Target — L1 Agents</div>
+          <div style="position:relative;height:220px"><canvas id="perf-bar-chart"></canvas></div>
+        </div>
+        <div style="background:var(--l1);border:1px solid var(--rim);border-radius:12px;padding:16px">
+          <div style="font-size:12px;font-weight:700;color:var(--ink2);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px">Priority Breakdown</div>
+          <div style="position:relative;height:220px"><canvas id="perf-pie-chart"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Agent Performance Table -->
+      <div style="background:var(--l1);border:1px solid var(--rim);border-radius:12px;overflow:hidden;margin-bottom:14px">
+        <div style="padding:13px 16px;border-bottom:1px solid var(--rim);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          <div style="font-size:13px;font-weight:700;color:var(--ink0)">Agent Performance Details</div>
+          <div style="display:flex;gap:6px">
+            <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--ink3)"><span style="width:10px;height:10px;border-radius:2px;background:#22c55e;display:inline-block"></span>≥ Target</span>
+            <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--ink3)"><span style="width:10px;height:10px;border-radius:2px;background:#ef4444;display:inline-block"></span>Below</span>
+            <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--ink3)"><span style="width:10px;height:10px;border-radius:2px;background:rgba(167,139,250,.5);display:inline-block"></span>L2</span>
+          </div>
+        </div>
+        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
+          <table class="tbl" id="perf-table" style="min-width:600px">
+            <thead>
+              <tr>
+                <th style="text-align:left;padding-left:14px">Agent</th>
+                <th>Role</th>
+                <th>Resolved</th>
+                <th>Forwarded</th>
+                <th>Processed</th>
+                <th>High</th>
+                <th>Urgent</th>
+                <th>Target</th>
+                <th>Achieve %</th>
+              </tr>
+            </thead>
+            <tbody id="perf-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Footer summary row -->
+      <div id="perf-footer-row" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px"></div>
+
+    </div>
+  </div>`;
+}
+
+function handlePerfFileDrop(e) {
+  const file = e.dataTransfer.files[0];
+  if (!file) return;
+  submitPerfFile(file);
+}
+function handlePerfFile(input) {
+  if (!input.files[0]) return;
+  submitPerfFile(input.files[0]);
+  input.value = '';
+}
+
+async function submitPerfFile(file) {
+  const err = document.getElementById('perf-upload-err');
+  const loading = document.getElementById('perf-upload-loading');
+  err.style.display = 'none';
+  loading.style.display = 'block';
+  document.getElementById('perfUploadBtn').disabled = true;
+
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('totalInward', document.getElementById('perf-inward')?.value || 0);
+  fd.append('closingUnresolved', document.getElementById('perf-unresolved')?.value || 0);
+
+  try {
+    const res = await fetch('/api/perf/process', {
+      method: 'POST',
+      body: fd,
+      credentials: 'include'
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Processing failed');
+    _perfData = data;
+    renderPerfDashboard(data);
+  } catch(e) {
+    err.textContent = '⚠ ' + e.message;
+    err.style.display = 'block';
+  } finally {
+    loading.style.display = 'none';
+    document.getElementById('perfUploadBtn').disabled = false;
+  }
+}
+
+function perfUploadNew() {
+  document.getElementById('perf-upload-panel').style.display = 'flex';
+  document.getElementById('perf-dashboard').style.display = 'none';
+  // Destroy old charts
+  Object.values(_perfCharts).forEach(c => { try { c.destroy(); } catch {} });
+  _perfCharts = {};
+  _perfData = null;
+}
+
+function renderPerfDashboard(d) {
+  document.getElementById('perf-upload-panel').style.display = 'none';
+  document.getElementById('perf-dashboard').style.display = 'block';
+
+  // Title
+  document.getElementById('perf-title').textContent = 'Team Performance Report';
+  document.getElementById('perf-subtitle').textContent =
+    (d.reportDate ? 'Date: ' + d.reportDate + '  ·  ' : '') + 'File: ' + d.fileName;
+
+  // KPIs
+  const l1 = d.agentRows.filter(r => r.role === 'L1');
+  const l2 = d.agentRows.filter(r => r.role === 'L2');
+  const hitters = l1.filter(r => r.hitTarget === true).length;
+  const totalL1Proc = d.totals.processed;
+  const kpis = [
+    { label: 'Team Processed',   val: d.teamProcessed,      color: 'var(--cyan)',   icon: '🔄' },
+    { label: 'Total Inward',     val: d.totalInward || 0,   color: 'var(--amber)',  icon: '📥' },
+    { label: 'Closing Unresolved', val: d.closingUnresolved||0, color: 'var(--rose)', icon: '⚠' },
+    { label: 'L1 Total Processed', val: totalL1Proc,         color: 'var(--em)',    icon: '✅' },
+    { label: 'L1 Hit Target',    val: hitters + ' / ' + l1.length, color: '#a78bfa', icon: '🎯' },
+    { label: 'High Priority',    val: d.totals.high || 0,   color: '#f97316',       icon: '🔴' },
+    { label: 'Urgent Priority',  val: d.totals.urgent || 0, color: '#ef4444',       icon: '🚨' },
+    { label: 'L2 Agents',        val: l2.length,            color: '#a78bfa',       icon: '🔧' },
+  ];
+  document.getElementById('perf-kpis').innerHTML = kpis.map(k => `
+    <div style="background:var(--l1);border:1px solid var(--rim);border-radius:10px;padding:12px 14px;position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:${k.color}"></div>
+      <div style="font-size:18px;margin-bottom:4px">${k.icon}</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:700;color:${k.color}">${k.val}</div>
+      <div style="font-size:10.5px;color:var(--ink3);margin-top:2px">${k.label}</div>
+    </div>`).join('');
+
+  // Table
+  const tbody = document.getElementById('perf-table-body');
+  const allRows = [...d.agentRows, { ...d.totals, _isTotal: true }];
+  tbody.innerHTML = allRows.map(r => {
+    const isTotal = r._isTotal;
+    const isL2 = r.role === 'L2';
+    let rowBg = '';
+    if (isTotal) rowBg = 'background:var(--l2);font-weight:700';
+    else if (isL2) rowBg = 'background:rgba(167,139,250,.06)';
+
+    // Achievement bar
+    let achieveCell = '<td style="text-align:center;color:var(--ink3)">—</td>';
+    if (r.achievePct !== null && r.achievePct !== undefined) {
+      const pct = Math.min(r.achievePct, 150);
+      const col = r.achievePct >= 100 ? '#22c55e' : r.achievePct >= 70 ? '#f97316' : '#ef4444';
+      achieveCell = `<td style="padding:4px 8px">
+        <div style="font-size:11px;font-weight:700;color:${col};margin-bottom:2px;text-align:center">${r.achievePct}%</div>
+        <div style="height:4px;border-radius:2px;background:var(--rim);overflow:hidden">
+          <div style="height:100%;width:${pct}%;background:${col};border-radius:2px;transition:width .4s"></div>
+        </div>
+      </td>`;
+    }
+
+    const roleBadge = isTotal ? '<span style="font-size:9px;background:var(--cdim);color:var(--cyan);padding:2px 6px;border-radius:4px">TOTAL</span>'
+      : isL2 ? '<span style="font-size:9px;background:rgba(167,139,250,.12);color:#a78bfa;padding:2px 6px;border-radius:4px">L2</span>'
+      : '<span style="font-size:9px;background:rgba(0,229,160,.08);color:var(--em);padding:2px 6px;border-radius:4px">L1</span>';
+
+    const hitDot = (!isTotal && !isL2 && r.hitTarget !== null)
+      ? `<span style="width:7px;height:7px;border-radius:50%;background:${r.hitTarget ? '#22c55e' : '#ef4444'};display:inline-block;margin-right:6px;flex-shrink:0"></span>` : '';
+
+    const fmtN = v => (v === null || v === undefined || v === '') ? '<span style="color:var(--ink4)">—</span>' : `<b>${v}</b>`;
+
+    return `<tr style="${rowBg}">
+      <td style="padding:9px 14px;font-weight:${isTotal?'700':'500'};color:var(--ink0);display:flex;align-items:center;gap:4px">${hitDot}${x(r.name)}</td>
+      <td style="text-align:center">${roleBadge}</td>
+      <td style="text-align:center;color:var(--em)">${fmtN(r.resolved)}</td>
+      <td style="text-align:center;color:var(--amber)">${fmtN(r.forwarded)}</td>
+      <td style="text-align:center;font-size:13px;font-weight:700;color:var(--cyan)">${fmtN(r.processed)}</td>
+      <td style="text-align:center;color:#f97316">${fmtN(r.high)}</td>
+      <td style="text-align:center;color:#ef4444">${fmtN(r.urgent)}</td>
+      <td style="text-align:center;color:var(--ink2)">${fmtN(r.target)}</td>
+      ${achieveCell}
+    </tr>`;
+  }).join('');
+
+  // Footer summary
+  document.getElementById('perf-footer-row').innerHTML = [
+    { label: 'Team Processed',      val: d.teamProcessed,         color: 'var(--cyan)' },
+    { label: 'Total Inward',         val: d.totalInward || 0,      color: 'var(--amber)' },
+    { label: 'Closing Unresolved (L1)', val: d.closingUnresolved||0, color: 'var(--rose)' },
+  ].map(f => `<div style="background:var(--l1);border:1px solid var(--rim);border-radius:10px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between">
+    <div style="font-size:12px;color:var(--ink2)">${f.label}</div>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:700;color:${f.color}">${f.val}</div>
+  </div>`).join('');
+
+  // Charts (destroy old first)
+  Object.values(_perfCharts).forEach(c => { try { c.destroy(); } catch {} });
+  _perfCharts = {};
+  setTimeout(() => renderPerfCharts(d), 80);
+}
+
+function renderPerfCharts(d) {
+  if (typeof Chart === 'undefined') return; // Chart.js not loaded yet
+
+  const l1 = d.agentRows.filter(r => r.role === 'L1');
+  const isDark = !document.documentElement.dataset.theme || document.documentElement.dataset.theme === 'dark'
+    || ['dark','ocean','forest','sunset'].includes(document.documentElement.dataset.theme || 'dark');
+  const txtColor = isDark ? 'rgba(188,205,224,.7)' : 'rgba(45,63,90,.7)';
+  const gridColor = isDark ? 'rgba(30,45,69,.6)' : 'rgba(203,213,224,.5)';
+
+  // Bar chart: processed vs target for L1 agents
+  const barCtx = document.getElementById('perf-bar-chart');
+  if (barCtx) {
+    _perfCharts.bar = new Chart(barCtx, {
+      type: 'bar',
+      data: {
+        labels: l1.map(r => r.name.split(' ')[0]),
+        datasets: [
+          { label: 'Processed', data: l1.map(r => r.processed),
+            backgroundColor: l1.map(r => r.hitTarget ? 'rgba(34,197,94,.7)' : 'rgba(0,212,255,.6)'),
+            borderRadius: 4, borderSkipped: false },
+          { label: 'Target', data: l1.map(r => r.target || 0),
+            type: 'line', borderColor: 'rgba(255,184,48,.8)', borderWidth: 2,
+            pointBackgroundColor: 'rgba(255,184,48,.9)', pointRadius: 3,
+            fill: false, tension: 0 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: txtColor, font: { size: 10 } } }, tooltip: { mode: 'index' } },
+        scales: {
+          x: { ticks: { color: txtColor, font: { size: 9 } }, grid: { color: gridColor } },
+          y: { ticks: { color: txtColor, font: { size: 9 } }, grid: { color: gridColor }, beginAtZero: true }
+        }
+      }
+    });
+  }
+
+  // Pie chart: priority breakdown
+  const pieCtx = document.getElementById('perf-pie-chart');
+  if (pieCtx) {
+    const normal = (d.totals.resolved || 0) - (d.totals.high || 0) - (d.totals.urgent || 0);
+    _perfCharts.pie = new Chart(pieCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Normal', 'High Priority', 'Urgent'],
+        datasets: [{
+          data: [Math.max(0, normal), d.totals.high || 0, d.totals.urgent || 0],
+          backgroundColor: ['rgba(0,212,255,.7)', 'rgba(249,115,22,.75)', 'rgba(239,68,68,.75)'],
+          borderColor: isDark ? 'rgba(13,21,38,.6)' : 'rgba(255,255,255,.8)',
+          borderWidth: 2, hoverOffset: 6
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        cutout: '60%',
+        plugins: {
+          legend: { position: 'bottom', labels: { color: txtColor, font: { size: 10 }, padding: 10 } }
+        }
+      }
+    });
+  }
+}
+
+// ── Agent Editor modal ──────────────────────────────────────────────────────
+async function openPerfAgentEditor() {
+  // Load config from server
+  try {
+    _perfCfg = await api('GET', '/api/perf/config');
+  } catch(e) {
+    toast('Could not load config: ' + e.message, 'err'); return;
+  }
+  const agents = (_perfCfg.agents || []).slice().sort((a, b) => (a.sort||9999)-(b.sort||9999));
+  let rows = agents.map(a => ({ ...a }));
+
+  const modal = document.getElementById('m-perf-agents');
+  renderPerfAgentRows(rows);
+  document.getElementById('perf-agents-err').style.display = 'none';
+  document.getElementById('perf-save-agents-btn').onclick = async () => {
+    // Collect from DOM
+    const tbody = document.getElementById('perf-agent-rows');
+    const newAgents = [];
+    let valid = true;
+    tbody.querySelectorAll('tr[data-idx]').forEach(tr => {
+      const idx = parseInt(tr.dataset.idx);
+      const name = tr.querySelector('.pae-name').value.trim();
+      const role = tr.querySelector('.pae-role').value;
+      const target = parseInt(tr.querySelector('.pae-target').value) || 0;
+      const sort = parseInt(tr.querySelector('.pae-sort').value) || 9999;
+      if (!name) { valid = false; return; }
+      newAgents.push({ name, role, target, sort });
+    });
+    if (!valid) { document.getElementById('perf-agents-err').textContent='⚠ Agent names cannot be empty'; document.getElementById('perf-agents-err').style.display='block'; return; }
+    newAgents.sort((a,b)=>a.sort-b.sort);
+    try {
+      await api('PUT', '/api/perf/config', { agents: newAgents });
+      _perfCfg = { agents: newAgents };
+      toast('Agent config saved', 'ok');
+      closeM('m-perf-agents');
+    } catch(e) { document.getElementById('perf-agents-err').textContent='⚠ '+e.message; document.getElementById('perf-agents-err').style.display='block'; }
+  };
+  openM('m-perf-agents');
+}
+
+function renderPerfAgentRows(rows) {
+  const tbody = document.getElementById('perf-agent-rows');
+  tbody.innerHTML = rows.map((a, i) => `
+    <tr data-idx="${i}" style="border-bottom:1px solid var(--rim)">
+      <td style="padding:5px 4px"><input type="number" class="fi pae-sort" value="${a.sort||''}" style="background:var(--l2);width:54px;padding:5px 6px;font-size:12px;text-align:center"></td>
+      <td style="padding:5px 4px"><input type="text" class="fi pae-name" value="${x(a.name)}" style="background:var(--l2);padding:5px 8px;font-size:12px;min-width:140px"></td>
+      <td style="padding:5px 4px"><select class="ctrl pae-role" style="padding:5px 6px;font-size:13px;width:70px"><option${a.role==='L1'?' selected':''}>L1</option><option${a.role==='L2'?' selected':''}>L2</option></select></td>
+      <td style="padding:5px 4px"><input type="number" class="fi pae-target" value="${a.target||''}" placeholder="0" style="background:var(--l2);width:70px;padding:5px 6px;font-size:12px;text-align:center"></td>
+      <td style="padding:5px 4px;text-align:center"><button class="btn btn-r" style="padding:4px 8px;font-size:11px;min-height:unset" onclick="removePerfAgentRow(this)">✕</button></td>
+    </tr>`).join('');
+}
+function removePerfAgentRow(btn) { btn.closest('tr').remove(); }
+function addPerfAgentRow() {
+  const tbody = document.getElementById('perf-agent-rows');
+  const idx = tbody.querySelectorAll('tr').length;
+  const tr = document.createElement('tr');
+  tr.dataset.idx = idx;
+  tr.style.borderBottom = '1px solid var(--rim)';
+  tr.innerHTML = `
+    <td style="padding:5px 4px"><input type="number" class="fi pae-sort" placeholder="99" style="background:var(--l2);width:54px;padding:5px 6px;font-size:12px;text-align:center"></td>
+    <td style="padding:5px 4px"><input type="text" class="fi pae-name" placeholder="Agent name" style="background:var(--l2);padding:5px 8px;font-size:12px;min-width:140px"></td>
+    <td style="padding:5px 4px"><select class="ctrl pae-role" style="padding:5px 6px;font-size:13px;width:70px"><option>L1</option><option>L2</option></select></td>
+    <td style="padding:5px 4px"><input type="number" class="fi pae-target" placeholder="0" style="background:var(--l2);width:70px;padding:5px 6px;font-size:12px;text-align:center"></td>
+    <td style="padding:5px 4px;text-align:center"><button class="btn btn-r" style="padding:4px 8px;font-size:11px;min-height:unset" onclick="removePerfAgentRow(this)">✕</button></td>`;
+  tbody.appendChild(tr);
+}
+
+// ── Download standalone HTML report ─────────────────────────────────────────
+function downloadPerfReport() {
+  if (!_perfData) { toast('No data to export', 'warn'); return; }
+  const d = _perfData;
+  const html = buildStandalonePerfHTML(d);
+  const blob = new Blob([html], { type: 'text/html' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'Performance_Report_' + (d.reportDate || 'export').replace(/-/g,'_') + '.html';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast('Report downloaded', 'ok');
+}
+
+function buildStandalonePerfHTML(d) {
+  const l1 = d.agentRows.filter(r => r.role === 'L1');
+  const fmtN = v => (v === null || v === undefined || v === '') ? '—' : v;
+  const rows = [...d.agentRows, { ...d.totals, _isTotal: true }];
+
+  const tableRows = rows.map(r => {
+    const isTotal = r._isTotal;
+    const isL2 = r.role === 'L2';
+    const bg = isTotal ? '#1a2535' : isL2 ? 'rgba(167,139,250,.06)' : '';
+    const pctBar = (r.achievePct !== null && r.achievePct !== undefined)
+      ? `<div style="font-size:11px;font-weight:700;color:${r.achievePct>=100?'#22c55e':r.achievePct>=70?'#f97316':'#ef4444'}">${r.achievePct}%</div>
+         <div style="height:4px;background:#1e2d45;border-radius:2px;width:80px;margin-top:2px"><div style="height:100%;width:${Math.min(r.achievePct,150)}%;background:${r.achievePct>=100?'#22c55e':r.achievePct>=70?'#f97316':'#ef4444'};border-radius:2px"></div></div>`
+      : '—';
+    const dot = (!isTotal && !isL2 && r.hitTarget !== null)
+      ? `<span style="width:7px;height:7px;border-radius:50%;background:${r.hitTarget?'#22c55e':'#ef4444'};display:inline-block;margin-right:6px"></span>` : '';
+    const roleBadge = isTotal ? '<span style="font-size:9px;background:rgba(0,212,255,.1);color:#00d4ff;padding:2px 6px;border-radius:4px">TOTAL</span>'
+      : isL2 ? '<span style="font-size:9px;background:rgba(167,139,250,.15);color:#a78bfa;padding:2px 6px;border-radius:4px">L2</span>'
+      : '<span style="font-size:9px;background:rgba(0,229,160,.08);color:#00e5a0;padding:2px 6px;border-radius:4px">L1</span>';
+    return `<tr style="border-bottom:1px solid #1e2d45;${bg?'background:'+bg:''}">
+      <td style="padding:9px 14px;font-weight:${isTotal?700:500}">${dot}${r.name}</td>
+      <td style="text-align:center">${roleBadge}</td>
+      <td style="text-align:center;color:#00e5a0">${fmtN(r.resolved)}</td>
+      <td style="text-align:center;color:#ffb830">${fmtN(r.forwarded)}</td>
+      <td style="text-align:center;font-weight:700;color:#00d4ff">${fmtN(r.processed)}</td>
+      <td style="text-align:center;color:#f97316">${fmtN(r.high)}</td>
+      <td style="text-align:center;color:#ef4444">${fmtN(r.urgent)}</td>
+      <td style="text-align:center;color:#7a9bbf">${fmtN(r.target)}</td>
+      <td style="padding:6px 10px">${pctBar}</td>
+    </tr>`;
+  }).join('');
+
+  const kpiData = [
+    {l:'Team Processed',v:d.teamProcessed,c:'#00d4ff'},
+    {l:'Total Inward',v:d.totalInward||0,c:'#ffb830'},
+    {l:'Closing Unresolved',v:d.closingUnresolved||0,c:'#ff3d5a'},
+    {l:'L1 Processed',v:d.totals.processed,c:'#00e5a0'},
+    {l:'High Priority',v:d.totals.high||0,c:'#f97316'},
+    {l:'Urgent Priority',v:d.totals.urgent||0,c:'#ef4444'},
+  ];
+
+  const barLabels = JSON.stringify(l1.map(r=>r.name.split(' ')[0]));
+  const barProc   = JSON.stringify(l1.map(r=>r.processed));
+  const barTarget = JSON.stringify(l1.map(r=>r.target||0));
+  const barColors = JSON.stringify(l1.map(r=>r.hitTarget?'rgba(34,197,94,.7)':'rgba(0,212,255,.6)'));
+  const pieNormal = Math.max(0,(d.totals.resolved||0)-(d.totals.high||0)-(d.totals.urgent||0));
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Performance Report${d.reportDate?' — '+d.reportDate:''}</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"><\/script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#04060d;color:#bccde0;line-height:1.5}
+.wrap{max-width:1100px;margin:0 auto;padding:28px 20px}
+h1{font-size:22px;font-weight:800;color:#f2f8ff;letter-spacing:-.5px}
+.sub{font-size:11.5px;color:#4a6080;font-family:monospace;margin-top:4px;margin-bottom:22px}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:22px}
+.kpi{background:#0d1526;border:1px solid #1e2d45;border-radius:10px;padding:12px 14px}
+.kpi-top{height:2px;border-radius:1px;margin-bottom:8px}
+.kpi-val{font-family:monospace;font-size:22px;font-weight:700;margin-bottom:2px}
+.kpi-lbl{font-size:10px;color:#4a6080}
+.charts{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:22px}
+.chart-box{background:#0d1526;border:1px solid #1e2d45;border-radius:12px;padding:16px}
+.chart-ttl{font-size:11px;font-weight:700;color:#4a6080;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
+.chart-wrap{position:relative;height:220px}
+.tbl-box{background:#0d1526;border:1px solid #1e2d45;border-radius:12px;overflow:hidden;margin-bottom:16px}
+.tbl-hd{padding:13px 16px;border-bottom:1px solid #1e2d45;font-size:13px;font-weight:700;color:#f2f8ff}
+.tbl{border-collapse:collapse;width:100%}
+.tbl th{background:#080e1a;color:#4a6080;padding:8px 11px;text-align:center;font-size:8px;letter-spacing:1px;text-transform:uppercase;border-bottom:2px solid #1e2d45;white-space:nowrap}
+.tbl th:first-child{text-align:left;padding-left:14px}
+.tbl td{padding:9px 11px;border-bottom:1px solid rgba(30,45,69,.4);font-size:12.5px;text-align:center;color:#bccde0}
+.tbl td:first-child{text-align:left;padding-left:14px;font-weight:500;color:#f2f8ff}
+.footer-kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.fk{background:#0d1526;border:1px solid #1e2d45;border-radius:10px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
+.fk-lbl{font-size:12px;color:#7a9bbf}
+.fk-val{font-family:monospace;font-size:20px;font-weight:700}
+.stamp{text-align:center;margin-top:28px;font-size:10px;color:#2d3f5a}
+@media(max-width:640px){.charts{grid-template-columns:1fr}.kpi-grid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>📊 Team Performance Report</h1>
+  <div class="sub">${d.reportDate?'Date: '+d.reportDate+'  ·  ':''}File: ${d.fileName}</div>
+
+  <div class="kpi-grid">${kpiData.map(k=>`<div class="kpi"><div class="kpi-top" style="background:${k.c}"></div><div class="kpi-val" style="color:${k.c}">${k.v}</div><div class="kpi-lbl">${k.l}</div></div>`).join('')}</div>
+
+  <div class="charts">
+    <div class="chart-box"><div class="chart-ttl">Processed vs Target — L1 Agents</div><div class="chart-wrap"><canvas id="bc"></canvas></div></div>
+    <div class="chart-box"><div class="chart-ttl">Priority Breakdown</div><div class="chart-wrap"><canvas id="pc"></canvas></div></div>
+  </div>
+
+  <div class="tbl-box">
+    <div class="tbl-hd">Agent Performance Details</div>
+    <div style="overflow-x:auto"><table class="tbl">
+      <thead><tr>
+        <th style="text-align:left;padding-left:14px">Agent</th><th>Role</th><th>Resolved</th>
+        <th>Forwarded</th><th>Processed</th><th>High</th><th>Urgent</th><th>Target</th><th>Achieve %</th>
+      </tr></thead>
+      <tbody>${tableRows}</tbody>
+    </table></div>
+  </div>
+
+  <div class="footer-kpis">
+    <div class="fk"><span class="fk-lbl">Team Processed</span><span class="fk-val" style="color:#00d4ff">${d.teamProcessed}</span></div>
+    <div class="fk"><span class="fk-lbl">Total Inward</span><span class="fk-val" style="color:#ffb830">${d.totalInward||0}</span></div>
+    <div class="fk"><span class="fk-lbl">Closing Unresolved (L1)</span><span class="fk-val" style="color:#ff3d5a">${d.closingUnresolved||0}</span></div>
+  </div>
+  <div class="stamp">Generated by C-Serv.AI · ${new Date().toLocaleString()}</div>
+</div>
+<script>
+const bc=document.getElementById('bc');
+if(bc){new Chart(bc,{type:'bar',data:{labels:${barLabels},datasets:[{label:'Processed',data:${barProc},backgroundColor:${barColors},borderRadius:4},{label:'Target',data:${barTarget},type:'line',borderColor:'rgba(255,184,48,.8)',borderWidth:2,pointBackgroundColor:'rgba(255,184,48,.9)',fill:false,tension:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'rgba(188,205,224,.7)',font:{size:10}}}},scales:{x:{ticks:{color:'rgba(188,205,224,.7)',font:{size:9}},grid:{color:'rgba(30,45,69,.6)'}},y:{ticks:{color:'rgba(188,205,224,.7)',font:{size:9}},grid:{color:'rgba(30,45,69,.6)'},beginAtZero:true}}}})}
+const pc=document.getElementById('pc');
+if(pc){new Chart(pc,{type:'doughnut',data:{labels:['Normal','High','Urgent'],datasets:[{data:[${pieNormal},${d.totals.high||0},${d.totals.urgent||0}],backgroundColor:['rgba(0,212,255,.7)','rgba(249,115,22,.75)','rgba(239,68,68,.75)'],borderColor:'rgba(13,21,38,.6)',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom',labels:{color:'rgba(188,205,224,.7)',font:{size:10},padding:10}}}}})}
+<\/script>
+</body></html>`;
+}
 
 // SAVE & APPROVE
 async function saveR(){

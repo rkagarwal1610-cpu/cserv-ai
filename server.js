@@ -840,6 +840,290 @@ setInterval(()=>{
   }catch(e){console.error('Auto backup:',e.message);}
 },24*60*60*1000);
 
+
+// ══════════════════════════════════════════════════════════════════════════════
+// MODULE 3 — PERFORMANCE DASHBOARD
+// Replicates finalapp_v23.py logic entirely server-side
+// ══════════════════════════════════════════════════════════════════════════════
+const multer = require('multer');
+const os = require('os');
+const perfUpload = multer({
+  dest: os.tmpdir(),
+  limits: { fileSize: 20 * 1024 * 1024 }, // 20 MB max
+  fileFilter: (_req, file, cb) => {
+    const ok = /\.(xlsx|xls|csv)$/i.test(file.originalname);
+    cb(ok ? null : new Error('Only .xlsx, .xls or .csv files allowed'), ok);
+  }
+});
+
+// ── Perf config: GET agents (targets, roles, sort) ───────────────────────────
+app.get('/api/perf/config', auth, (_req, res) => {
+  const d = load();
+  res.json(d.perfConfig || getDefaultPerfConfig());
+});
+
+// ── Perf config: PUT (save agents) ──────────────────────────────────────────
+app.put('/api/perf/config', isAdm, (req, res) => {
+  const d = load();
+  const { agents } = req.body;
+  if (!Array.isArray(agents)) return res.status(400).json({ error: 'agents array required' });
+  d.perfConfig = { agents };
+  save(d); res.json({ ok: true });
+});
+
+function getDefaultPerfConfig() {
+  return {
+    agents: [
+      { name: 'Shrikant Nayak',       role: 'L1', target: 0, sort: 1  },
+      { name: 'Ritu Singh',            role: 'L1', target: 0, sort: 2  },
+      { name: 'Rohit Kumar Agarwal',   role: 'L1', target: 0, sort: 3  },
+      { name: 'Himanshi Khowal',       role: 'L1', target: 0, sort: 4  },
+      { name: 'Chetan Goel',           role: 'L1', target: 0, sort: 5  },
+      { name: 'Sushant Kumar Suman',   role: 'L1', target: 0, sort: 6  },
+      { name: 'Mohit Singh',           role: 'L1', target: 0, sort: 7  },
+      { name: 'Abhay Pratap',          role: 'L1', target: 0, sort: 8  },
+      { name: 'Swagata Bhoumik',       role: 'L1', target: 0, sort: 9  },
+      { name: 'Deepak Gupta',          role: 'L1', target: 0, sort: 10 },
+      { name: 'Shivam Garg',           role: 'L1', target: 0, sort: 11 },
+      { name: 'Anurag Tiwari',         role: 'L1', target: 0, sort: 12 },
+      { name: 'Triloki Nath',          role: 'L1', target: 0, sort: 13 },
+      { name: 'Sujit Kumar',           role: 'L1', target: 0, sort: 14 },
+      { name: 'Amarnath Yadav',        role: 'L2', target: 0, sort: 15 },
+      { name: 'Dhruv Sharma',          role: 'L2', target: 0, sort: 16 },
+      { name: 'Naveen Kumar',          role: 'L2', target: 0, sort: 17 },
+    ]
+  };
+}
+
+// ── Perf process: POST multipart Excel/CSV → returns dashboard JSON ──────────
+app.post('/api/perf/process', auth, perfUpload.single('file'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+  const { totalInward = 0, closingUnresolved = 0 } = req.body;
+  const tmpPath = req.file.path;
+
+  try {
+    const result = await processPerfData(
+      tmpPath,
+      req.file.originalname,
+      parseInt(totalInward) || 0,
+      parseInt(closingUnresolved) || 0,
+      load().perfConfig || getDefaultPerfConfig()
+    );
+    res.json(result);
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  } finally {
+    try { require('fs').unlinkSync(tmpPath); } catch {}
+  }
+});
+
+async function processPerfData(filePath, fileName, totalInward, closingUnresolved, perfConfig) {
+  const ExcelJS = require('exceljs');
+  const wb = new ExcelJS.Workbook();
+
+  const isCSV = /\.csv$/i.test(fileName);
+  const rows = [];
+
+  if (isCSV) {
+    // Parse CSV manually
+    const raw = require('fs').readFileSync(filePath, 'utf8');
+    const lines = raw.split(/\r?\n/).filter(l => l.trim());
+    if (lines.length < 2) throw new Error('CSV file is empty or has no data rows');
+    const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+    for (let i = 1; i < lines.length; i++) {
+      const vals = splitCSVLine(lines[i]);
+      const row = {};
+      headers.forEach((h, idx) => { row[h] = (vals[idx] || '').trim().replace(/^"|"$/g, ''); });
+      rows.push(row);
+    }
+  } else {
+    await wb.xlsx.readFile(filePath);
+    const ws = wb.worksheets[0];
+    if (!ws) throw new Error('Excel file has no worksheets');
+    const headers = [];
+    ws.getRow(1).eachCell({ includeEmpty: true }, (cell, colNum) => {
+      headers[colNum - 1] = String(cell.value || '').trim();
+    });
+    ws.eachRow({ includeEmpty: false }, (row, rowNum) => {
+      if (rowNum === 1) return;
+      const obj = {};
+      row.eachCell({ includeEmpty: true }, (cell, colNum) => {
+        let v = cell.value;
+        if (v && typeof v === 'object' && v.text) v = v.text;
+        if (v instanceof Date) v = v.toISOString();
+        obj[headers[colNum - 1]] = v != null ? String(v).trim() : '';
+      });
+      if (Object.values(obj).some(v => v !== '')) rows.push(obj);
+    });
+  }
+
+  if (!rows.length) throw new Error('No data rows found in file');
+
+  // Column aliasing (Salesforce export format → expected)
+  const colMap = {
+    'Case: Case Number': 'Ticket Ticket ID',
+    'Case: Priority': 'Ticket Priority',
+    'Case: Status': 'Ticket Status',
+    'Case: Group *': 'Ticket Group name',
+    'Time Log: Created Date': 'Clocked date',
+  };
+  const firstRow = rows[0];
+  const renames = {};
+  Object.entries(colMap).forEach(([sf, ex]) => { if (sf in firstRow) renames[sf] = ex; });
+  if ('Ticket ID' in firstRow && !('Ticket Ticket ID' in firstRow)) renames['Ticket ID'] = 'Ticket Ticket ID';
+  if (Object.keys(renames).length) {
+    rows.forEach(row => {
+      Object.entries(renames).forEach(([from, to]) => {
+        if (from in row) { row[to] = row[from]; delete row[from]; }
+      });
+    });
+  }
+
+  const required = ['Agent', 'Ticket Ticket ID', 'Ticket Group name', 'Ticket Status', 'Ticket Priority', 'Clocked date'];
+  for (const col of required) {
+    if (!(col in (rows[0] || {}))) throw new Error('Missing required column: "' + col + '"');
+  }
+
+  // Normalise & sort rows by TicketID + Agent (dedup logic from Python)
+  rows.forEach(r => { r.Agent = (r.Agent || '').trim(); });
+  rows.sort((a, b) => {
+    const t = String(a['Ticket Ticket ID']).localeCompare(String(b['Ticket Ticket ID']));
+    return t !== 0 ? t : a.Agent.localeCompare(b.Agent);
+  });
+
+  // Build Con (TicketID-Agent) and dedup flags
+  rows.forEach((r, i) => {
+    r._con = `${r['Ticket Ticket ID']}-${r.Agent}`;
+    r._dupAgent = i > 0 && rows[i - 1]._con === r._con;
+    r._dupGrp = i > 0 && rows[i - 1]['Ticket Ticket ID'] === r['Ticket Ticket ID'];
+  });
+
+  // Agent config maps
+  const agents = (perfConfig.agents || []).slice().sort((a, b) => (a.sort || 9999) - (b.sort || 9999));
+  const l2Set = new Set(agents.filter(a => a.role === 'L2').map(a => a.name));
+  const targetMap = Object.fromEntries(agents.map(a => [a.name, a.target || 0]));
+  const sortMap = Object.fromEntries(agents.map(a => [a.name, a.sort || 9999]));
+
+  const L1_GROUPS = ['ERP Helpdesk-L1'];
+  const L2_GROUPS = ['ERP Helpdesk-L1', 'ERP Helpdesk-L2'];
+  const DONE_STATUS = ['Resolved', 'Closed'];
+
+  // ── Per-agent accumulators ────────────────────────────────────────────────
+  const acc = {}; // { agentName: { resolved, forwarded, high, urgent, role } }
+  const ensureAcc = (name, role) => {
+    if (!acc[name]) acc[name] = { resolved: 0, forwarded: 0, high: 0, urgent: 0, role };
+  };
+
+  for (const r of rows) {
+    const agent = r.Agent;
+    if (!agent) continue;
+    const role = l2Set.has(agent) ? 'L2' : 'L1';
+    ensureAcc(agent, role);
+    if (r._dupAgent) continue; // skip duplicate ticket-agent combos
+
+    const grp = (r['Ticket Group name'] || '').trim();
+    const status = (r['Ticket Status'] || '').trim();
+    const pri = (r['Ticket Priority'] || '').trim().toLowerCase();
+    const isResolved = DONE_STATUS.includes(status);
+
+    if (role === 'L1') {
+      const inL1Grp = L1_GROUPS.includes(grp);
+      if (inL1Grp && isResolved) {
+        acc[agent].resolved++;
+        if (pri === 'high') acc[agent].high++;
+        if (pri === 'urgent') acc[agent].urgent++;
+      } else if (!inL1Grp) {
+        acc[agent].forwarded++;
+        if (pri === 'high') acc[agent].high++;
+        if (pri === 'urgent') acc[agent].urgent++;
+      }
+    } else {
+      // L2
+      const inL2Grp = L2_GROUPS.includes(grp);
+      if (inL2Grp && isResolved) {
+        acc[agent].resolved++;
+      } else if (!inL2Grp) {
+        acc[agent].forwarded++;
+      }
+    }
+  }
+
+  // ── Team processed (unique ticket dedup by group) ─────────────────────────
+  let teamProcessed = 0;
+  for (const r of rows) {
+    if (r._dupGrp) continue;
+    const grp = (r['Ticket Group name'] || '').trim();
+    const status = (r['Ticket Status'] || '').trim();
+    if (L2_GROUPS.includes(grp) && DONE_STATUS.includes(status)) teamProcessed++;
+    else if (!L2_GROUPS.includes(grp)) teamProcessed++;
+  }
+
+  // ── Determine report date from Clocked date ───────────────────────────────
+  let reportDate = '';
+  for (const r of rows) {
+    const d = r['Clocked date'];
+    if (d) { reportDate = d.substring(0, 10); break; }
+  }
+
+  // ── Build ordered agent rows ──────────────────────────────────────────────
+  const allAgentNames = Object.keys(acc);
+  allAgentNames.sort((a, b) => (sortMap[a] || 9999) - (sortMap[b] || 9999));
+
+  const agentRows = allAgentNames.map(name => {
+    const a = acc[name];
+    const target = targetMap[name] || 0;
+    const processed = a.resolved + a.forwarded;
+    return {
+      name,
+      role: a.role,
+      resolved: a.resolved,
+      forwarded: a.forwarded,
+      processed,
+      high: a.role === 'L1' ? a.high : null,
+      urgent: a.role === 'L1' ? a.urgent : null,
+      target: target || null,
+      hitTarget: target > 0 ? processed >= target : null,
+      achievePct: target > 0 ? Math.round((processed / target) * 100) : null
+    };
+  });
+
+  // ── L1 totals ─────────────────────────────────────────────────────────────
+  const l1Rows = agentRows.filter(r => r.role === 'L1');
+  const totals = {
+    name: 'Total (L1)',
+    role: 'TOTAL',
+    resolved: l1Rows.reduce((s, r) => s + r.resolved, 0),
+    forwarded: l1Rows.reduce((s, r) => s + r.forwarded, 0),
+    processed: l1Rows.reduce((s, r) => s + r.processed, 0),
+    high: l1Rows.reduce((s, r) => s + (r.high || 0), 0),
+    urgent: l1Rows.reduce((s, r) => s + (r.urgent || 0), 0),
+    target: l1Rows.reduce((s, r) => s + (r.target || 0), 0),
+    hitTarget: null, achievePct: null
+  };
+
+  return {
+    reportDate,
+    fileName,
+    agentRows,
+    totals,
+    teamProcessed,
+    totalInward,
+    closingUnresolved
+  };
+}
+
+function splitCSVLine(line) {
+  const result = []; let cur = ''; let inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === '"') { inQ = !inQ; }
+    else if (c === ',' && !inQ) { result.push(cur); cur = ''; }
+    else cur += c;
+  }
+  result.push(cur);
+  return result;
+}
+
 // Health check endpoint (used by keep-alive ping and Render health checks)
 app.get('/health', (_,r)=>r.json({status:'ok',ts:new Date().toISOString()}));
 
