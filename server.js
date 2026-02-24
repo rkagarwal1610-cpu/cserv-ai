@@ -865,6 +865,14 @@ app.get('/api/perf/config', auth, (_req, res) => {
   res.json(d.perfConfig || getDefaultPerfConfig());
 });
 
+// ── Perf config: DELETE (reset to default) ───────────────────────────────────
+app.delete('/api/perf/config', isAdm, (req, res) => {
+  const d = load();
+  d.perfConfig = getDefaultPerfConfig();
+  save(d);
+  res.json({ ok: true, config: d.perfConfig });
+});
+
 // ── Perf config: PUT (save agents) ──────────────────────────────────────────
 app.put('/api/perf/config', isAdm, (req, res) => {
   const d = load();
@@ -877,23 +885,25 @@ app.put('/api/perf/config', isAdm, (req, res) => {
 function getDefaultPerfConfig() {
   return {
     agents: [
-      { name: 'Shrikant Nayak',       role: 'L1', target: 0, sort: 1  },
-      { name: 'Ritu Singh',            role: 'L1', target: 0, sort: 2  },
-      { name: 'Rohit Kumar Agarwal',   role: 'L1', target: 0, sort: 3  },
-      { name: 'Himanshi Khowal',       role: 'L1', target: 0, sort: 4  },
-      { name: 'Chetan Goel',           role: 'L1', target: 0, sort: 5  },
-      { name: 'Sushant Kumar Suman',   role: 'L1', target: 0, sort: 6  },
-      { name: 'Mohit Singh',           role: 'L1', target: 0, sort: 7  },
-      { name: 'Abhay Pratap',          role: 'L1', target: 0, sort: 8  },
-      { name: 'Swagata Bhoumik',       role: 'L1', target: 0, sort: 9  },
-      { name: 'Deepak Gupta',          role: 'L1', target: 0, sort: 10 },
-      { name: 'Shivam Garg',           role: 'L1', target: 0, sort: 11 },
-      { name: 'Anurag Tiwari',         role: 'L1', target: 0, sort: 12 },
-      { name: 'Triloki Nath',          role: 'L1', target: 0, sort: 13 },
-      { name: 'Sujit Kumar',           role: 'L1', target: 0, sort: 14 },
-      { name: 'Amarnath Yadav',        role: 'L2', target: 0, sort: 15 },
-      { name: 'Dhruv Sharma',          role: 'L2', target: 0, sort: 16 },
-      { name: 'Naveen Kumar',          role: 'L2', target: 0, sort: 17 },
+      // L1 agents with daily targets from config
+      { name: 'Shivam Garg',           role: 'L1', target: 14, sort: 1  },
+      { name: 'Chetan Goel',           role: 'L1', target: 14, sort: 2  },
+      { name: 'Triloki Varshney',       role: 'L1', target: 14, sort: 3  },
+      { name: 'Sushant Kumar Suman',   role: 'L1', target: 14, sort: 4  },
+      { name: 'Himanshi Khowal',       role: 'L1', target: 14, sort: 5  },
+      { name: 'Anurag Tiwari',         role: 'L1', target: 15, sort: 6  },
+      { name: 'Sujit Kumar Jha',       role: 'L1', target: 15, sort: 7  },
+      { name: 'Mohit Singh',           role: 'L1', target: 15, sort: 8  },
+      { name: 'Abhay Pratap Singh',    role: 'L1', target: 13, sort: 9  },
+      { name: 'Dhruv Mishra',          role: 'L1', target: 13, sort: 10 },
+      { name: 'Swagata Bhoumik',       role: 'L1', target: 12, sort: 11 },
+      { name: 'Amarnath Vishwakarma',  role: 'L1', target: 10, sort: 12 },
+      { name: 'Naveen Kumar S',        role: 'L1', target: 10, sort: 13 },
+      { name: 'Deepak Gupta',          role: 'L1', target: 7,  sort: 14 },
+      // L2 agents (no daily targets)
+      { name: 'Ritu Singh',            role: 'L2', target: 0,  sort: 15 },
+      { name: 'Rohit Kumar Agarwal',   role: 'L2', target: 0,  sort: 16 },
+      { name: 'Shrikant Nayak',        role: 'L2', target: 0,  sort: 17 },
     ]
   };
 }

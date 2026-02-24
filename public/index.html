@@ -628,6 +628,7 @@ input,select,button,textarea{font-family:'Outfit',sans-serif}
   <div id="perf-agents-err" class="auth-err" style="margin-top:10px;display:none"></div>
   <div class="mft">
     <button class="btn btn-g" onclick="closeM('m-perf-agents')">Cancel</button>
+    <button class="btn btn-r" style="font-size:12px" onclick="resetPerfConfig()">↺ Reset Defaults</button>
     <button class="btn btn-p" id="perf-save-agents-btn">💾 Save Agents</button>
   </div>
 </div></div>
@@ -1550,9 +1551,11 @@ function buildPerfPage() {
           ondragleave="this.style.borderColor='';this.style.background=''"
           ondrop="event.preventDefault();this.style.borderColor='';this.style.background='';handlePerfFileDrop(event)">
           <div style="font-size:28px;margin-bottom:8px">📂</div>
+          <div id="perf-file-name" style="font-size:12px;color:var(--cyan);margin-bottom:6px;min-height:16px"></div>
           <div style="font-size:13px;color:var(--ink2)">Drag & drop your file here or</div>
-          <button class="btn btn-p" style="margin-top:10px" onclick="document.getElementById('perfFileInput').click()">Browse File</button>
+          <button class="btn btn-g" style="margin-top:10px" onclick="document.getElementById('perfFileInput').click()">Browse File</button>
         </div>
+        <button class="btn btn-p" id="perf-generate-btn" style="width:100%;margin-bottom:12px;display:none" onclick="submitPerfFilePending()">⚡ Generate Report</button>
         <div id="perf-upload-err" class="alrt aerr" style="display:none;text-align:left"></div>
         <div id="perf-upload-loading" style="display:none;text-align:center;color:var(--cyan);font-size:13px;padding:8px">
           <div class="sp" style="display:inline-block;margin-right:8px;border-top-color:var(--cyan)"></div> Processing…
@@ -1627,15 +1630,29 @@ function buildPerfPage() {
   </div>`;
 }
 
+let _pendingPerfFile = null;
+
 function handlePerfFileDrop(e) {
   const file = e.dataTransfer.files[0];
   if (!file) return;
-  submitPerfFile(file);
+  setPendingPerfFile(file);
 }
 function handlePerfFile(input) {
   if (!input.files[0]) return;
-  submitPerfFile(input.files[0]);
+  setPendingPerfFile(input.files[0]);
   input.value = '';
+}
+function setPendingPerfFile(file) {
+  _pendingPerfFile = file;
+  const nm = document.getElementById('perf-file-name');
+  if (nm) nm.textContent = '📄 ' + file.name;
+  const btn = document.getElementById('perf-generate-btn');
+  if (btn) btn.style.display = 'block';
+  document.getElementById('perf-upload-err').style.display = 'none';
+}
+function submitPerfFilePending() {
+  if (!_pendingPerfFile) { return; }
+  submitPerfFile(_pendingPerfFile);
 }
 
 async function submitPerfFile(file) {
@@ -1676,6 +1693,11 @@ function perfUploadNew() {
   Object.values(_perfCharts).forEach(c => { try { c.destroy(); } catch {} });
   _perfCharts = {};
   _perfData = null;
+  _pendingPerfFile = null;
+  const nm = document.getElementById('perf-file-name');
+  if (nm) nm.textContent = '';
+  const btn = document.getElementById('perf-generate-btn');
+  if (btn) btn.style.display = 'none';
 }
 
 function renderPerfDashboard(d) {
@@ -1691,16 +1713,17 @@ function renderPerfDashboard(d) {
   const l1 = d.agentRows.filter(r => r.role === 'L1');
   const l2 = d.agentRows.filter(r => r.role === 'L2');
   const hitters = l1.filter(r => r.hitTarget === true).length;
-  const totalL1Proc = d.totals.processed;
+  const totalL1Proc = d.totals.processed; // totals is L1-only
+  const totalL2Proc = l2.reduce((s, r) => s + (r.processed || 0), 0);
   const kpis = [
-    { label: 'Team Processed',   val: d.teamProcessed,      color: 'var(--cyan)',   icon: '🔄' },
-    { label: 'Total Inward',     val: d.totalInward || 0,   color: 'var(--amber)',  icon: '📥' },
-    { label: 'Closing Unresolved', val: d.closingUnresolved||0, color: 'var(--rose)', icon: '⚠' },
-    { label: 'L1 Total Processed', val: totalL1Proc,         color: 'var(--em)',    icon: '✅' },
-    { label: 'L1 Hit Target',    val: hitters + ' / ' + l1.length, color: '#a78bfa', icon: '🎯' },
-    { label: 'High Priority',    val: d.totals.high || 0,   color: '#f97316',       icon: '🔴' },
-    { label: 'Urgent Priority',  val: d.totals.urgent || 0, color: '#ef4444',       icon: '🚨' },
-    { label: 'L2 Agents',        val: l2.length,            color: '#a78bfa',       icon: '🔧' },
+    { label: 'Total Inward',        val: d.totalInward || 0,              color: 'var(--amber)',  icon: '📥' },
+    { label: 'Closing Unresolved',  val: d.closingUnresolved || 0,        color: 'var(--rose)',   icon: '⚠' },
+    { label: 'L1 Total Processed',  val: totalL1Proc,                     color: 'var(--em)',     icon: '✅' },
+    { label: 'L1 Hit Target',       val: hitters + ' / ' + l1.length,     color: '#a78bfa',       icon: '🎯' },
+    { label: 'High Priority (L1)',  val: d.totals.high || 0,              color: '#f97316',       icon: '🔴' },
+    { label: 'Urgent Priority (L1)',val: d.totals.urgent || 0,            color: '#ef4444',       icon: '🚨' },
+    { label: 'L2 Processed',        val: totalL2Proc,                     color: '#a78bfa',       icon: '🔧' },
+    { label: 'Team Processed',      val: d.teamProcessed,                 color: 'var(--cyan)',   icon: '🔄' },
   ];
   document.getElementById('perf-kpis').innerHTML = kpis.map(k => `
     <div style="background:var(--l1);border:1px solid var(--rim);border-radius:10px;padding:12px 14px;position:relative;overflow:hidden">
@@ -1712,8 +1735,20 @@ function renderPerfDashboard(d) {
 
   // Table
   const tbody = document.getElementById('perf-table-body');
-  const allRows = [...d.agentRows, { ...d.totals, _isTotal: true }];
+  // Build rows with L1/L2 section headers
+  const l1Rows = d.agentRows.filter(r => r.role === 'L1');
+  const l2Rows = d.agentRows.filter(r => r.role === 'L2');
+  const sectionHeader = (label, color) =>
+    `<tr><td colspan="9" style="padding:8px 14px 4px;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:${color};border-top:2px solid ${color}20;background:${color}08">${label}</td></tr>`;
+  const allRows = [
+    { _isSectionHeader: true, label: '── L1 Agents', color: 'var(--em)' },
+    ...l1Rows,
+    { ...d.totals, _isTotal: true },
+    ...(l2Rows.length ? [{ _isSectionHeader: true, label: '── L2 Agents', color: '#a78bfa' }] : []),
+    ...l2Rows,
+  ];
   tbody.innerHTML = allRows.map(r => {
+    if (r._isSectionHeader) return sectionHeader(r.label, r.color);
     const isTotal = r._isTotal;
     const isL2 = r.role === 'L2';
     let rowBg = '';
@@ -1757,9 +1792,11 @@ function renderPerfDashboard(d) {
 
   // Footer summary
   document.getElementById('perf-footer-row').innerHTML = [
-    { label: 'Team Processed',      val: d.teamProcessed,         color: 'var(--cyan)' },
-    { label: 'Total Inward',         val: d.totalInward || 0,      color: 'var(--amber)' },
-    { label: 'Closing Unresolved (L1)', val: d.closingUnresolved||0, color: 'var(--rose)' },
+    { label: 'Total Inward',            val: d.totalInward || 0,      color: 'var(--amber)' },
+    { label: 'Closing Unresolved (L1)', val: d.closingUnresolved||0,  color: 'var(--rose)' },
+    { label: 'L1 Total Processed',      val: d.totals.processed,      color: 'var(--em)' },
+    { label: 'L2 Total Processed',      val: totalL2Proc,             color: '#a78bfa' },
+    { label: 'Team Processed',          val: d.teamProcessed,         color: 'var(--cyan)' },
   ].map(f => `<div style="background:var(--l1);border:1px solid var(--rim);border-radius:10px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between">
     <div style="font-size:12px;color:var(--ink2)">${f.label}</div>
     <div style="font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:700;color:${f.color}">${f.val}</div>
@@ -1808,16 +1845,19 @@ function renderPerfCharts(d) {
     });
   }
 
-  // Pie chart: priority breakdown
+  // Pie chart: L1 priority breakdown (Normal / High / Urgent — L1 only)
   const pieCtx = document.getElementById('perf-pie-chart');
   if (pieCtx) {
-    const normal = (d.totals.resolved || 0) - (d.totals.high || 0) - (d.totals.urgent || 0);
+    const l1High   = d.totals.high   || 0;
+    const l1Urgent = d.totals.urgent || 0;
+    const l1Normal = Math.max(0, (d.totals.resolved || 0) - l1High - l1Urgent);
+    const hasData  = (l1Normal + l1High + l1Urgent) > 0;
     _perfCharts.pie = new Chart(pieCtx, {
       type: 'doughnut',
       data: {
-        labels: ['Normal', 'High Priority', 'Urgent'],
+        labels: ['Normal (L1)', 'High (L1)', 'Urgent (L1)'],
         datasets: [{
-          data: [Math.max(0, normal), d.totals.high || 0, d.totals.urgent || 0],
+          data: hasData ? [l1Normal, l1High, l1Urgent] : [1, 0, 0],
           backgroundColor: ['rgba(0,212,255,.7)', 'rgba(249,115,22,.75)', 'rgba(239,68,68,.75)'],
           borderColor: isDark ? 'rgba(13,21,38,.6)' : 'rgba(255,255,255,.8)',
           borderWidth: 2, hoverOffset: 6
@@ -1827,7 +1867,17 @@ function renderPerfCharts(d) {
         responsive: true, maintainAspectRatio: false,
         cutout: '60%',
         plugins: {
-          legend: { position: 'bottom', labels: { color: txtColor, font: { size: 10 }, padding: 10 } }
+          legend: { position: 'bottom', labels: { color: txtColor, font: { size: 10 }, padding: 10 } },
+          tooltip: {
+            callbacks: {
+              label: ctx => {
+                if (!hasData) return ' No L1 data yet';
+                const total = l1Normal + l1High + l1Urgent;
+                const pct = total > 0 ? Math.round(ctx.raw / total * 100) : 0;
+                return ` ${ctx.label}: ${ctx.raw} (${pct}%)`;
+              }
+            }
+          }
         }
       }
     });
@@ -1835,6 +1885,17 @@ function renderPerfCharts(d) {
 }
 
 // ── Agent Editor modal ──────────────────────────────────────────────────────
+async function resetPerfConfig() {
+  if (!confirm('Reset all agents/targets to system defaults? This cannot be undone.')) return;
+  try {
+    const cfg = await api('DELETE', '/api/perf/config');
+    _perfCfg = cfg.config;
+    const agents = (_perfCfg.agents || []).slice().sort((a, b) => (a.sort||9999)-(b.sort||9999));
+    renderPerfAgentRows(agents.map(a => ({ ...a })));
+    toast('Reset to defaults', 'ok');
+  } catch(e) { toast('Reset failed: ' + e.message, 'err'); }
+}
+
 async function openPerfAgentEditor() {
   // Load config from server
   try {
@@ -1918,9 +1979,20 @@ function downloadPerfReport() {
 function buildStandalonePerfHTML(d) {
   const l1 = d.agentRows.filter(r => r.role === 'L1');
   const fmtN = v => (v === null || v === undefined || v === '') ? '—' : v;
-  const rows = [...d.agentRows, { ...d.totals, _isTotal: true }];
+  const l1AgentRows = d.agentRows.filter(r => r.role === 'L1');
+  const l2AgentRows = d.agentRows.filter(r => r.role === 'L2');
+  const secHdr = (label, color) =>
+    `<tr><td colspan="9" style="padding:7px 14px 4px;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:${color};border-top:2px solid ${color}30;background:${color}10">${label}</td></tr>`;
+  const rows = [
+    { _sec: true, label: '── L1 Agents', color: '#00e5a0' },
+    ...l1AgentRows,
+    { ...d.totals, _isTotal: true },
+    ...(l2AgentRows.length ? [{ _sec: true, label: '── L2 Agents', color: '#a78bfa' }] : []),
+    ...l2AgentRows,
+  ];
 
   const tableRows = rows.map(r => {
+    if (r._sec) return secHdr(r.label, r.color);
     const isTotal = r._isTotal;
     const isL2 = r.role === 'L2';
     const bg = isTotal ? '#1a2535' : isL2 ? 'rgba(167,139,250,.06)' : '';
@@ -1946,20 +2018,29 @@ function buildStandalonePerfHTML(d) {
     </tr>`;
   }).join('');
 
+  const l2AgentRowsX = d.agentRows.filter(r => r.role === 'L2');
+  const totalL2ProcX = l2AgentRowsX.reduce((s, r) => s + (r.processed || 0), 0);
+  const l1HittersX = d.agentRows.filter(r => r.role === 'L1' && r.hitTarget === true).length;
+  const l1CountX   = d.agentRows.filter(r => r.role === 'L1').length;
   const kpiData = [
-    {l:'Team Processed',v:d.teamProcessed,c:'#00d4ff'},
-    {l:'Total Inward',v:d.totalInward||0,c:'#ffb830'},
-    {l:'Closing Unresolved',v:d.closingUnresolved||0,c:'#ff3d5a'},
-    {l:'L1 Processed',v:d.totals.processed,c:'#00e5a0'},
-    {l:'High Priority',v:d.totals.high||0,c:'#f97316'},
-    {l:'Urgent Priority',v:d.totals.urgent||0,c:'#ef4444'},
+    {l:'Total Inward',           v:d.totalInward||0,              c:'#ffb830'},
+    {l:'Closing Unresolved',     v:d.closingUnresolved||0,        c:'#ff3d5a'},
+    {l:'L1 Total Processed',     v:d.totals.processed,            c:'#00e5a0'},
+    {l:'L1 Hit Target',          v:l1HittersX+' / '+l1CountX,     c:'#a78bfa'},
+    {l:'High Priority (L1)',     v:d.totals.high||0,              c:'#f97316'},
+    {l:'Urgent Priority (L1)',   v:d.totals.urgent||0,            c:'#ef4444'},
+    {l:'L2 Processed',           v:totalL2ProcX,                  c:'#a78bfa'},
+    {l:'Team Processed',         v:d.teamProcessed,               c:'#00d4ff'},
   ];
 
   const barLabels = JSON.stringify(l1.map(r=>r.name.split(' ')[0]));
   const barProc   = JSON.stringify(l1.map(r=>r.processed));
   const barTarget = JSON.stringify(l1.map(r=>r.target||0));
   const barColors = JSON.stringify(l1.map(r=>r.hitTarget?'rgba(34,197,94,.7)':'rgba(0,212,255,.6)'));
-  const pieNormal = Math.max(0,(d.totals.resolved||0)-(d.totals.high||0)-(d.totals.urgent||0));
+  const _l1High   = d.totals.high   || 0;
+  const _l1Urgent = d.totals.urgent || 0;
+  const _l1Normal = Math.max(0, (d.totals.resolved || 0) - _l1High - _l1Urgent);
+  const pieNormal = _l1Normal; // L1 only
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -2032,7 +2113,7 @@ h1{font-size:22px;font-weight:800;color:#f2f8ff;letter-spacing:-.5px}
 const bc=document.getElementById('bc');
 if(bc){new Chart(bc,{type:'bar',data:{labels:${barLabels},datasets:[{label:'Processed',data:${barProc},backgroundColor:${barColors},borderRadius:4},{label:'Target',data:${barTarget},type:'line',borderColor:'rgba(255,184,48,.8)',borderWidth:2,pointBackgroundColor:'rgba(255,184,48,.9)',fill:false,tension:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'rgba(188,205,224,.7)',font:{size:10}}}},scales:{x:{ticks:{color:'rgba(188,205,224,.7)',font:{size:9}},grid:{color:'rgba(30,45,69,.6)'}},y:{ticks:{color:'rgba(188,205,224,.7)',font:{size:9}},grid:{color:'rgba(30,45,69,.6)'},beginAtZero:true}}}})}
 const pc=document.getElementById('pc');
-if(pc){new Chart(pc,{type:'doughnut',data:{labels:['Normal','High','Urgent'],datasets:[{data:[${pieNormal},${d.totals.high||0},${d.totals.urgent||0}],backgroundColor:['rgba(0,212,255,.7)','rgba(249,115,22,.75)','rgba(239,68,68,.75)'],borderColor:'rgba(13,21,38,.6)',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom',labels:{color:'rgba(188,205,224,.7)',font:{size:10},padding:10}}}}})}
+if(pc){new Chart(pc,{type:'doughnut',data:{labels:['Normal (L1)','High (L1)','Urgent (L1)'],datasets:[{data:[${pieNormal},${d.totals.high||0},${d.totals.urgent||0}],backgroundColor:['rgba(0,212,255,.7)','rgba(249,115,22,.75)','rgba(239,68,68,.75)'],borderColor:'rgba(13,21,38,.6)',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom',labels:{color:'rgba(188,205,224,.7)',font:{size:10},padding:10}}}}})}
 <\/script>
 </body></html>`;
 }
