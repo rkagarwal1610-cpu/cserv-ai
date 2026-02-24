@@ -418,11 +418,19 @@ app.post('/api/rosters/export/xlsx/inline', perm('roster','export'), async (req,
   try{
     const r=req.body;
     const MN2=['January','February','March','April','May','June','July','August','September','October','November','December'];
-    const yr=r.yr, mo=r.mo, agents=r.agents||[], days=r.days||[], sc=r.sc||{};
-    const dow=r.dow||{};
-    const agSatWO=r.agSatWO||{};
-    const holDays=new Set(r.holDays||[]);
+    const yr=r.yr, mo=r.mo, agents=r.agents||[], days=r.days||[], holDays=new Set((r.holDays||[]).map(Number));
     const vLabel=r.versionLabel||'';
+    // Normalize dow: keys may be strings after JSON parse, normalize to number keys
+    const dowRaw=r.dow||{};
+    const dow={};Object.entries(dowRaw).forEach(([k,v])=>dow[+k]=+v);
+    // Normalize sc: day keys may be strings
+    const scRaw=r.sc||{};
+    const sc={};
+    Object.entries(scRaw).forEach(([name,dayMap])=>{
+      sc[name]={};
+      Object.entries(dayMap||{}).forEach(([d,v])=>sc[name][+d]=v);
+    });
+    const agSatWO=r.agSatWO||{};
 
     const wb=new ExcelJS.Workbook();
     wb.creator='C-Serv.AI';wb.created=new Date();
@@ -469,10 +477,12 @@ app.post('/api/rosters/export/xlsx/inline', perm('roster','export'), async (req,
     });
     days.forEach((d,i)=>{
       const c=5+i; const dw=+dow[d];
+      const isHol=holDays.has(d);
       const cell=r2.getCell(c);
       cell.value=new Date(yr,mo,d);
       cell.numFmt='dd/mmm/yyyy';
-      cell.fill=dw===0?fSunH:(dw===6?fSatH:fHdr);
+      // Header color: Sun=red-tint, Sat=purple-tint, Holiday=orange-tint, else grey
+      cell.fill=dw===0?fSunH:(dw===6?fSatH:(isHol?fHol:fHdr));
       cell.font={bold:true,size:9};
       cell.alignment=left;
       cell.border=bdr;
@@ -493,12 +503,20 @@ app.post('/api/rosters/export/xlsx/inline', perm('roster','export'), async (req,
       days.forEach((d,i)=>{
         const c=5+i; const v=agSc[d]||'ROI'; const dw=+dow[d];
         const cell=row.getCell(c);
-        cell.border=bdr; cell.font={size:9,bold:v==='WO'};
-        cell.alignment=center;
-        if(v==='WO'){cell.value='WO';cell.fill=fWO;}
-        else if(v==='HOL'||v==='Holiday'){cell.value='Holiday';cell.fill=fHol;}
-        else if(v==='LV'||v==='Leave'){cell.value='Leave';cell.fill=fLv;}
-        else{cell.value='ROI';cell.fill=fNone;}
+        cell.border=bdr; cell.alignment=center;
+        // Holiday: show "ROI" text but orange bg
+        // Leave: show "Leave" with green bg
+        // WO: purple bg bold
+        // ROI: white no color
+        if(v==='WO'){
+          cell.value='WO'; cell.fill=fWO; cell.font={size:9,bold:true};
+        } else if(v==='HOL'||v==='H'){
+          cell.value='ROI'; cell.fill=fHol; cell.font={size:9,bold:false}; // ROI text, orange bg
+        } else if(v==='LV'){
+          cell.value='Leave'; cell.fill=fLv; cell.font={size:9,bold:false};
+        } else {
+          cell.value='ROI'; cell.fill=fNone; cell.font={size:9,bold:false};
+        }
       });
       // COUNTIF Total WO formula
       const cs=ws.getColumn(5).letter; const ce=ws.getColumn(4+nd).letter;

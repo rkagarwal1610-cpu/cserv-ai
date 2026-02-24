@@ -1212,11 +1212,23 @@ async function approveCurrentR(){
 
 // EXPORTS
 async function doXLSX(){
-  if(!ROSTER){toast('Generate first','warn');return}
-  if(!ROSTER.savedId)await saveR();if(!ROSTER.savedId)return;
-  try{const resp=await fetch('/api/rosters/export/xlsx',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({rosterId:ROSTER.savedId})});
-  if(!resp.ok){const e=await resp.json();toast(e.error,'err');return}
-  const blob=await resp.blob();dl(blob,`Roster_${MN[ROSTER.mo]}_${ROSTER.yr}.xlsx`)}catch(e){toast(e.message,'err')}
+  if(!ROSTER){toast('Generate first','warn');return;}
+  // Use inline export — same format as attached reference, no save required
+  try{
+    const payload={
+      yr:ROSTER.yr, mo:ROSTER.mo, days:ROSTER.days,
+      dow:ROSTER.dow, sc:ROSTER.sc, holDays:ROSTER.holDays||[],
+      agSatWO:ROSTER.agSatWO||{}, agents:ROSTER.agents,
+      versionLabel:''
+    };
+    const resp=await fetch('/api/rosters/export/xlsx/inline',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    });
+    if(!resp.ok){const e=await resp.json();toast(e.error||'Export failed','err');return;}
+    const blob=await resp.blob();
+    dl(blob,`Roster_${MN[ROSTER.mo]}_${ROSTER.yr}.xlsx`);
+  }catch(e){toast(e.message,'err');}
 }
 function doCSV(){
   if(!ROSTER)return;const r=ROSTER,mn=MN[r.mo];
