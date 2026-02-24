@@ -703,9 +703,10 @@ function renderALBody(yr,mo,monthKey){
   const dim=new Date(yr,mo+1,0).getDate();const days=Array.from({length:dim},(_,i)=>i+1);
   const dowMap={};days.forEach(d=>dowMap[d]=new Date(yr,mo,d).getDay());
   document.getElementById('alm-body').innerHTML=AG.map(a=>{
-    const al=AGENTLEAVES[a.name]?.[monthKey]||{leaves:[],fixedWOs:[]};
+    const al=AGENTLEAVES[a.name]?.[monthKey]||{leaves:[],fixedWOs:[],sunHolWork:[]};
     const lDays=(al.leaves||[]).map(s=>+s.split('-')[2]);
     const fDays=(al.fixedWOs||[]).map(s=>+s.split('-')[2]);
+    const shDays=(al.sunHolWork||[]).map(s=>+s.split('-')[2]);
     const c=LC[a.level]||LC[0];
     return`<div style="background:var(--l2);border:1px solid var(--rim);border-radius:9px;padding:11px 13px;margin-bottom:9px">
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:9px">
@@ -717,19 +718,21 @@ function renderALBody(yr,mo,monthKey){
         <div style="display:flex;gap:6px">
           <button class="btn btn-r" style="font-size:11px;padding:4px 9px" onclick="openDP('leave','${a.name}','${monthKey}',${yr},${mo})">📌 Set Leaves</button>
           <button class="btn btn-p" style="font-size:11px;padding:4px 9px" onclick="openDP('fixedwo','${a.name}','${monthKey}',${yr},${mo})">⭐ Fixed WO</button>
+          <button class="btn btn-g" style="font-size:11px;padding:4px 9px;background:rgba(255,220,0,.15);border-color:rgba(255,220,0,.5);color:#c8a800" onclick="openDP('sunholwork','${a.name}','${monthKey}',${yr},${mo})">☀ Sun/Hol Work</button>
         </div>
       </div>
       <div style="display:flex;flex-wrap:wrap;gap:5px;font-size:10px">
         ${lDays.length?lDays.map(d=>`<span style="padding:2px 7px;border-radius:4px;background:rgba(255,61,90,.1);border:1px solid rgba(255,61,90,.3);color:var(--rose);font-family:'IBM Plex Mono',monospace">${DS[dowMap[d]]} ${d} LV</span>`).join(''):'<span style="color:var(--ink4)">No leaves</span>'}
         ${fDays.length?fDays.map(d=>`<span style="padding:2px 7px;border-radius:4px;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);color:var(--cyan);font-family:'IBM Plex Mono',monospace">⭐ ${DS[dowMap[d]]} ${d} WO</span>`).join(''):''}
+        ${shDays.length?shDays.map(d=>`<span style="padding:2px 7px;border-radius:4px;background:rgba(255,220,0,.15);border:1px solid rgba(255,220,0,.5);color:#c8a800;font-family:'IBM Plex Mono',monospace">☀ ${DS[dowMap[d]]} ${d} Work</span>`).join(''):''}
       </div>
     </div>`;
   }).join('');
 }
 function openDP(mode,agentName,monthKey,yr,mo){
   _dpMode=mode;_dpAgent=agentName;_dpMonth=monthKey;_dpMeta={yr,mo};
-  const al=AGENTLEAVES[agentName]?.[monthKey]||{leaves:[],fixedWOs:[]};
-  _dpSel=mode==='leave'?[...(al.leaves||[])]:mode==='fixedwo'?[...(al.fixedWOs||[])]:[];
+  const al=AGENTLEAVES[agentName]?.[monthKey]||{leaves:[],fixedWOs:[],sunHolWork:[]};
+  _dpSel=mode==='leave'?[...(al.leaves||[])]:mode==='fixedwo'?[...(al.fixedWOs||[])]:mode==='sunholwork'?[...(al.sunHolWork||[])]:[];
   const dim=new Date(yr,mo+1,0).getDate();const days=Array.from({length:dim},(_,i)=>i+1);
   const lSet=new Set(al.leaves||[]);const fSet=new Set(al.fixedWOs||[]);
   // Per-agent sat config
@@ -742,6 +745,13 @@ function openDP(mode,agentName,monthKey,yr,mo){
     document.getElementById('dp-title').textContent=`Set Leave Days — ${agentName} · ${MN[mo]} ${yr}`;
     document.getElementById('dp-info').textContent='Click days to mark as LEAVE. Agent will not be assigned WO on leave days.';
     document.getElementById('dp-info').className='alrt aerr';
+  }else if(mode==='sunholwork'){
+    document.getElementById('dp-title').textContent=`Sun/Holiday Working — ${agentName} · ${MN[mo]} ${yr}`;
+    document.getElementById('dp-info').textContent='Select Sundays or Holidays where this agent will be WORKING (not off). Those cells will show yellow in the exported roster.';
+    document.getElementById('dp-info').className='alrt awarn';
+    document.getElementById('dp-info').style.background='rgba(255,220,0,.1)';
+    document.getElementById('dp-info').style.borderColor='rgba(255,220,0,.4)';
+    document.getElementById('dp-info').style.color='#c8a800';
   }else{
     document.getElementById('dp-title').textContent=`Fixed WO Days — ${agentName} · ${MN[mo]} ${yr}`;
     document.getElementById('dp-info').textContent='Click working days to lock as preferred WO. Other agents get ROI that day. Sundays/Sat-WOs/Holidays are auto WO already.';
@@ -758,12 +768,14 @@ function openDP(mode,agentName,monthKey,yr,mo){
     const isUniv=isSun||isAgentSatWO||isHol;
     let disabled=false;
     if(mode==='fixedwo')disabled=isSun||isAgentSatWO||isHol||isLv; // can't set fixedWO on auto-WO days
+    if(mode==='sunholwork')disabled=!isSun&&!isHol; // sunholwork: only Sundays and Holidays selectable
     // For leave mode, ALL days are clickable including working Saturdays
     const isSel=_dpSel.includes(ds);
     // Determine cell appearance
     let bdr,bg2,numCol,tagTxt,tagCol;
     if(isSel&&mode==='leave'){bdr='#C0392B';bg2='#FFBABA';numCol='#8B0000';tagTxt='LV';tagCol='#8B0000'}
     else if(isSel&&mode==='fixedwo'){bdr='var(--cyan)';bg2='rgba(0,212,255,.18)';numCol='var(--cyan)';tagTxt='WO';tagCol='var(--cyan)'}
+    else if(isSel&&mode==='sunholwork'){bdr='#c8a800';bg2='rgba(255,220,0,.25)';numCol='#7a6000';tagTxt='WORK';tagCol='#c8a800'}
     else if(isHol){bdr='#C47D0E';bg2='#F9CB9C';numCol='#7D4E00';tagTxt='HOL';tagCol='#7D4E00'}
     else if(isSun){bdr='var(--sun-bg)';bg2='var(--sun-bg)';numCol='var(--sun-c)';tagTxt='SUN WO';tagCol='var(--sun-c)'}
     else if(isAgentSatWO){bdr='var(--sat-bg)';bg2='var(--sat-bg)';numCol='var(--sat-c)';tagTxt='SAT WO';tagCol='var(--sat-c)'}
@@ -796,6 +808,11 @@ function dpToggle(el){
     el.style.background=adding?'#FFBABA':'var(--l2)';
     if(divs[1])divs[1].style.color=adding?'#8B0000':'var(--ink1)';
     if(divs[2]){divs[2].textContent=adding?'LV':'';divs[2].style.color=adding?'#8B0000':'transparent'}
+  }else if(_dpMode==='sunholwork'){
+    el.style.border=adding?'2px solid #c8a800':'2px solid var(--rim)';
+    el.style.background=adding?'rgba(255,220,0,.25)':'var(--l2)';
+    if(divs[1])divs[1].style.color=adding?'#7a6000':'var(--ink1)';
+    if(divs[2]){divs[2].textContent=adding?'WORK':'';divs[2].style.color=adding?'#c8a800':'transparent'}
   }else{
     el.style.border=adding?'2px solid var(--cyan)':'2px solid var(--rim)';
     el.style.background=adding?'rgba(0,212,255,.18)':'var(--l2)';
@@ -807,11 +824,13 @@ function dpToggle(el){
 function updateDPSel(){document.getElementById('dp-selected').textContent=_dpSel.length?`Selected: ${_dpSel.map(s=>s.slice(-2)).join(', ')}`:'None selected'}
 async function saveDP(){
   if(!AGENTLEAVES[_dpAgent])AGENTLEAVES[_dpAgent]={};
-  if(!AGENTLEAVES[_dpAgent][_dpMonth])AGENTLEAVES[_dpAgent][_dpMonth]={leaves:[],fixedWOs:[]};
+  if(!AGENTLEAVES[_dpAgent][_dpMonth])AGENTLEAVES[_dpAgent][_dpMonth]={leaves:[],fixedWOs:[],sunHolWork:[]};
   if(_dpMode==='leave')AGENTLEAVES[_dpAgent][_dpMonth].leaves=[..._dpSel];
+  else if(_dpMode==='sunholwork')AGENTLEAVES[_dpAgent][_dpMonth].sunHolWork=[..._dpSel];
   else AGENTLEAVES[_dpAgent][_dpMonth].fixedWOs=[..._dpSel];
+  const al=AGENTLEAVES[_dpAgent][_dpMonth];
   try{
-    await api('PUT','/api/agentleaves',{agentName:_dpAgent,monthKey:_dpMonth,leaves:AGENTLEAVES[_dpAgent][_dpMonth].leaves,fixedWOs:AGENTLEAVES[_dpAgent][_dpMonth].fixedWOs});
+    await api('PUT','/api/agentleaves',{agentName:_dpAgent,monthKey:_dpMonth,leaves:al.leaves||[],fixedWOs:al.fixedWOs||[],sunHolWork:al.sunHolWork||[]});
     toast(`Saved for ${_dpAgent}`,'ok');closeM('m-daypick');
     renderALBody(_dpMeta.yr,_dpMeta.mo,_dpMonth);
   }catch(e){toast(e.message,'err')}
@@ -942,11 +961,12 @@ function compute(){
   const blockDay2=!!(prevIsWO&&firstIsWO);
 
   // Agent leaves & fixed WOs
-  const agLv={},agFW={};
+  const agLv={},agFW={},agSHW={};
   AG.forEach(a=>{
-    const al=AGENTLEAVES[a.name]?.[monthKey]||{leaves:[],fixedWOs:[]};
+    const al=AGENTLEAVES[a.name]?.[monthKey]||{leaves:[],fixedWOs:[],sunHolWork:[]};
     agLv[a.name]=new Set((al.leaves||[]).map(s=>+s.split('-')[2]));
     agFW[a.name]=new Set((al.fixedWOs||[]).map(s=>+s.split('-')[2]));
+    agSHW[a.name]=new Set((al.sunHolWork||[]).map(s=>+s.split('-')[2]));
   });
 
   // Extra weekday WOs needed per agent = tgtBase - suns.length - agentSatWOs.size
@@ -990,14 +1010,14 @@ function compute(){
     return false;
   }
 
-  // Consecutive check: block if adding day d creates 3+ consecutive WO days (all types)
+  // Consecutive check: block if adding day d creates 2+ consecutive WO days (extra weekday WOs only)
+  // Sundays and Sat-WOs are fixed — we only prevent 2 consecutive *extra weekday* WOs
   function w3(a,d,extraWOs){
     const testExtra=[...extraWOs,d];
-    for(let start=d-2;start<=d;start++){
-      if(start<1||start+2>days[days.length-1])continue;
-      if(isWODay(a,start,testExtra)&&isWODay(a,start+1,testExtra)&&isWODay(a,start+2,testExtra))return true;
-    }
-    return false;
+    // Check if day before or after is also an extra weekday WO
+    const prevIsExtraWO=testExtra.includes(d-1)&&!agSatWO[a.name].has(d-1)&&dow[d-1]!==0;
+    const nextIsExtraWO=testExtra.includes(d+1)&&!agSatWO[a.name].has(d+1)&&dow[d+1]!==0;
+    return prevIsExtraWO||nextIsExtraWO;
   }
 
   // L0 agents
@@ -1032,16 +1052,26 @@ function compute(){
   for(const day of wd){
     if(AG.every(a=>ew[a.name].length>=qt[a.name]))continue;
     if((dWO[day]||0)>=maxPD)continue;
-    const el=AG.filter(a=>
-      !agLv[a.name].has(day)&&
-      ew[a.name].length<qt[a.name]&&
-      !w3(a,day,ew[a.name])&&
-      !l0LeaveBlock(a,day,ew)
+    // Soft rule: if agent had WO on prior Friday, avoid Monday (unless no other option)
+    const isMon=dow[day]===1;
+    const el=AG.filter(a=>{
+      if(agLv[a.name].has(day))return false;
+      if(ew[a.name].length>=qt[a.name])return false;
+      if(w3(a,day,ew[a.name]))return false;
+      if(l0LeaveBlock(a,day,ew))return false;
+      // Soft: skip Mon if prior Fri was WO for this agent (prefer non-Mon agents first; Mon agents added in fallback)
+      if(isMon&&ew[a.name].includes(day-3))return false; // day-3 = prior Friday
+      return true;
+    });
+    // Fallback: if eligible list empty due to Mon-after-Fri rule, relax it
+    const elFull=el.length?el:AG.filter(a=>
+      !agLv[a.name].has(day)&&ew[a.name].length<qt[a.name]&&!w3(a,day,ew[a.name])&&!l0LeaveBlock(a,day,ew)
     );
+    const elFinal=el.length?el:elFull;
     let pr=[];
-    for(let i=0;i<el.length;i++)for(let j=i+1;j<el.length;j++)if(vPair(el[i],el[j]))pr.push([el[i],el[j]]);
+    for(let i=0;i<elFinal.length;i++)for(let j=i+1;j<elFinal.length;j++)if(vPair(elFinal[i],elFinal[j]))pr.push([elFinal[i],elFinal[j]]);
     if(!pr.length)continue;
-    pr.sort((p,q)=>{const sp=(qt[p[0].name]-ew[p[0].name].length)+(qt[p[1].name]-ew[p[1].name].length);const sq=(qt[q[0].name]-ew[q[0].name].length)+(qt[q[1].name]-ew[q[1].name].length);return sq-sp});
+    if(pr.length)pr.sort((p,q)=>{const sp=(qt[p[0].name]-ew[p[0].name].length)+(qt[p[1].name]-ew[p[1].name].length);const sq=(qt[q[0].name]-ew[q[0].name].length)+(qt[q[1].name]-ew[q[1].name].length);return sq-sp});
     // Weekday hard rule: never allow L0+L0 pair (at most 1 L0 extra WO per weekday)
     // Filter out L0+L0 pairs on weekdays completely — no fallback
     if(dow[day]!==0&&dow[day]!==6){
@@ -1084,9 +1114,11 @@ function compute(){
   // Extra WO   → WO
   // else       → ROI
   const sc={};AG.forEach(a=>{sc[a.name]={};days.forEach(d=>{
-    if(dow[d]===0)               sc[a.name][d]='WO';   // Sunday
-    else if(holDays.has(d))       sc[a.name][d]='HOL';  // Holiday
-    else if(dow[d]===6){
+    if(dow[d]===0){
+      sc[a.name][d]=agSHW[a.name].has(d)?'SW':'WO';  // Sunday: SW=working, WO=off
+    } else if(holDays.has(d)){
+      sc[a.name][d]=agSHW[a.name].has(d)?'HW':'HOL'; // Holiday: HW=working, HOL=off
+    } else if(dow[d]===6){
       if(agSatWO[a.name].has(d)) sc[a.name][d]='WO';   // Agent's WO Saturday
       else                        sc[a.name][d]='ROI';  // Agent works this Saturday
     }
@@ -1095,7 +1127,7 @@ function compute(){
     else                          sc[a.name][d]='ROI';  // Working day
   })});
   const dt={};days.forEach(d=>{dt[d]=dow[d]===0?'SUN':dow[d]===6?'SAT':holDays.has(d)?'HOL':'WORK'});
-  return{yr,mo,days,dow,suns,wos:sats,holDays:[...holDays],holNames:mhols,uSet,tgt:tgtBase,ex:0,asn,sc,dt,agents:[...AG],blockDay2,warnings,agSatWO:Object.fromEntries(AG.map(a=>[a.name,[...agSatWO[a.name]]]))};
+  return{yr,mo,days,dow,suns,wos:sats,holDays:[...holDays],holNames:mhols,uSet,tgt:tgtBase,ex:0,asn,sc,dt,agents:[...AG],blockDay2,warnings,agSatWO:Object.fromEntries(AG.map(a=>[a.name,[...agSatWO[a.name]]])),agSHW:Object.fromEntries(AG.map(a=>[a.name,[...agSHW[a.name]]]))};
 }
 
 // RENDER ALL
@@ -1125,7 +1157,8 @@ function lb(l){const c=LC[l]||LC[0];return`<span class="lbdg" style="background:
 // LV  = Red     #FFBABA bg, #C0392B text
 // ROI = No color (transparent)
 function cellStyle(s,dayType){
-  // Holiday gets orange regardless of WO status
+  if(s==='SW')  return{txt:'ROI',bg:'#FFFF00',fg:'#7A6000',fw:'400'}; // Sunday working — yellow
+  if(s==='HW')  return{txt:'ROI',bg:'#FFFF00',fg:'#7A6000',fw:'400'}; // Holiday working — yellow
   if(dayType==='HOL')  return{txt:'HOL',bg:'#F9CB9C',fg:'#7D4E00',fw:'600'};
   if(s==='WO')  return{txt:'WO', bg:'#C9B8E8',fg:'#4A2587',fw:'700'};
   if(s==='LV')  return{txt:'LV', bg:'#FFBABA',fg:'#8B0000',fw:'600'};
@@ -1213,6 +1246,7 @@ async function doXLSX(){
       yr:ROSTER.yr, mo:ROSTER.mo, days:ROSTER.days,
       dow:ROSTER.dow, sc:ROSTER.sc, holDays:ROSTER.holDays||[],
       agSatWO:ROSTER.agSatWO||{}, agents:ROSTER.agents,
+      agSHW:ROSTER.agSHW||{},
       versionLabel:''
     };
     const resp=await fetch('/api/rosters/export/xlsx/inline',{

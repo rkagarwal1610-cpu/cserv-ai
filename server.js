@@ -172,12 +172,12 @@ app.put('/api/agents', perm('roster','editAgents'), (req,res)=>{
 app.get('/api/agentleaves', isAdm, (req,res)=>{
   const d=load(); res.json(d.agentLeaves||{});
 });
-// PUT leaves for one agent+month: { agentName, monthKey:"2026-03", leaves:["2026-03-05",...], fixedWOs:["2026-03-10",...] }
+// PUT leaves for one agent+month: { agentName, monthKey:"2026-03", leaves:[...], fixedWOs:[...], sunHolWork:[...] }
 app.put('/api/agentleaves', isAdm, (req,res)=>{
-  const d=load(); const {agentName,monthKey,leaves,fixedWOs}=req.body;
+  const d=load(); const {agentName,monthKey,leaves,fixedWOs,sunHolWork}=req.body;
   if(!d.agentLeaves) d.agentLeaves={};
   if(!d.agentLeaves[agentName]) d.agentLeaves[agentName]={};
-  d.agentLeaves[agentName][monthKey]={leaves:leaves||[],fixedWOs:fixedWOs||[]};
+  d.agentLeaves[agentName][monthKey]={leaves:leaves||[],fixedWOs:fixedWOs||[],sunHolWork:sunHolWork||[]};
   save(d); res.json({ok:true});
 });
 
@@ -494,12 +494,11 @@ app.post('/api/rosters/export/xlsx/inline', perm('roster','export'), async (req,
     });
     days.forEach((d,i)=>{
       const c=5+i; const dw=+dow[d];
-      const isHol=holDays.has(d);
       const cell=r2.getCell(c);
       cell.value=new Date(yr,mo,d);
       cell.numFmt='dd/mmm/yyyy';
-      // Header color: Sun=red-tint, Sat=purple-tint, Holiday=orange-tint, else grey
-      cell.fill=dw===0?fSunH:(dw===6?fSatH:(isHol?fHol:fHdr));
+      // ALL date header cells: same uniform grey bg
+      cell.fill=fHdr;
       cell.font={bold:true,size:9};
       cell.alignment=left;
       cell.border=bdr;
@@ -515,21 +514,27 @@ app.post('/api/rosters/export/xlsx/inline', perm('roster','export'), async (req,
       [[1,ag.emp],[2,ag.name],[3,ag.dept||''],[4,ag.loc||'']].forEach(([c,v])=>{
         const cell=row.getCell(c);
         cell.value=v; cell.fill=fNone; cell.border=bdr;
-        cell.font={size:9}; cell.alignment=c<=2?left:center;
+        // First 2 cols (Emp#, Name) in RED font; rest normal black
+        cell.font={size:9,bold:c<=2,color:{argb:c<=2?'FFFF0000':'FF000000'}};
+        cell.alignment=c<=2?left:center;
       });
       days.forEach((d,i)=>{
         const c=5+i; const v=agSc[d]||'ROI'; const dw=+dow[d];
         const cell=row.getCell(c);
         cell.border=bdr; cell.alignment=center;
         // WO=purple bold | Holiday=ROI text + Orange Accent 6 | Leave=ROI text + Red | ROI=white
-        if(v==='WO'){
-          cell.value='WO';  cell.fill=fWO;   cell.font={size:9,bold:true, color:{argb:'FF000000'}};
+        const fYel={type:'pattern',pattern:'solid',fgColor:{argb:'FFFFFF00'}}; // Yellow for Sun/Hol working
+        if(v==='SW'||v==='HW'){
+          // Agent working on Sunday/Holiday — yellow background
+          cell.value='ROI'; cell.fill=fYel; cell.font={size:9,bold:false,color:{argb:'FF000000'}};
+        } else if(v==='WO'){
+          cell.value='WO';  cell.fill=fWO;  cell.font={size:9,bold:true, color:{argb:'FF000000'}};
         } else if(v==='HOL'||v==='H'){
-          cell.value='ROI'; cell.fill=fHol;  cell.font={size:9,bold:false,color:{argb:'FF000000'}};
+          cell.value='ROI'; cell.fill=fHol; cell.font={size:9,bold:false,color:{argb:'FF000000'}};
         } else if(v==='LV'){
-          cell.value='ROI'; cell.fill=fLv;   cell.font={size:9,bold:false,color:{argb:'FF000000'}};
+          cell.value='ROI'; cell.fill=fLv;  cell.font={size:9,bold:false,color:{argb:'FF000000'}};
         } else {
-          cell.value='ROI'; cell.fill=fNone; cell.font={size:9,bold:false,color:{argb:'FF000000'}};
+          cell.value='ROI'; cell.fill=fNone;cell.font={size:9,bold:false,color:{argb:'FF000000'}};
         }
       });
       // COUNTIF Total WO formula
