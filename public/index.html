@@ -1805,84 +1805,112 @@ function renderPerfDashboard(d) {
   // Charts (destroy old first)
   Object.values(_perfCharts).forEach(c => { try { c.destroy(); } catch {} });
   _perfCharts = {};
-  setTimeout(() => renderPerfCharts(d), 80);
+  // Two-stage render: ensures canvas is painted before Chart.js measures it
+  setTimeout(() => {
+    renderPerfCharts(d);
+    setTimeout(() => { Object.values(_perfCharts).forEach(c => { try { c.resize(); } catch {} }); }, 250);
+  }, 100);
 }
 
 function renderPerfCharts(d) {
-  if (typeof Chart === 'undefined') return; // Chart.js not loaded yet
+  if (typeof Chart === 'undefined') {
+    setTimeout(() => renderPerfCharts(d), 300); return;
+  }
 
   const l1 = d.agentRows.filter(r => r.role === 'L1');
-  const isDark = !document.documentElement.dataset.theme || document.documentElement.dataset.theme === 'dark'
-    || ['dark','ocean','forest','sunset'].includes(document.documentElement.dataset.theme || 'dark');
-  const txtColor = isDark ? 'rgba(188,205,224,.7)' : 'rgba(45,63,90,.7)';
-  const gridColor = isDark ? 'rgba(30,45,69,.6)' : 'rgba(203,213,224,.5)';
+  const isDark = !document.documentElement.dataset.theme ||
+    ['dark','ocean','forest','sunset'].includes(document.documentElement.dataset.theme || 'dark');
+  const txtColor  = isDark ? 'rgba(188,205,224,.7)' : 'rgba(45,63,90,.7)';
+  const gridColor = isDark ? 'rgba(30,45,69,.6)'    : 'rgba(203,213,224,.5)';
 
-  // Bar chart: processed vs target for L1 agents
-  const barCtx = document.getElementById('perf-bar-chart');
-  if (barCtx) {
-    _perfCharts.bar = new Chart(barCtx, {
+  // Always replace canvas elements to avoid Chart.js stale-instance conflicts
+  function freshCanvas(id) {
+    const old = document.getElementById(id);
+    if (!old) return null;
+    const parent = old.parentElement;
+    old.remove();
+    const c = document.createElement('canvas');
+    c.id = id;
+    c.style.cssText = 'display:block;width:100%;height:100%';
+    parent.appendChild(c);
+    return c;
+  }
+
+  // ── Bar chart: Processed vs Target — L1 only ──────────────────────────
+  const barCanvas = freshCanvas('perf-bar-chart');
+  if (barCanvas && l1.length > 0) {
+    const ch = new Chart(barCanvas, {
       type: 'bar',
       data: {
         labels: l1.map(r => r.name.split(' ')[0]),
         datasets: [
           { label: 'Processed', data: l1.map(r => r.processed),
-            backgroundColor: l1.map(r => r.hitTarget ? 'rgba(34,197,94,.7)' : 'rgba(0,212,255,.6)'),
-            borderRadius: 4, borderSkipped: false },
+            backgroundColor: l1.map(r => r.hitTarget ? 'rgba(34,197,94,.75)' : 'rgba(0,212,255,.65)'),
+            borderRadius: 5, borderSkipped: false, barPercentage: 0.65 },
           { label: 'Target', data: l1.map(r => r.target || 0),
-            type: 'line', borderColor: 'rgba(255,184,48,.8)', borderWidth: 2,
-            pointBackgroundColor: 'rgba(255,184,48,.9)', pointRadius: 3,
-            fill: false, tension: 0 }
+            type: 'line', borderColor: 'rgba(255,184,48,.9)', borderWidth: 2,
+            borderDash: [4,3], pointBackgroundColor: 'rgba(255,184,48,1)',
+            pointRadius: 4, fill: false, tension: 0.3, order: 0 }
         ]
       },
       options: {
         responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { labels: { color: txtColor, font: { size: 10 } } }, tooltip: { mode: 'index' } },
+        animation: { duration: 500 },
+        plugins: {
+          legend: { labels: { color: txtColor, font: { size: 10 }, boxWidth: 12, padding: 12 } },
+          tooltip: { mode: 'index', intersect: false }
+        },
         scales: {
-          x: { ticks: { color: txtColor, font: { size: 9 } }, grid: { color: gridColor } },
-          y: { ticks: { color: txtColor, font: { size: 9 } }, grid: { color: gridColor }, beginAtZero: true }
+          x: { ticks: { color: txtColor, font: { size: 9 }, maxRotation: 35 }, grid: { color: gridColor } },
+          y: { ticks: { color: txtColor, font: { size: 9 } }, grid: { color: gridColor }, beginAtZero: true,
+               suggestedMax: Math.max(...l1.map(r => Math.max(r.processed||0, r.target||0))) + 2 }
         }
       }
     });
+    _perfCharts.bar = ch;
+    requestAnimationFrame(() => { try { ch.resize(); } catch {} });
   }
 
-  // Pie chart: L1 priority breakdown (Normal / High / Urgent — L1 only)
-  const pieCtx = document.getElementById('perf-pie-chart');
-  if (pieCtx) {
+  // ── Pie chart: L1 Priority Breakdown ─────────────────────────────────
+  const pieCanvas = freshCanvas('perf-pie-chart');
+  if (pieCanvas) {
     const l1High   = d.totals.high   || 0;
     const l1Urgent = d.totals.urgent || 0;
     const l1Normal = Math.max(0, (d.totals.resolved || 0) - l1High - l1Urgent);
     const hasData  = (l1Normal + l1High + l1Urgent) > 0;
-    _perfCharts.pie = new Chart(pieCtx, {
+    const ch = new Chart(pieCanvas, {
       type: 'doughnut',
       data: {
-        labels: ['Normal (L1)', 'High (L1)', 'Urgent (L1)'],
+        labels: ['Normal', 'High', 'Urgent'],
         datasets: [{
           data: hasData ? [l1Normal, l1High, l1Urgent] : [1, 0, 0],
-          backgroundColor: ['rgba(0,212,255,.7)', 'rgba(249,115,22,.75)', 'rgba(239,68,68,.75)'],
-          borderColor: isDark ? 'rgba(13,21,38,.6)' : 'rgba(255,255,255,.8)',
-          borderWidth: 2, hoverOffset: 6
+          backgroundColor: hasData
+            ? ['rgba(0,212,255,.75)', 'rgba(249,115,22,.8)', 'rgba(239,68,68,.8)']
+            : ['rgba(40,60,90,.4)', 'rgba(40,60,90,.2)', 'rgba(40,60,90,.1)'],
+          borderColor: isDark ? '#0d1526' : '#ffffff',
+          borderWidth: 2, hoverOffset: 8
         }]
       },
       options: {
         responsive: true, maintainAspectRatio: false,
-        cutout: '60%',
+        animation: { duration: 500 }, cutout: '62%',
         plugins: {
-          legend: { position: 'bottom', labels: { color: txtColor, font: { size: 10 }, padding: 10 } },
-          tooltip: {
-            callbacks: {
-              label: ctx => {
-                if (!hasData) return ' No L1 data yet';
-                const total = l1Normal + l1High + l1Urgent;
-                const pct = total > 0 ? Math.round(ctx.raw / total * 100) : 0;
-                return ` ${ctx.label}: ${ctx.raw} (${pct}%)`;
-              }
-            }
-          }
+          legend: { position: 'bottom', labels: { color: txtColor, font: { size: 10 }, padding: 12, boxWidth: 12 } },
+          tooltip: { callbacks: { label: ctx => {
+            if (!hasData) return ' No L1 data';
+            const total = l1Normal + l1High + l1Urgent;
+            const pct = total > 0 ? Math.round(ctx.raw / total * 100) : 0;
+            return ` ${ctx.label}: ${ctx.raw} (${pct}%)`;
+          }}}
         }
       }
     });
+    _perfCharts.pie = ch;
+    requestAnimationFrame(() => { try { ch.resize(); } catch {} });
   }
 }
+
+// ── Agent Editor modal
 
 // ── Agent Editor modal ──────────────────────────────────────────────────────
 async function resetPerfConfig() {
@@ -2110,10 +2138,12 @@ h1{font-size:22px;font-weight:800;color:#f2f8ff;letter-spacing:-.5px}
   <div class="stamp">Generated by C-Serv.AI · ${new Date().toLocaleString()}</div>
 </div>
 <script>
-const bc=document.getElementById('bc');
-if(bc){new Chart(bc,{type:'bar',data:{labels:${barLabels},datasets:[{label:'Processed',data:${barProc},backgroundColor:${barColors},borderRadius:4},{label:'Target',data:${barTarget},type:'line',borderColor:'rgba(255,184,48,.8)',borderWidth:2,pointBackgroundColor:'rgba(255,184,48,.9)',fill:false,tension:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'rgba(188,205,224,.7)',font:{size:10}}}},scales:{x:{ticks:{color:'rgba(188,205,224,.7)',font:{size:9}},grid:{color:'rgba(30,45,69,.6)'}},y:{ticks:{color:'rgba(188,205,224,.7)',font:{size:9}},grid:{color:'rgba(30,45,69,.6)'},beginAtZero:true}}}})}
-const pc=document.getElementById('pc');
-if(pc){new Chart(pc,{type:'doughnut',data:{labels:['Normal (L1)','High (L1)','Urgent (L1)'],datasets:[{data:[${pieNormal},${d.totals.high||0},${d.totals.urgent||0}],backgroundColor:['rgba(0,212,255,.7)','rgba(249,115,22,.75)','rgba(239,68,68,.75)'],borderColor:'rgba(13,21,38,.6)',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom',labels:{color:'rgba(188,205,224,.7)',font:{size:10},padding:10}}}}})}
+window.addEventListener('load',function(){
+  var bc=document.getElementById('bc');
+  if(bc){var bch=new Chart(bc,{type:'bar',data:{labels:${barLabels},datasets:[{label:'Processed',data:${barProc},backgroundColor:${barColors},borderRadius:5,borderSkipped:false,barPercentage:0.65},{label:'Target',data:${barTarget},type:'line',borderColor:'rgba(255,184,48,.9)',borderWidth:2,borderDash:[4,3],pointBackgroundColor:'rgba(255,184,48,1)',pointRadius:4,fill:false,tension:0.3}]},options:{responsive:true,maintainAspectRatio:false,animation:{duration:500},plugins:{legend:{labels:{color:'rgba(188,205,224,.7)',font:{size:10},padding:12}}},scales:{x:{ticks:{color:'rgba(188,205,224,.7)',font:{size:9},maxRotation:35},grid:{color:'rgba(30,45,69,.6)'}},y:{ticks:{color:'rgba(188,205,224,.7)',font:{size:9}},grid:{color:'rgba(30,45,69,.6)'},beginAtZero:true}}}});requestAnimationFrame(function(){try{bch.resize();}catch(e){}});}
+  var pc=document.getElementById('pc');
+  if(pc){var pch=new Chart(pc,{type:'doughnut',data:{labels:['Normal','High','Urgent'],datasets:[{data:[${pieNormal},${d.totals.high||0},${d.totals.urgent||0}],backgroundColor:['rgba(0,212,255,.75)','rgba(249,115,22,.8)','rgba(239,68,68,.8)'],borderColor:'#0d1526',borderWidth:2,hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,animation:{duration:500},cutout:'62%',plugins:{legend:{position:'bottom',labels:{color:'rgba(188,205,224,.7)',font:{size:10},padding:12,boxWidth:12}}}}});requestAnimationFrame(function(){try{pch.resize();}catch(e){}});}
+});
 <\/script>
 </body></html>`;
 }
