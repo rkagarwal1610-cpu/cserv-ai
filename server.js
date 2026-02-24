@@ -110,29 +110,7 @@ app.use((req,res,next)=>{
   next();
 });
 
-// ── COMPRESSION (gzip for text responses) ─────────────────────────────
-app.use((req,res,next)=>{
-  const ae=req.headers['accept-encoding']||'';
-  if(!ae.includes('gzip')){return next();}
-  const {Transform}=require('stream');
-  const zlib=require('zlib');
-  // Only compress API JSON and HTML — skip binary (xlsx)
-  const origSend=res.send.bind(res);
-  const origJson=res.json.bind(res);
-  res.json=function(body){
-    const str=JSON.stringify(body);
-    if(str.length<1024){res.setHeader('Content-Type','application/json');return origSend(str);}
-    const buf=Buffer.from(str);
-    zlib.gzip(buf,(err,gz)=>{
-      if(err){res.setHeader('Content-Type','application/json');return origSend(str);}
-      res.setHeader('Content-Type','application/json');
-      res.setHeader('Content-Encoding','gzip');
-      res.setHeader('Vary','Accept-Encoding');
-      origSend(gz);
-    });
-  };
-  next();
-});
+// Compression handled by hosting platform (Render/Railway compress at edge)
 
 // ── RATE LIMITING ──────────────────────────────────────────────────────
 const _rl={};
@@ -187,13 +165,6 @@ app.use(bp.urlencoded({ extended:true, limit:'1mb' }));
 // Trust all proxy hops (Render/Railway/Heroku can have multiple layers)
 app.set('trust proxy', true);
 
-// Detect HTTPS correctly across proxy layers
-function isHttps(req) {
-  return req.secure ||
-    (req.headers['x-forwarded-proto'] || '').split(',')[0].trim() === 'https' ||
-    req.headers['x-forwarded-ssl'] === 'on';
-}
-
 app.use(session({
   secret: process.env.SESSION_SECRET || 'cservai-dev-secret-change-in-prod-2026-xK9mP',
   resave: false,
@@ -202,20 +173,12 @@ app.use(session({
   cookie: {
     maxAge: 8 * 60 * 60 * 1000,
     httpOnly: true,
-    // secure:true only when actually served over HTTPS — detect from proxy headers
-    secure: process.env.NODE_ENV === 'production' && process.env.DISABLE_SECURE_COOKIE !== '1',
-    sameSite: 'lax'   // 'strict' blocks cookie on login POST from fresh navigation
+    // Never force secure:true — let the hosting platform handle HTTPS at edge
+    // Setting secure:true on a platform that terminates SSL at the proxy breaks login
+    secure: false,
+    sameSite: 'lax'
   }
 }));
-
-// Middleware: upgrade cookie.secure dynamically based on actual request protocol
-// This ensures secure cookies work on HTTPS hosts even without NODE_ENV=production
-app.use((req, _res, next) => {
-  if (req.session && isHttps(req)) {
-    req.session.cookie.secure = true;
-  }
-  next();
-});
 
 // Static files with cache headers
 app.use(express.static(path.join(__dirname, 'public'),{
