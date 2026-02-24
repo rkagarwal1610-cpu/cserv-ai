@@ -2,7 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="C-Serv.AI">
+<meta name="theme-color" content="#04060d">
 <title>C-Serv.AI</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -20,7 +25,7 @@ input,select,button,textarea{font-family:'Outfit',sans-serif}
 @keyframes pulse2{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
 @keyframes slideIn{from{transform:translateX(120%);opacity:0}to{transform:none;opacity:1}}
 @keyframes slideOut{to{transform:translateX(120%);opacity:0}}
-#AUTH{position:fixed;inset:0;z-index:1000;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px}
+#AUTH{position:fixed;inset:0;z-index:1000;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:16px;overflow-y:auto}
 .auth-bg{position:absolute;inset:0;overflow:hidden}
 .auth-bg::before{content:'';position:absolute;top:-30%;left:-20%;width:80%;height:80%;background:radial-gradient(ellipse,rgba(0,212,255,.07),transparent 65%)}
 .auth-bg::after{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(0,212,255,.022) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.022) 1px,transparent 1px);background-size:48px 48px}
@@ -34,13 +39,13 @@ input,select,button,textarea{font-family:'Outfit',sans-serif}
 .auth-mode-btn{flex:1;padding:8px;border:none;background:none;color:var(--ink3);font-size:13px;font-weight:500;border-radius:7px;cursor:pointer;transition:all .15s}
 .auth-mode-btn.on{background:var(--l3);color:var(--ink0)}
 .fg{margin-bottom:12px}.fl{display:block;font-size:11px;color:var(--ink2);margin-bottom:4px;font-weight:500}
-.fi{width:100%;padding:9px 11px;background:var(--l2);border:1px solid var(--rim2);border-radius:8px;color:var(--ink0);font-size:14px;outline:none;transition:all .15s}
+.fi{width:100%;padding:9px 11px;background:var(--l2);border:1px solid var(--rim2);border-radius:8px;color:var(--ink0);font-size:16px;outline:none;transition:all .15s}
 .fi:focus{border-color:var(--cyan);box-shadow:0 0 0 3px var(--cdim)}.fi::placeholder{color:var(--ink4)}
 .auth-err{background:rgba(255,61,90,.07);border:1px solid rgba(255,61,90,.2);border-radius:8px;padding:8px 11px;color:#ff8099;font-size:12px;margin-bottom:10px;display:none}
 .auth-err.on{display:block}
 .auth-ok{background:rgba(0,229,160,.07);border:1px solid rgba(0,229,160,.2);border-radius:8px;padding:8px 11px;color:var(--em);font-size:12px;margin-bottom:10px;display:none}
 .auth-ok.on{display:block}
-.btn-auth{width:100%;padding:11px;background:linear-gradient(135deg,var(--cyan),var(--cyan2));color:var(--bg);border:none;border-radius:9px;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s}
+.btn-auth{width:100%;padding:13px;background:linear-gradient(135deg,var(--cyan),var(--cyan2));color:var(--bg);border:none;border-radius:9px;font-size:15px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;min-height:50px;-webkit-tap-highlight-color:transparent}
 .btn-auth:hover{transform:translateY(-1px);opacity:.92}.btn-auth:disabled{opacity:.5;cursor:not-allowed;transform:none}
 .sp{width:14px;height:14px;border-radius:50%;border:2px solid transparent;border-top-color:currentColor;animation:spin .65s linear infinite;flex-shrink:0}
 #APP{display:none;height:100vh;flex-direction:column;overflow:hidden}
@@ -55,7 +60,7 @@ input,select,button,textarea{font-family:'Outfit',sans-serif}
 .lpill{display:flex;align-items:center;gap:5px;font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--em);background:rgba(0,229,160,.06);border:1px solid rgba(0,229,160,.18);border-radius:99px;padding:3px 10px}
 .ldot{width:5px;height:5px;border-radius:50%;background:var(--em);animation:pulse2 2.4s ease infinite}
 .tb-r{display:flex;align-items:center;gap:6px;padding-right:14px;margin-left:auto}
-.ib{width:32px;height:32px;border-radius:7px;background:var(--l1);border:1px solid var(--rim);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:var(--ink2);transition:all .15s;position:relative;flex-shrink:0}
+.ib{width:38px;height:38px;border-radius:7px;background:var(--l1);border:1px solid var(--rim);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:var(--ink2);transition:all .15s;position:relative;flex-shrink:0;-webkit-tap-highlight-color:transparent}
 .ib:hover{border-color:var(--cyan);color:var(--cyan);background:var(--cdim)}
 .upill{display:flex;align-items:center;gap:6px;padding:3px 8px 3px 4px;background:var(--l1);border:1px solid var(--rim);border-radius:7px;cursor:default}
 .uav{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;background:linear-gradient(135deg,#1a5cb8,var(--cyan2))}
@@ -83,7 +88,7 @@ input,select,button,textarea{font-family:'Outfit',sans-serif}
 .sidenav{width:230px;min-width:230px;background:var(--base);border-right:1px solid var(--rim);display:flex;flex-direction:column;overflow-y:auto;height:calc(100vh - 54px);transition:transform .22s}
 .ng{padding:10px 7px 3px}.ngl{font-size:8.5px;font-family:'IBM Plex Mono',monospace;letter-spacing:2px;text-transform:uppercase;color:var(--ink4);padding:0 8px;margin-bottom:5px;display:flex;align-items:center;gap:6px}
 .ngl::after{content:'';flex:1;height:1px;background:var(--rim)}
-.nl{display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:7px;cursor:pointer;transition:all .14s;color:var(--ink3);font-size:13px;font-weight:500;margin-bottom:1px;position:relative;user-select:none}
+.nl{display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:7px;cursor:pointer;transition:all .14s;color:var(--ink3);font-size:13px;font-weight:500;margin-bottom:1px;position:relative;user-select:none;-webkit-tap-highlight-color:transparent}
 .nl:hover{background:var(--l1);color:var(--ink1)}
 .nl.on{background:var(--cdim);color:var(--cyan);border:1px solid rgba(0,212,255,.1)}
 .nl.on::before{content:'';position:absolute;left:-7px;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--cyan);border-radius:0 3px 3px 0;box-shadow:0 0 8px rgba(0,212,255,.4)}
@@ -101,7 +106,7 @@ input,select,button,textarea{font-family:'Outfit',sans-serif}
 .bc{display:flex;align-items:center;gap:6px;font-size:12px;flex:1;flex-wrap:wrap}
 .bch{color:var(--ink3);cursor:pointer;transition:color .14s}.bch:hover{color:var(--cyan)}
 .bcs{color:var(--ink4);font-size:10px}.bcc{color:var(--ink1);font-weight:600}
-.ctrl{width:100%;padding:8px 10px;background:var(--l2);border:1px solid var(--rim);border-radius:7px;color:var(--ink1);font-size:13px;outline:none;appearance:none}
+.ctrl{width:100%;padding:8px 10px;background:var(--l2);border:1px solid var(--rim);border-radius:7px;color:var(--ink1);font-size:16px;outline:none;appearance:none}
 .ctrl:focus{border-color:var(--cyan);box-shadow:0 0 0 3px var(--cdim)}
 .alrt{padding:9px 12px;border-radius:7px;font-size:12.5px;margin-bottom:9px;line-height:1.5}
 .aok{background:rgba(0,229,160,.07);border:1px solid rgba(0,229,160,.2);color:var(--em)}
@@ -195,8 +200,180 @@ input,select,button,textarea{font-family:'Outfit',sans-serif}
 .day-cell.sel-lv{border-color:var(--rose);background:rgba(255,61,90,.12)}
 .day-cell.sel-wo{border-color:var(--cyan);background:rgba(0,212,255,.12)}
 .day-cell.disabled{opacity:.45;cursor:not-allowed}
-@media(max-width:768px){.sidenav{position:fixed;top:54px;left:0;bottom:0;z-index:300;transform:translateX(-100%)}.sidenav.mob{transform:none}.sr{grid-template-columns:1fr 1fr}.kpi-row{grid-template-columns:1fr 1fr}.agrid{grid-template-columns:1fr}#mbtn{display:flex!important}}
-@media print{.topbar,.sidenav,.cp,.mbar,.tab-row{display:none!important}.shell{height:auto}.content,.pg.on{overflow:visible}.ro{padding:0}.tbox{max-height:none;overflow:visible}}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE — TABLET (≤900px)
+═══════════════════════════════════════════════════════════ */
+@media(max-width:900px){
+  .brand{width:180px}
+  .sidenav{width:200px;min-width:200px}
+  .cp{width:240px;min-width:240px}
+  .agrid{grid-template-columns:1fr}
+  .kpi-row{grid-template-columns:1fr 1fr 1fr}
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE — MOBILE (≤768px)
+═══════════════════════════════════════════════════════════ */
+@media(max-width:768px){
+  /* ── Layout ── */
+  html,body{font-size:15px}
+  #APP{height:100%;height:100dvh}
+
+  /* ── Topbar ── */
+  .topbar{height:52px;padding:0 10px;gap:6px}
+  .brand{width:auto;border-right:none;padding:0 6px;gap:7px}
+  .bn{font-size:14px}.bs{display:none}
+  .brand-ico{width:28px;height:28px;font-size:13px}
+  .tb-mid{display:none}
+  .upill{padding:2px 6px 2px 3px}
+  .un{font-size:11px}.ur{display:none}
+  .rb{display:none}
+  .uav{width:24px;height:24px;font-size:10px}
+  #mbtn{display:flex!important}
+
+  /* ── Sidenav: full-width slide-in overlay ── */
+  .sidenav{
+    position:fixed;top:52px;left:0;right:0;bottom:0;
+    width:100%!important;min-width:unset!important;
+    z-index:300;transform:translateX(-100%);
+    border-right:none;
+    border-top:1px solid var(--rim);
+    padding-bottom:env(safe-area-inset-bottom,16px);
+  }
+  .sidenav.mob{transform:none}
+  .nav-overlay{
+    display:none;position:fixed;inset:0;top:52px;
+    background:rgba(0,0,0,.55);z-index:299;
+  }
+  .sidenav.mob~.nav-overlay,.nav-overlay.on{display:block}
+  .nl{padding:12px 14px;font-size:15px}
+  .ni{font-size:18px;width:24px}
+
+  /* ── Shell / Content ── */
+  .shell{flex-direction:column}
+  .content{height:calc(100% - 52px)}
+
+  /* ── Stats grids ── */
+  .sr{grid-template-columns:1fr 1fr}
+  .kpi-row{grid-template-columns:1fr 1fr}
+  .agrid{grid-template-columns:1fr}
+  .c2{grid-template-columns:1fr 1fr}
+
+  /* ── Roster split panel: stack vertically ── */
+  .rsh{flex-direction:column;overflow-y:auto}
+  .cp{
+    width:100%!important;min-width:unset!important;
+    border-right:none;border-bottom:1px solid var(--rim);
+    max-height:none;overflow:visible;flex-shrink:0;
+  }
+  .ro{padding:14px 12px;overflow:visible}
+
+  /* ── Roster result table ── */
+  #tab-cal{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .tbox{max-height:none;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .tab-row{flex-wrap:wrap;width:100%}
+  .ttb{flex:1;text-align:center;font-size:12px;padding:7px 6px}
+
+  /* ── Modals ── */
+  .mbg{padding:0;align-items:flex-end}
+  .mc{
+    max-width:100%!important;width:100%;
+    border-radius:18px 18px 0 0;
+    max-height:92dvh;
+    padding:20px 16px 24px;
+    padding-bottom:calc(24px + env(safe-area-inset-bottom,0px));
+  }
+  /* modal drag handle */
+  .mc::before{
+    content:'';display:block;width:36px;height:4px;
+    background:var(--rim2);border-radius:2px;
+    margin:0 auto 14px;
+  }
+  .mc.wide,.mc.xl{max-width:100%!important}
+  /* 2-col perm grid → 1-col on small screens */
+  .perm-grid{grid-template-columns:1fr}
+
+  /* ── Auth card ── */
+  .auth-card{padding:28px 20px;border-radius:16px}
+
+  /* ── Buttons ── */
+  .btn{padding:9px 14px;font-size:13px}
+  /* Minimum 44px touch target */
+  .btn,.ib,.nl,.nl a,.auth-mode-btn{min-height:44px}
+  .btn-auth{padding:14px;font-size:15px;min-height:52px}
+
+  /* ── Day picker grid ── */
+  .day-cell{padding:8px 2px}
+  .day-cell div:nth-child(2){font-size:16px!important}
+
+  /* ── Agent list in roster ── */
+  #agList .btn{min-height:36px;padding:6px 8px}
+
+  /* ── Notification dropdown ── */
+  .notif-dd{width:calc(100vw - 16px);right:-8px}
+
+  /* ── Section padding ── */
+  .asc{padding:14px 14px}
+  .mbar{padding:0 10px;gap:5px}
+  .mbar .btn{font-size:11px;padding:6px 8px}
+  .mh{font-size:15px}
+
+  /* ── Home page ── */
+  #pg-home>div>div:first-child{padding:18px 14px 14px}
+
+  /* ── Bottom safe area ── */
+  .nav-foot{padding-bottom:calc(12px + env(safe-area-inset-bottom,0px))}
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE — SMALL PHONE (≤420px)
+═══════════════════════════════════════════════════════════ */
+@media(max-width:420px){
+  .sr{grid-template-columns:1fr 1fr}
+  .kpi-row{grid-template-columns:1fr 1fr}
+  .scv{font-size:18px}
+  .mbar .btn span{display:none}
+  /* compact topbar icons */
+  .ib{width:34px;height:34px}
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MOBILE BOTTOM NAV BAR
+═══════════════════════════════════════════════════════════ */
+#mob-nav{
+  display:none;
+  position:fixed;bottom:0;left:0;right:0;z-index:250;
+  background:var(--base);border-top:1px solid var(--rim);
+  padding:6px 0 calc(6px + env(safe-area-inset-bottom,0px));
+  grid-template-columns:repeat(4,1fr);
+  gap:0;
+}
+@media(max-width:768px){
+  #mob-nav{display:grid}
+  /* push content above bottom nav */
+  .shell{padding-bottom:calc(58px + env(safe-area-inset-bottom,0px))}
+}
+.mob-nav-btn{
+  display:flex;flex-direction:column;align-items:center;
+  gap:2px;padding:4px 0;border:none;background:none;
+  color:var(--ink3);cursor:pointer;font-family:'Outfit',sans-serif;
+  transition:color .14s;-webkit-tap-highlight-color:transparent;
+}
+.mob-nav-btn.on{color:var(--cyan)}
+.mob-nav-btn .mni{font-size:22px;line-height:1}
+.mob-nav-btn .mnl{font-size:9px;font-weight:600;letter-spacing:.3px}
+
+/* ═══════════════════════════════════════════════════════════
+   PRINT
+═══════════════════════════════════════════════════════════ */
+@media print{
+  .topbar,.sidenav,.cp,.mbar,.tab-row{display:none!important}
+  .shell{height:auto}
+  .content,.pg.on{overflow:visible}
+  .ro{padding:0}
+  .tbox{max-height:none;overflow:visible}
+}
 </style>
 </head>
 <body>
@@ -245,6 +422,7 @@ input,select,button,textarea{font-family:'Outfit',sans-serif}
       <div class="ib" onclick="doLogout()" title="Logout">⏻</div>
     </div>
   </div>
+  <div id="nav-overlay" class="nav-overlay" onclick="closeNav()"></div>
   <div class="shell">
     <nav class="sidenav" id="snav">
       <div class="ng">
@@ -284,6 +462,22 @@ input,select,button,textarea{font-family:'Outfit',sans-serif}
 </div>
 <div id="toast-area"></div>
 
+<!-- MOBILE BOTTOM NAV -->
+<nav id="mob-nav" role="navigation" aria-label="Mobile navigation">
+  <button class="mob-nav-btn on" id="mbn-home" onclick="go('home');closeMobNav()">
+    <span class="mni">🏠</span><span class="mnl">Home</span>
+  </button>
+  <button class="mob-nav-btn" id="mbn-roster" onclick="go(isAdmin()?'roster':'myrosters');closeMobNav()" style="display:none">
+    <span class="mni">📅</span><span class="mnl">Roster</span>
+  </button>
+  <button class="mob-nav-btn" id="mbn-sl" onclick="go('shortleave');closeMobNav()">
+    <span class="mni">🕐</span><span class="mnl">Leave</span>
+  </button>
+  <button class="mob-nav-btn" id="mbn-menu" onclick="toggleNav()">
+    <span class="mni">☰</span><span class="mnl">Menu</span>
+  </button>
+</nav>
+
 <!-- MODALS -->
 <div class="mbg" id="m-adduser"><div class="mc">
   <div class="mh">👤 Add User</div>
@@ -298,7 +492,7 @@ input,select,button,textarea{font-family:'Outfit',sans-serif}
 <div class="mbg" id="m-edituser"><div class="mc wide">
   <div class="mh">✏️ Edit User & Permissions</div>
   <input type="hidden" id="eu-id">
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px">
     <div class="fg"><label class="fl">Full Name</label><input class="fi" type="text" id="eu-name" style="background:var(--l2)"></div>
     <div class="fg"><label class="fl">Role</label><select class="ctrl" id="eu-role"><option value="operator">Operator</option><option value="admin">Admin</option></select></div>
   </div>
@@ -334,9 +528,9 @@ input,select,button,textarea{font-family:'Outfit',sans-serif}
   <div class="fg">
     <label class="fl">Half Day</label>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
-      <label style="display:flex;align-items:center;gap:8px;background:var(--l2);border:2px solid var(--rim);border-radius:8px;padding:10px 12px;cursor:pointer;transition:all .15s" id="half1-lbl">
-        <input type="radio" name="halfday" id="half1" value="1st Half" style="accent-color:var(--cyan)">
-        <div><div style="font-size:13px;font-weight:600;color:var(--ink0)">1st Half</div><div style="font-size:10.5px;color:var(--ink3)">Morning session</div></div>
+      <label style="display:flex;align-items:center;gap:8px;background:var(--l2);border:2px solid var(--rim);border-radius:8px;padding:12px;cursor:pointer;transition:all .15s;min-height:60px" id="half1-lbl">
+        <input type="radio" name="halfday" id="half1" value="1st Half" style="accent-color:var(--cyan);width:18px;height:18px">
+        <div><div style="font-size:13px;font-weight:600;color:var(--ink0)">1st Half</div><div style="font-size:10.5px;color:var(--ink3)">Morning</div></div>
       </label>
       <label style="display:flex;align-items:center;gap:8px;background:var(--l2);border:2px solid var(--rim);border-radius:8px;padding:10px 12px;cursor:pointer;transition:all .15s" id="half2-lbl">
         <input type="radio" name="halfday" id="half2" value="2nd Half" style="accent-color:var(--cyan)">
@@ -393,7 +587,7 @@ input,select,button,textarea{font-family:'Outfit',sans-serif}
 <div class="mbg" id="m-daypick"><div class="mc wide">
   <div class="mh" id="dp-title">Pick Days</div>
   <div id="dp-info" class="alrt awarn" style="margin-bottom:12px;font-size:12px"></div>
-  <div id="dp-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:10px"></div>
+  <div id="dp-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:10px;touch-action:pan-y"></div>
   <div id="dp-selected" style="font-size:11px;color:var(--ink3);margin-top:4px"></div>
   <div class="mft">
     <button class="btn btn-g" onclick="closeM('m-daypick')">Cancel</button>
@@ -468,8 +662,14 @@ function initApp(){
   const rb=document.getElementById('trbdg');rb.textContent=ME.role.toUpperCase();
   rb.className='rb '+(ME.role==='superadmin'?'rb-sa':ME.role==='admin'?'rb-a':'rb-o');
   const isAdm=isAdmin();
-  if(isAdm){document.getElementById('nl-roster').style.display='flex';document.getElementById('nav-admin-group').style.display='block'}
-  else document.getElementById('nl-myrosters').style.display='flex';
+  if(isAdm){
+    document.getElementById('nl-roster').style.display='flex';
+    document.getElementById('nav-admin-group').style.display='block';
+    const mbnR=document.getElementById('mbn-roster');if(mbnR)mbnR.style.display='flex';
+  } else {
+    document.getElementById('nl-myrosters').style.display='flex';
+    const mbnR=document.getElementById('mbn-roster');if(mbnR)mbnR.style.display='flex';
+  }
   if(window.innerWidth<=768)document.getElementById('mbtn').style.display='flex';
   buildThemeRow();buildHome();buildRosterPage();buildMyRostersPage();buildSLPage();
   if(isAdm){buildRulesPage();buildUsersPage();buildBackupPage();buildSavedPage();}
@@ -479,7 +679,28 @@ function isAdmin(){return ME&&['superadmin','admin'].includes(ME.role)}
 function can(mod,act){if(!ME)return false;if(ME.role==='superadmin')return true;return!!ME.permissions?.[mod]?.[act]}
 async function loadAG(){try{AG=await api('GET','/api/agents')}catch{AG=[]}}
 async function loadHolidays(){try{HOLIDAYS=await api('GET','/api/holidays')}catch{HOLIDAYS=[]}}
-function toggleNav(){document.getElementById('snav').classList.toggle('mob')}
+function toggleNav(){
+  const snav=document.getElementById('snav');
+  const ov=document.getElementById('nav-overlay');
+  const open=!snav.classList.contains('mob');
+  snav.classList.toggle('mob',open);
+  ov.classList.toggle('on',open);
+  document.body.style.overflow=open?'hidden':'';
+}
+function closeNav(){
+  closeNav();
+  // Update mobile bottom nav active state
+  ['home','roster','myrosters','sl','menu'].forEach(k=>{
+    const b=document.getElementById('mbn-'+k);
+    if(b)b.classList.remove('on');
+  });
+  const mobMap={home:'home',roster:'roster',myrosters:'roster',shortleave:'sl'};
+  const mbnId=mobMap[id];
+  if(mbnId){const b=document.getElementById('mbn-'+mbnId);if(b)b.classList.add('on');}
+  document.getElementById('nav-overlay').classList.remove('on');
+  document.body.style.overflow='';
+}
+function closeMobNav(){closeNav();}
 
 // NAV
 function go(id){
@@ -496,7 +717,18 @@ function doLogout(){api('POST','/api/logout').finally(()=>location.reload())}
 // NOTIFICATIONS
 let notifOpen=false;
 function toggleNotif(){notifOpen=!notifOpen;document.getElementById('notifDd').classList.toggle('on',notifOpen);if(notifOpen)renderNotifs()}
-document.addEventListener('click',e=>{if(notifOpen&&!e.target.closest('.notif-wrap')){notifOpen=false;document.getElementById('notifDd').classList.remove('on')}});
+document.addEventListener('click',e=>{
+  if(notifOpen&&!e.target.closest('.notif-wrap')){notifOpen=false;document.getElementById('notifDd').classList.remove('on')}
+});
+// On resize, close mobile nav
+window.addEventListener('resize',()=>{
+  if(window.innerWidth>768)closeNav();
+});
+// Prevent scroll when sidenav is open on mobile
+document.addEventListener('touchmove',e=>{
+  const snav=document.getElementById('snav');
+  if(snav&&snav.classList.contains('mob')&&!snav.contains(e.target)){e.preventDefault();}
+},{passive:false});
 async function fetchNotifs(){try{NOTIFS=await api('GET','/api/notifications');const u=NOTIFS.filter(n=>!n.read).length;const cnt=document.getElementById('notifCnt');cnt.textContent=u>9?'9+':u;cnt.classList.toggle('on',u>0)}catch{}}
 function renderNotifs(){const list=document.getElementById('notifList');if(!NOTIFS.length){list.innerHTML='<div class="notif-empty">No notifications</div>';return}const ico={sl_new:'📋',sl_approved:'✅',sl_rejected:'❌',sl_cancelled:'🚫',roster:'📅',user:'👤',info:'💬'};list.innerHTML=NOTIFS.slice(0,30).map(n=>`<div class="notif-item${n.read?'':' unread'}" onclick="readNotif('${n.id}')"><div class="notif-ico">${ico[n.type]||'💬'}</div><div><div class="notif-msg">${x(n.msg)}</div><div class="notif-time">${timeAgo(n.createdAt)}</div></div></div>`).join('')}
 async function readNotif(id){await api('PUT',`/api/notifications/${id}/read`).catch(()=>{});fetchNotifs();renderNotifs()}
@@ -519,10 +751,25 @@ function buildHome(){
   </div>
   <div style="padding:20px 28px">
     <div style="font-size:13.5px;font-weight:700;color:var(--ink0);margin-bottom:12px;display:flex;align-items:center;gap:7px"><span style="width:3px;height:15px;background:var(--cyan);border-radius:2px;display:inline-block"></span>Quick Access</div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:11px">
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(240px,100%),1fr));gap:11px">
       ${(isAdm?[{id:'roster',ico:'📅',n:'Roster Generator',d:'Generate WO rosters with agent leaves, fixed WOs, boundary rules & pairing.',c:'#00d4ff'},{id:'shortleave',ico:'🕐',n:'Short Leave Manager',d:'Review, approve and reject short leave requests.',c:'#00e5a0'}]:[{id:'myrosters',ico:'📅',n:'Monthly Roster',d:'View your approved monthly roster schedules.',c:'#00d4ff'},{id:'shortleave',ico:'🕐',n:'Short Leave',d:'Apply for short leaves and track your history.',c:'#00e5a0'}]).map(m=>`<div style="background:var(--l1);border:1px solid var(--rim);border-radius:12px;padding:18px;cursor:pointer;transition:all .2s" onclick="go('${m.id}')" onmouseover="this.style.borderColor='${m.c}';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='';this.style.transform=''"><div style="width:42px;height:42px;border-radius:10px;background:${m.c}18;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:11px">${m.ico}</div><div style="font-size:13.5px;font-weight:700;color:var(--ink0);margin-bottom:4px">${m.n}</div><div style="font-size:12px;color:var(--ink2);line-height:1.6">${m.d}</div></div>`).join('')}
     </div>
   </div></div>`;
+}
+
+// MOBILE CONFIG PANEL TOGGLE
+let _cfgOpen=true;
+function toggleCfgPanel(){
+  _cfgOpen=!_cfgOpen;
+  const panel=document.getElementById('cfgPanel');
+  const arr=document.getElementById('cfg-toggle-arr');
+  if(panel){panel.style.display=_cfgOpen?'':'none';}
+  if(arr){arr.textContent=_cfgOpen?'▲':'▼';}
+}
+// Show toggle button only on mobile
+function initRosterMobile(){
+  const btn=document.getElementById('cfg-toggle');
+  if(btn&&window.innerWidth<=768){btn.style.display='flex';_cfgOpen=true;}
 }
 
 // ROSTER PAGE
@@ -534,7 +781,10 @@ function buildRosterPage(){
     <button class="btn btn-g" style="font-size:12px" onclick="openAgentLeaves()">📋 Agent Leaves / WO</button>
   </div>
   <div class="rsh">
-    <aside class="cp">
+    <button id="cfg-toggle" onclick="toggleCfgPanel()" style="display:none;width:100%;padding:10px 14px;background:var(--l2);border:none;border-bottom:1px solid var(--rim);color:var(--ink1);font-size:13px;font-weight:600;cursor:pointer;text-align:left;gap:8px;align-items:center;flex-shrink:0">
+      <span id="cfg-toggle-ico">⚙</span> Configure Roster <span style="margin-left:auto;color:var(--cyan)" id="cfg-toggle-arr">▼</span>
+    </button>
+    <aside class="cp" id="cfgPanel">
       <div class="cs">
         <div class="cl">Schedule Period</div>
         <div class="c2">
@@ -604,7 +854,7 @@ function buildRosterPage(){
       </div>
     </div>
   </div>`;
-  renderAG();updateHolBadge();
+  renderAG();updateHolBadge();initRosterMobile();
 }
 
 // OPERATOR: MY ROSTERS
@@ -738,6 +988,10 @@ function openDP(mode,agentName,monthKey,yr,mo){
     document.getElementById('dp-info').textContent='Click working days to lock as preferred WO. Other agents get ROI that day. Sundays/Sat-WOs/Holidays are auto WO already.';
     document.getElementById('dp-info').className='alrt awarn';
   }
+  // Responsive day cell grid
+  const isMobile=window.innerWidth<=768;
+  const dpCols=isMobile?7:7; // always 7 for calendar feel
+  document.getElementById('dp-grid').style.gridTemplateColumns=`repeat(${dpCols},1fr)`;
   const grid=document.getElementById('dp-grid');
   grid.innerHTML=days.map(d=>{
     const dow2=new Date(yr,mo,d).getDay();
@@ -763,10 +1017,10 @@ function openDP(mode,agentName,monthKey,yr,mo){
     else if(isAgentSatWork){bdr='rgba(0,212,255,.2)';bg2='rgba(0,212,255,.06)';numCol='var(--cyan)';tagTxt='WORK';tagCol='var(--cyan)'}
     else if(isLv&&mode==='fixedwo'){bdr='#FFBABA';bg2='rgba(255,186,186,.15)';numCol='#C0392B';tagTxt='LV';tagCol='#C0392B'}
     else{bdr='var(--rim)';bg2='var(--l2)';numCol='var(--ink1)';tagTxt='';tagCol='transparent'}
-    return`<div class="day-cell" data-ds="${ds}" data-disabled="${disabled}" style="border:2px solid ${bdr};background:${bg2};opacity:${disabled?'.4':'1'};cursor:${disabled?'not-allowed':'pointer'};border-radius:6px;padding:6px 3px;text-align:center;transition:all .12s;user-select:none">
-      <div style="font-size:7.5px;font-family:'IBM Plex Mono',monospace;color:${tagCol||'var(--ink4)'}">${DS[dow2]}</div>
-      <div style="font-size:14px;font-weight:700;color:${numCol}">${d}</div>
-      <div style="font-size:7px;font-family:'IBM Plex Mono',monospace;color:${tagCol};min-height:9px">${tagTxt}</div>
+    return`<div class="day-cell" data-ds="${ds}" data-disabled="${disabled}" style="border:2px solid ${bdr};background:${bg2};opacity:${disabled?'.4':'1'};cursor:${disabled?'not-allowed':'pointer'};border-radius:6px;padding:7px 2px;text-align:center;transition:all .12s;user-select:none;min-height:54px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;-webkit-tap-highlight-color:transparent">
+      <div style="font-size:7px;font-family:'IBM Plex Mono',monospace;color:${tagCol||'var(--ink4)'}">${DS[dow2].slice(0,2)}</div>
+      <div style="font-size:16px;font-weight:700;color:${numCol};line-height:1.1">${d}</div>
+      <div style="font-size:7px;font-family:'IBM Plex Mono',monospace;color:${tagCol};min-height:9px;white-space:nowrap;overflow:hidden;max-width:100%">${tagTxt}</div>
     </div>`;
   }).join('');
   // Attach click handler via event delegation on grid (fixes onclick attribute bug)
