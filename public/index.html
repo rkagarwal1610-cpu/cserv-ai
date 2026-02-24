@@ -210,22 +210,13 @@ input,select,button,textarea{font-family:'Outfit',sans-serif}
       <div class="auth-name">C-Serv<em>.AI</em></div>
       <div class="auth-sub">Customer Service Intelligence Platform</div>
     </div>
-    <div class="auth-mode">
-      <button class="auth-mode-btn on" onclick="authMode('login',this)">Sign In</button>
-      <button class="auth-mode-btn" onclick="authMode('reg',this)">Register</button>
-    </div>
     <div id="auth-err" class="auth-err"></div>
-    <div id="auth-ok" class="auth-ok"></div>
-    <div id="reg-name-fg" class="fg" style="display:none">
-      <label class="fl">Full Name</label><input class="fi" type="text" id="reg-name" placeholder="Your full name">
-    </div>
-    <div class="fg"><label class="fl">Username</label><input class="fi" type="text" id="auth-user" placeholder="Username" autocomplete="username"></div>
-    <div class="fg"><label class="fl">Password</label><input class="fi" type="password" id="auth-pass" placeholder="Password" autocomplete="current-password"></div>
+    <div class="fg"><label class="fl">Username</label><input class="fi" type="text" id="auth-user" placeholder="Enter username" autocomplete="username" maxlength="64"></div>
+    <div class="fg"><label class="fl">Password</label><input class="fi" type="password" id="auth-pass" placeholder="Enter password" autocomplete="current-password" maxlength="128"></div>
     <button class="btn-auth" id="auth-btn" onclick="doAuth()">
       <span id="auth-btn-txt">Sign In</span>
       <div class="sp" id="auth-sp" style="display:none;border-top-color:var(--bg)"></div>
     </button>
-    <div id="auth-hint" style="text-align:center;margin-top:12px;font-size:11px;color:var(--ink4)">admin / Admin@123 &nbsp;·&nbsp; superadmin / Super@123</div>
   </div>
 </div>
 
@@ -447,35 +438,25 @@ function fmtDT(iso){if(!iso)return'—';const d=new Date(iso);return d.toLocaleD
 document.querySelectorAll('.mbg').forEach(bg=>bg.addEventListener('click',e=>{if(e.target===bg)bg.classList.remove('on')}));
 
 // AUTH
-let authCur='login';
-function authMode(m,el){authCur=m;document.querySelectorAll('.auth-mode-btn').forEach(b=>b.classList.remove('on'));el.classList.add('on');document.getElementById('reg-name-fg').style.display=m==='reg'?'block':'none';document.getElementById('auth-btn-txt').textContent=m==='reg'?'Create Account':'Sign In';document.getElementById('auth-hint').style.display=m==='reg'?'none':'block';clearAuthMsg()}
-function clearAuthMsg(){document.getElementById('auth-err').className='auth-err';document.getElementById('auth-ok').className='auth-ok'}
-function showAuthErr(msg){const e=document.getElementById('auth-err');e.textContent='⚠ '+msg;e.className='auth-err on'}
-function showAuthOk(msg){const e=document.getElementById('auth-ok');e.textContent='✓ '+msg;e.className='auth-ok on'}
+function clearAuthMsg(){const e=document.getElementById('auth-err');if(e)e.className='auth-err';}
+function showAuthErr(msg){const e=document.getElementById('auth-err');e.textContent='⚠ '+msg;e.className='auth-err on';}
 document.getElementById('auth-pass').onkeydown=e=>{if(e.key==='Enter')doAuth()};
 document.getElementById('auth-user').onkeydown=e=>{if(e.key==='Enter')doAuth()};
 async function doAuth(){
   const btn=document.getElementById('auth-btn'),sp=document.getElementById('auth-sp'),tx=document.getElementById('auth-btn-txt');
   const user=document.getElementById('auth-user').value.trim(),pass=document.getElementById('auth-pass').value;
-  clearAuthMsg();if(!user||!pass){showAuthErr('Please fill all fields');return}
-  btn.disabled=true;sp.style.display='block';tx.textContent=authCur==='reg'?'Creating…':'Signing in…';
+  clearAuthMsg();
+  if(!user||!pass){showAuthErr('Please enter username and password');return;}
+  btn.disabled=true;sp.style.display='block';tx.textContent='Signing in…';
   try{
-    if(authCur==='reg'){
-      const name=document.getElementById('reg-name').value.trim();
-      if(!name){showAuthErr('Enter full name');btn.disabled=false;sp.style.display='none';tx.textContent='Create Account';return}
-      await api('POST','/api/register',{name,username:user,password:pass});
-      showAuthOk('Account created! Sign in below.');
-      authMode('login',document.querySelector('.auth-mode-btn'));
-    }else{
-      const d=await api('POST','/api/login',{username:user,password:pass});
-      ME=d.user;MACCESS=d.moduleAccess||{};
-      const rd=await api('GET','/api/me');RULES=rd.rules||{};RFMT=rd.rosterFormat||{};
-      await Promise.all([loadAG(),loadHolidays()]);
-      if(isAdmin())AGENTLEAVES=await api('GET','/api/agentleaves').catch(()=>({}));
-      initApp();
-    }
-  }catch(e){showAuthErr(e.message)}
-  btn.disabled=false;sp.style.display='none';tx.textContent=authCur==='reg'?'Create Account':'Sign In';
+    const d=await api('POST','/api/login',{username:user,password:pass});
+    ME=d.user;MACCESS=d.moduleAccess||{};
+    const rd=await api('GET','/api/me');RULES=rd.rules||{};RFMT=rd.rosterFormat||{};
+    await Promise.all([loadAG(),loadHolidays()]);
+    if(isAdmin())AGENTLEAVES=await api('GET','/api/agentleaves').catch(()=>({}));
+    initApp();
+  }catch(e){showAuthErr(e.message);}
+  btn.disabled=false;sp.style.display='none';tx.textContent='Sign In';
 }
 
 // INIT
