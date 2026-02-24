@@ -514,8 +514,8 @@ app.post('/api/rosters/export/xlsx/inline', perm('roster','export'), async (req,
       [[1,ag.emp],[2,ag.name],[3,ag.dept||''],[4,ag.loc||'']].forEach(([c,v])=>{
         const cell=row.getCell(c);
         cell.value=v; cell.fill=fNone; cell.border=bdr;
-        // First 2 cols (Emp#, Name) in RED font; rest normal black
-        cell.font={size:9,bold:c<=2,color:{argb:c<=2?'FFFF0000':'FF000000'}};
+        // Normal black font for all info columns
+        cell.font={size:9,color:{argb:'FF000000'}};
         cell.alignment=c<=2?left:center;
       });
       days.forEach((d,i)=>{

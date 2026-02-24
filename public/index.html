@@ -1010,38 +1010,67 @@ function compute(){
     return false;
   }
 
-  // Consecutive check: block if adding day d creates 2+ consecutive WO days (extra weekday WOs only)
-  // Sundays and Sat-WOs are fixed — we only prevent 2 consecutive *extra weekday* WOs
+  // Consecutive check: block 2 or 3 consecutive extra weekday WOs in Tue-Fri range (dow 2-5)
+  // Monday (dow=1) is excluded — consecutive check only applies Tue through Fri
+  function isMidWeekExtraWO(d,testExtra){
+    // A day counts for consecutive check if: it's in extra WOs AND it's Tue-Fri AND not a sat-WO
+    if(!testExtra.includes(d))return false;
+    if(d<1||d>days[days.length-1])return false;
+    const dw=dow[d]||new Date(yr,mo,d).getDay();
+    return dw>=2&&dw<=5&&!agSatWO[a.name]?.has(d); // Tue-Fri extra weekday WO
+  }
   function w3(a,d,extraWOs){
     const testExtra=[...extraWOs,d];
-    // Check if day before or after is also an extra weekday WO
-    const prevIsExtraWO=testExtra.includes(d-1)&&!agSatWO[a.name].has(d-1)&&dow[d-1]!==0;
-    const nextIsExtraWO=testExtra.includes(d+1)&&!agSatWO[a.name].has(d+1)&&dow[d+1]!==0;
-    return prevIsExtraWO||nextIsExtraWO;
+    const dw=dow[d];
+    // Only apply consecutive check when current day is Tue-Fri
+    if(dw<2||dw>5)return false;
+    // Check 2 consecutive: prev or next day is also a mid-week extra WO
+    const prev1=isMidWeekExtraWO(d-1,testExtra);
+    const next1=isMidWeekExtraWO(d+1,testExtra);
+    if(prev1||next1)return true;
+    // Check 3 consecutive: two days before or after
+    const prev2=isMidWeekExtraWO(d-2,testExtra);
+    const next2=isMidWeekExtraWO(d+2,testExtra);
+    if(prev1&&prev2)return true; // d-2, d-1, d
+    if(next1&&next2)return true; // d, d+1, d+2
+    if(prev1&&next1)return true; // d-1, d, d+1
+    return false;
   }
 
   // L0 agents
   const l0Agents=AG.filter(a=>a.level===0);
 
-  // L0 same-day rule: on any weekday (Mon-Fri), at most 1 L0 can have extra weekday WO
-  // Sundays are universal WO for all — not affected. Sat WO is per-agent config — not affected.
+  // L0 rules:
+  // - All weekdays (Mon-Fri): at most 1 L0 on WO per day
+  // - Mid-week Tue/Wed/Thu: minimum 2 L0s must remain working → at most (l0Agents.length-2) on WO
   function l0LeaveBlock(agent,day,currentEW){
     if(agent.level!==0)return false;
-    // Only applies to weekday extra WOs (dow 1-5)
-    if(dow[day]===0||dow[day]===6)return false;
-    // Check if any other L0 already has extra WO on this day
-    const anotherL0AlreadyWO=l0Agents.some(a=>a.name!==agent.name&&(currentEW[a.name]||[]).includes(day));
-    return anotherL0AlreadyWO; // block if any other L0 already has WO today
+    if(dow[day]===0||dow[day]===6)return false; // Sundays/Sats not affected
+    // Count how many L0s already have extra WO on this day
+    const l0WOCount=l0Agents.filter(a=>a.name!==agent.name&&(currentEW[a.name]||[]).includes(day)).length;
+    // Basic rule: at most 1 L0 on WO per weekday
+    if(l0WOCount>=1)return true;
+    // Mid-week extra rule (Tue/Wed/Thu): ensure at least 2 L0s remain working
+    // l0 on leave that day don't count as "available", so available = total - on_leave - on_WO
+    if(dow[day]>=2&&dow[day]<=4){ // Tue=2,Wed=3,Thu=4
+      const l0OnLeave=l0Agents.filter(a=>agLv[a.name].has(day)).length;
+      const l0AlreadyWO=l0WOCount; // others already assigned WO
+      const l0Available=l0Agents.length-l0OnLeave-l0AlreadyWO-1; // -1 for this agent if assigned
+      if(l0Available<2)return true; // would leave fewer than 2 L0s working
+    }
+    return false;
   }
 
   // ── PHASE 1: Fixed WO days ───────────────────────────────────────────
   for(const day of [...allFWDays].sort((a,b)=>a-b)){
     if(blockDay2&&day===2)continue;
     let fAgents=AG.filter(a=>agFW[a.name].has(day)&&!agLv[a.name].has(day)&&ew[a.name].length<qt[a.name]&&!ew[a.name].includes(day)&&!w3(a,day,ew[a.name]));
-    // L0 hard rule: on weekdays, at most 1 L0 can have extra WO on the same day (Sunday excepted)
+    // L0 hard rule: on weekdays, at most 1 L0 on WO; on Tue/Wed/Thu min 2 L0 must remain working
     if(dow[day]!==0&&dow[day]!==6){
-      let l0count=0;
-      fAgents=fAgents.filter(a=>{if(a.level===0){if(l0count>=1)return false;l0count++;} return true;});
+      fAgents=fAgents.filter(a=>{
+        if(a.level!==0)return true;
+        return !l0LeaveBlock(a,day,ew);
+      });
     }
     for(const a of fAgents){ew[a.name].push(day);dWO[day]=(dWO[day]||0)+1}
     const pairs=[];for(let i=0;i<fAgents.length;i+=2)if(fAgents[i+1])pairs.push([fAgents[i],fAgents[i+1]]);
