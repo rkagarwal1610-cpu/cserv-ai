@@ -628,7 +628,6 @@ input,select,button,textarea{font-family:'Outfit',sans-serif}
   <div id="perf-agents-err" class="auth-err" style="margin-top:10px;display:none"></div>
   <div class="mft">
     <button class="btn btn-g" onclick="closeM('m-perf-agents')">Cancel</button>
-    <button class="btn btn-r" style="font-size:12px" onclick="resetPerfConfig()">↺ Reset Defaults</button>
     <button class="btn btn-p" id="perf-save-agents-btn">💾 Save Agents</button>
   </div>
 </div></div>
@@ -1283,7 +1282,7 @@ function compute(){
     if(!testExtra.includes(d))return false;
     if(d<1||d>days[days.length-1])return false;
     const dw=dow[d]||new Date(yr,mo,d).getDay();
-    return dw>=2&&dw<=5&&!agSatWO[a.name]?.has(d); // Tue-Fri extra weekday WO
+    return dw>=2&&dw<=5; // Tue-Fri extra weekday WO
   }
   function w3(a,d,extraWOs){
     const testExtra=[...extraWOs,d];
@@ -1551,11 +1550,9 @@ function buildPerfPage() {
           ondragleave="this.style.borderColor='';this.style.background=''"
           ondrop="event.preventDefault();this.style.borderColor='';this.style.background='';handlePerfFileDrop(event)">
           <div style="font-size:28px;margin-bottom:8px">📂</div>
-          <div id="perf-file-name" style="font-size:12px;color:var(--cyan);margin-bottom:6px;min-height:16px"></div>
           <div style="font-size:13px;color:var(--ink2)">Drag & drop your file here or</div>
-          <button class="btn btn-g" style="margin-top:10px" onclick="document.getElementById('perfFileInput').click()">Browse File</button>
+          <button class="btn btn-p" style="margin-top:10px" onclick="document.getElementById('perfFileInput').click()">Browse File</button>
         </div>
-        <button class="btn btn-p" id="perf-generate-btn" style="width:100%;margin-bottom:12px;display:none" onclick="submitPerfFilePending()">⚡ Generate Report</button>
         <div id="perf-upload-err" class="alrt aerr" style="display:none;text-align:left"></div>
         <div id="perf-upload-loading" style="display:none;text-align:center;color:var(--cyan);font-size:13px;padding:8px">
           <div class="sp" style="display:inline-block;margin-right:8px;border-top-color:var(--cyan)"></div> Processing…
@@ -1585,11 +1582,11 @@ function buildPerfPage() {
       <div style="display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:20px" id="perf-charts-row">
         <div style="background:var(--l1);border:1px solid var(--rim);border-radius:12px;padding:16px">
           <div style="font-size:12px;font-weight:700;color:var(--ink2);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px">Processed vs Target — L1 Agents</div>
-          <div id="perf-bar-chart" style="width:100%;height:220px;overflow:hidden"></div>
+          <div style="position:relative;height:220px"><canvas id="perf-bar-chart"></canvas></div>
         </div>
         <div style="background:var(--l1);border:1px solid var(--rim);border-radius:12px;padding:16px">
           <div style="font-size:12px;font-weight:700;color:var(--ink2);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px">Priority Breakdown</div>
-          <div id="perf-pie-chart" style="width:100%;height:220px;overflow:hidden"></div>
+          <div style="position:relative;height:220px"><canvas id="perf-pie-chart"></canvas></div>
         </div>
       </div>
 
@@ -1630,29 +1627,15 @@ function buildPerfPage() {
   </div>`;
 }
 
-let _pendingPerfFile = null;
-
 function handlePerfFileDrop(e) {
   const file = e.dataTransfer.files[0];
   if (!file) return;
-  setPendingPerfFile(file);
+  submitPerfFile(file);
 }
 function handlePerfFile(input) {
   if (!input.files[0]) return;
-  setPendingPerfFile(input.files[0]);
+  submitPerfFile(input.files[0]);
   input.value = '';
-}
-function setPendingPerfFile(file) {
-  _pendingPerfFile = file;
-  const nm = document.getElementById('perf-file-name');
-  if (nm) nm.textContent = '📄 ' + file.name;
-  const btn = document.getElementById('perf-generate-btn');
-  if (btn) btn.style.display = 'block';
-  document.getElementById('perf-upload-err').style.display = 'none';
-}
-function submitPerfFilePending() {
-  if (!_pendingPerfFile) { return; }
-  submitPerfFile(_pendingPerfFile);
 }
 
 async function submitPerfFile(file) {
@@ -1693,11 +1676,6 @@ function perfUploadNew() {
   Object.values(_perfCharts).forEach(c => { try { c.destroy(); } catch {} });
   _perfCharts = {};
   _perfData = null;
-  _pendingPerfFile = null;
-  const nm = document.getElementById('perf-file-name');
-  if (nm) nm.textContent = '';
-  const btn = document.getElementById('perf-generate-btn');
-  if (btn) btn.style.display = 'none';
 }
 
 function renderPerfDashboard(d) {
@@ -1713,17 +1691,16 @@ function renderPerfDashboard(d) {
   const l1 = d.agentRows.filter(r => r.role === 'L1');
   const l2 = d.agentRows.filter(r => r.role === 'L2');
   const hitters = l1.filter(r => r.hitTarget === true).length;
-  const totalL1Proc = d.totals.processed; // totals is L1-only
-  const totalL2Proc = l2.reduce((s, r) => s + (r.processed || 0), 0);
+  const totalL1Proc = d.totals.processed;
   const kpis = [
-    { label: 'Total Inward',        val: d.totalInward || 0,              color: 'var(--amber)',  icon: '📥' },
-    { label: 'Closing Unresolved',  val: d.closingUnresolved || 0,        color: 'var(--rose)',   icon: '⚠' },
-    { label: 'L1 Total Processed',  val: totalL1Proc,                     color: 'var(--em)',     icon: '✅' },
-    { label: 'L1 Hit Target',       val: hitters + ' / ' + l1.length,     color: '#a78bfa',       icon: '🎯' },
-    { label: 'High Priority (L1)',  val: d.totals.high || 0,              color: '#f97316',       icon: '🔴' },
-    { label: 'Urgent Priority (L1)',val: d.totals.urgent || 0,            color: '#ef4444',       icon: '🚨' },
-    { label: 'L2 Processed',        val: totalL2Proc,                     color: '#a78bfa',       icon: '🔧' },
-    { label: 'Team Processed',      val: d.teamProcessed,                 color: 'var(--cyan)',   icon: '🔄' },
+    { label: 'Team Processed',   val: d.teamProcessed,      color: 'var(--cyan)',   icon: '🔄' },
+    { label: 'Total Inward',     val: d.totalInward || 0,   color: 'var(--amber)',  icon: '📥' },
+    { label: 'Closing Unresolved', val: d.closingUnresolved||0, color: 'var(--rose)', icon: '⚠' },
+    { label: 'L1 Total Processed', val: totalL1Proc,         color: 'var(--em)',    icon: '✅' },
+    { label: 'L1 Hit Target',    val: hitters + ' / ' + l1.length, color: '#a78bfa', icon: '🎯' },
+    { label: 'High Priority',    val: d.totals.high || 0,   color: '#f97316',       icon: '🔴' },
+    { label: 'Urgent Priority',  val: d.totals.urgent || 0, color: '#ef4444',       icon: '🚨' },
+    { label: 'L2 Agents',        val: l2.length,            color: '#a78bfa',       icon: '🔧' },
   ];
   document.getElementById('perf-kpis').innerHTML = kpis.map(k => `
     <div style="background:var(--l1);border:1px solid var(--rim);border-radius:10px;padding:12px 14px;position:relative;overflow:hidden">
@@ -1735,20 +1712,8 @@ function renderPerfDashboard(d) {
 
   // Table
   const tbody = document.getElementById('perf-table-body');
-  // Build rows with L1/L2 section headers
-  const l1Rows = d.agentRows.filter(r => r.role === 'L1');
-  const l2Rows = d.agentRows.filter(r => r.role === 'L2');
-  const sectionHeader = (label, color) =>
-    `<tr><td colspan="9" style="padding:8px 14px 4px;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:${color};border-top:2px solid ${color}20;background:${color}08">${label}</td></tr>`;
-  const allRows = [
-    { _isSectionHeader: true, label: '── L1 Agents', color: 'var(--em)' },
-    ...l1Rows,
-    { ...d.totals, _isTotal: true },
-    ...(l2Rows.length ? [{ _isSectionHeader: true, label: '── L2 Agents', color: '#a78bfa' }] : []),
-    ...l2Rows,
-  ];
+  const allRows = [...d.agentRows, { ...d.totals, _isTotal: true }];
   tbody.innerHTML = allRows.map(r => {
-    if (r._isSectionHeader) return sectionHeader(r.label, r.color);
     const isTotal = r._isTotal;
     const isL2 = r.role === 'L2';
     let rowBg = '';
@@ -1792,116 +1757,84 @@ function renderPerfDashboard(d) {
 
   // Footer summary
   document.getElementById('perf-footer-row').innerHTML = [
-    { label: 'Total Inward',            val: d.totalInward || 0,      color: 'var(--amber)' },
-    { label: 'Closing Unresolved (L1)', val: d.closingUnresolved||0,  color: 'var(--rose)' },
-    { label: 'L1 Total Processed',      val: d.totals.processed,      color: 'var(--em)' },
-    { label: 'L2 Total Processed',      val: totalL2Proc,             color: '#a78bfa' },
-    { label: 'Team Processed',          val: d.teamProcessed,         color: 'var(--cyan)' },
+    { label: 'Team Processed',      val: d.teamProcessed,         color: 'var(--cyan)' },
+    { label: 'Total Inward',         val: d.totalInward || 0,      color: 'var(--amber)' },
+    { label: 'Closing Unresolved (L1)', val: d.closingUnresolved||0, color: 'var(--rose)' },
   ].map(f => `<div style="background:var(--l1);border:1px solid var(--rim);border-radius:10px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between">
     <div style="font-size:12px;color:var(--ink2)">${f.label}</div>
     <div style="font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:700;color:${f.color}">${f.val}</div>
   </div>`).join('');
 
-  renderPerfCharts(d);
+  // Charts (destroy old first)
+  Object.values(_perfCharts).forEach(c => { try { c.destroy(); } catch {} });
+  _perfCharts = {};
+  setTimeout(() => renderPerfCharts(d), 80);
 }
 
 function renderPerfCharts(d) {
+  if (typeof Chart === 'undefined') return; // Chart.js not loaded yet
+
   const l1 = d.agentRows.filter(r => r.role === 'L1');
-  const isDark = !document.documentElement.dataset.theme ||
-    ['dark','ocean','forest','sunset'].includes(document.documentElement.dataset.theme || 'dark');
+  const isDark = !document.documentElement.dataset.theme || document.documentElement.dataset.theme === 'dark'
+    || ['dark','ocean','forest','sunset'].includes(document.documentElement.dataset.theme || 'dark');
+  const txtColor = isDark ? 'rgba(188,205,224,.7)' : 'rgba(45,63,90,.7)';
+  const gridColor = isDark ? 'rgba(30,45,69,.6)' : 'rgba(203,213,224,.5)';
 
-  // ── Pure SVG bar chart — zero dependency on DOM size measurement ─────
-  (function drawBar() {
-    const el = document.getElementById('perf-bar-chart');
-    if (!el || !l1.length) return;
-    const W = 900, H = 210, padL = 34, padR = 12, padT = 20, padB = 56;
-    const chartW = W - padL - padR, chartH = H - padT - padB;
-    const maxVal = Math.max(...l1.map(r => Math.max(r.processed || 0, r.target || 0)), 1);
-    const gap    = chartW / l1.length;
-    const barW   = Math.min(Math.floor(gap * 0.55), 40);
-    const tc = isDark ? 'rgba(188,205,224,.7)' : 'rgba(45,63,90,.7)';
-    const gc = isDark ? 'rgba(255,255,255,.06)' : 'rgba(0,0,0,.07)';
-
-    let gridLines = '', yLabels = '', bars = '', xLabels = '', tpts = [];
-    for (let i = 0; i <= 5; i++) {
-      const v = Math.round(maxVal * i / 5);
-      const y = padT + chartH - (chartH * i / 5);
-      gridLines += `<line x1="${padL}" y1="${y.toFixed(1)}" x2="${W-padR}" y2="${y.toFixed(1)}" stroke="${gc}" stroke-width="1"/>`;
-      yLabels   += `<text x="${padL-4}" y="${(y+4).toFixed(1)}" text-anchor="end" font-size="9" fill="${tc}">${v}</text>`;
-    }
-    l1.forEach((r, i) => {
-      const cx  = padL + i * gap + gap / 2;
-      const bh  = chartH * (r.processed || 0) / maxVal;
-      const by  = padT + chartH - bh;
-      const col = r.hitTarget ? 'rgba(34,197,94,.8)' : 'rgba(0,212,255,.72)';
-      const ty  = padT + chartH - chartH * (r.target || 0) / maxVal;
-      bars    += `<rect x="${(cx-barW/2).toFixed(1)}" y="${by.toFixed(1)}" width="${barW}" height="${Math.max(bh,0).toFixed(1)}" fill="${col}" rx="3"><title>${r.name}: processed ${r.processed}${r.target?' / target '+r.target:''}</title></rect>`;
-      xLabels += `<text x="${cx.toFixed(1)}" y="${H-4}" text-anchor="end" font-size="8.5" fill="${tc}" transform="rotate(-38,${cx.toFixed(1)},${H-4})">${r.name.split(' ')[0]}</text>`;
-      tpts.push([cx, ty]);
-    });
-    let tline = '';
-    if (tpts.length > 1) {
-      tline = `<polyline points="${tpts.map(p=>p.map(v=>v.toFixed(1)).join(',')).join(' ')}" fill="none" stroke="rgba(255,184,48,.9)" stroke-width="2" stroke-dasharray="5,3"/>`;
-      tpts.forEach(([x,y]) => { tline += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.5" fill="rgba(255,184,48,1)"/>`; });
-    }
-    const leg = `<rect x="${padL}" y="4" width="10" height="10" fill="rgba(0,212,255,.72)" rx="2"/><text x="${padL+14}" y="13" font-size="9" fill="${tc}">Processed</text><line x1="${padL+86}" y1="9" x2="${padL+100}" y2="9" stroke="rgba(255,184,48,.9)" stroke-width="2" stroke-dasharray="4,2"/><circle cx="${padL+93}" cy="9" r="3" fill="rgba(255,184,48,1)"/><text x="${padL+106}" y="13" font-size="9" fill="${tc}">Target</text>`;
-    el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:100%">${gridLines}${yLabels}${bars}${tline}${xLabels}${leg}</svg>`;
-  })();
-
-  // ── Pure SVG donut chart ─────────────────────────────────────────────
-  (function drawDonut() {
-    const el = document.getElementById('perf-pie-chart');
-    if (!el) return;
-    const hi = d.totals.high || 0, ur = d.totals.urgent || 0;
-    const no = Math.max(0, (d.totals.resolved || 0) - hi - ur);
-    const total = no + hi + ur;
-    const cols  = ['rgba(0,212,255,.9)', 'rgba(249,115,22,.9)', 'rgba(239,68,68,.9)'];
-    const labs  = ['Normal', 'High', 'Urgent'];
-    const vals  = [no, hi, ur];
-    const tc    = isDark ? 'rgba(188,205,224,.75)' : 'rgba(45,63,90,.75)';
-    const bg    = isDark ? '#0a1120' : '#ffffff';
-    const cx=95, cy=100, R=75, ri=46;
-    let arcs = '';
-    if (total === 0) {
-      arcs = `<circle cx="${cx}" cy="${cy}" r="${R}" fill="rgba(40,60,90,.3)"/><circle cx="${cx}" cy="${cy}" r="${ri}" fill="${bg}"/><text x="${cx}" y="${cy+5}" text-anchor="middle" font-size="11" fill="${tc}">No data</text>`;
-    } else {
-      let a = -Math.PI/2;
-      vals.forEach((v, i) => {
-        if (!v) return;
-        const sw = (v/total)*2*Math.PI, lg = sw > Math.PI ? 1 : 0;
-        const x1=cx+R*Math.cos(a), y1=cy+R*Math.sin(a), x2=cx+R*Math.cos(a+sw), y2=cy+R*Math.sin(a+sw);
-        const xi1=cx+ri*Math.cos(a), yi1=cy+ri*Math.sin(a), xi2=cx+ri*Math.cos(a+sw), yi2=cy+ri*Math.sin(a+sw);
-        arcs += `<path d="M${x1.toFixed(2)},${y1.toFixed(2)} A${R},${R} 0 ${lg} 1 ${x2.toFixed(2)},${y2.toFixed(2)} L${xi2.toFixed(2)},${yi2.toFixed(2)} A${ri},${ri} 0 ${lg} 0 ${xi1.toFixed(2)},${yi1.toFixed(2)} Z" fill="${cols[i]}" stroke="${bg}" stroke-width="2"><title>${labs[i]}: ${v} (${Math.round(v/total*100)}%)</title></path>`;
-        if (v/total > 0.08) {
-          const ma=a+sw/2, mr=(R+ri)/2;
-          arcs += `<text x="${(cx+mr*Math.cos(ma)).toFixed(1)}" y="${(cy+mr*Math.sin(ma)+4).toFixed(1)}" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">${Math.round(v/total*100)}%</text>`;
+  // Bar chart: processed vs target for L1 agents
+  const barCtx = document.getElementById('perf-bar-chart');
+  if (barCtx) {
+    _perfCharts.bar = new Chart(barCtx, {
+      type: 'bar',
+      data: {
+        labels: l1.map(r => r.name.split(' ')[0]),
+        datasets: [
+          { label: 'Processed', data: l1.map(r => r.processed),
+            backgroundColor: l1.map(r => r.hitTarget ? 'rgba(34,197,94,.7)' : 'rgba(0,212,255,.6)'),
+            borderRadius: 4, borderSkipped: false },
+          { label: 'Target', data: l1.map(r => r.target || 0),
+            type: 'line', borderColor: 'rgba(255,184,48,.8)', borderWidth: 2,
+            pointBackgroundColor: 'rgba(255,184,48,.9)', pointRadius: 3,
+            fill: false, tension: 0 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: txtColor, font: { size: 10 } } }, tooltip: { mode: 'index' } },
+        scales: {
+          x: { ticks: { color: txtColor, font: { size: 9 } }, grid: { color: gridColor } },
+          y: { ticks: { color: txtColor, font: { size: 9 } }, grid: { color: gridColor }, beginAtZero: true }
         }
-        a += sw;
-      });
-      arcs += `<circle cx="${cx}" cy="${cy}" r="${ri}" fill="${bg}"/><text x="${cx}" y="${cy-3}" text-anchor="middle" font-size="13" font-weight="700" fill="${tc}">${total}</text><text x="${cx}" y="${cy+13}" text-anchor="middle" font-size="8" fill="${tc}">L1 total</text>`;
-    }
-    let legY = 38;
-    const legend = vals.map((v,i) => {
-      const pct = total > 0 ? Math.round(v/total*100) : 0;
-      const s = `<rect x="188" y="${legY-9}" width="10" height="10" fill="${cols[i]}" rx="2"/><text x="202" y="${legY}" font-size="10" fill="${tc}">${labs[i]}</text><text x="290" y="${legY}" text-anchor="end" font-size="10" font-weight="700" fill="${cols[i]}">${v} · ${pct}%</text>`;
-      legY += 28; return s;
-    }).join('');
-    el.innerHTML = `<svg viewBox="0 0 300 200" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:100%">${arcs}${legend}</svg>`;
-  })();
+      }
+    });
+  }
+
+  // Pie chart: priority breakdown
+  const pieCtx = document.getElementById('perf-pie-chart');
+  if (pieCtx) {
+    const normal = (d.totals.resolved || 0) - (d.totals.high || 0) - (d.totals.urgent || 0);
+    _perfCharts.pie = new Chart(pieCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Normal', 'High Priority', 'Urgent'],
+        datasets: [{
+          data: [Math.max(0, normal), d.totals.high || 0, d.totals.urgent || 0],
+          backgroundColor: ['rgba(0,212,255,.7)', 'rgba(249,115,22,.75)', 'rgba(239,68,68,.75)'],
+          borderColor: isDark ? 'rgba(13,21,38,.6)' : 'rgba(255,255,255,.8)',
+          borderWidth: 2, hoverOffset: 6
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        cutout: '60%',
+        plugins: {
+          legend: { position: 'bottom', labels: { color: txtColor, font: { size: 10 }, padding: 10 } }
+        }
+      }
+    });
+  }
 }
 
 // ── Agent Editor modal ──────────────────────────────────────────────────────
-async function resetPerfConfig() {
-  if (!confirm('Reset all agents/targets to system defaults? This cannot be undone.')) return;
-  try {
-    const cfg = await api('DELETE', '/api/perf/config');
-    _perfCfg = cfg.config;
-    const agents = (_perfCfg.agents || []).slice().sort((a, b) => (a.sort||9999)-(b.sort||9999));
-    renderPerfAgentRows(agents.map(a => ({ ...a })));
-    toast('Reset to defaults', 'ok');
-  } catch(e) { toast('Reset failed: ' + e.message, 'err'); }
-}
-
 async function openPerfAgentEditor() {
   // Load config from server
   try {
@@ -1985,20 +1918,9 @@ function downloadPerfReport() {
 function buildStandalonePerfHTML(d) {
   const l1 = d.agentRows.filter(r => r.role === 'L1');
   const fmtN = v => (v === null || v === undefined || v === '') ? '—' : v;
-  const l1AgentRows = d.agentRows.filter(r => r.role === 'L1');
-  const l2AgentRows = d.agentRows.filter(r => r.role === 'L2');
-  const secHdr = (label, color) =>
-    `<tr><td colspan="9" style="padding:7px 14px 4px;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:${color};border-top:2px solid ${color}30;background:${color}10">${label}</td></tr>`;
-  const rows = [
-    { _sec: true, label: '── L1 Agents', color: '#00e5a0' },
-    ...l1AgentRows,
-    { ...d.totals, _isTotal: true },
-    ...(l2AgentRows.length ? [{ _sec: true, label: '── L2 Agents', color: '#a78bfa' }] : []),
-    ...l2AgentRows,
-  ];
+  const rows = [...d.agentRows, { ...d.totals, _isTotal: true }];
 
   const tableRows = rows.map(r => {
-    if (r._sec) return secHdr(r.label, r.color);
     const isTotal = r._isTotal;
     const isL2 = r.role === 'L2';
     const bg = isTotal ? '#1a2535' : isL2 ? 'rgba(167,139,250,.06)' : '';
@@ -2024,29 +1946,20 @@ function buildStandalonePerfHTML(d) {
     </tr>`;
   }).join('');
 
-  const l2AgentRowsX = d.agentRows.filter(r => r.role === 'L2');
-  const totalL2ProcX = l2AgentRowsX.reduce((s, r) => s + (r.processed || 0), 0);
-  const l1HittersX = d.agentRows.filter(r => r.role === 'L1' && r.hitTarget === true).length;
-  const l1CountX   = d.agentRows.filter(r => r.role === 'L1').length;
   const kpiData = [
-    {l:'Total Inward',           v:d.totalInward||0,              c:'#ffb830'},
-    {l:'Closing Unresolved',     v:d.closingUnresolved||0,        c:'#ff3d5a'},
-    {l:'L1 Total Processed',     v:d.totals.processed,            c:'#00e5a0'},
-    {l:'L1 Hit Target',          v:l1HittersX+' / '+l1CountX,     c:'#a78bfa'},
-    {l:'High Priority (L1)',     v:d.totals.high||0,              c:'#f97316'},
-    {l:'Urgent Priority (L1)',   v:d.totals.urgent||0,            c:'#ef4444'},
-    {l:'L2 Processed',           v:totalL2ProcX,                  c:'#a78bfa'},
-    {l:'Team Processed',         v:d.teamProcessed,               c:'#00d4ff'},
+    {l:'Team Processed',v:d.teamProcessed,c:'#00d4ff'},
+    {l:'Total Inward',v:d.totalInward||0,c:'#ffb830'},
+    {l:'Closing Unresolved',v:d.closingUnresolved||0,c:'#ff3d5a'},
+    {l:'L1 Processed',v:d.totals.processed,c:'#00e5a0'},
+    {l:'High Priority',v:d.totals.high||0,c:'#f97316'},
+    {l:'Urgent Priority',v:d.totals.urgent||0,c:'#ef4444'},
   ];
 
   const barLabels = JSON.stringify(l1.map(r=>r.name.split(' ')[0]));
   const barProc   = JSON.stringify(l1.map(r=>r.processed));
   const barTarget = JSON.stringify(l1.map(r=>r.target||0));
   const barColors = JSON.stringify(l1.map(r=>r.hitTarget?'rgba(34,197,94,.7)':'rgba(0,212,255,.6)'));
-  const _l1High   = d.totals.high   || 0;
-  const _l1Urgent = d.totals.urgent || 0;
-  const _l1Normal = Math.max(0, (d.totals.resolved || 0) - _l1High - _l1Urgent);
-  const pieNormal = _l1Normal; // L1 only
+  const pieNormal = Math.max(0,(d.totals.resolved||0)-(d.totals.high||0)-(d.totals.urgent||0));
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -2116,30 +2029,10 @@ h1{font-size:22px;font-weight:800;color:#f2f8ff;letter-spacing:-.5px}
   <div class="stamp">Generated by C-Serv.AI · ${new Date().toLocaleString()}</div>
 </div>
 <script>
-window.addEventListener('load',function(){
-  var tc='rgba(188,205,224,.7)',gc='rgba(30,45,69,.6)';
-  var bc=document.getElementById('bc');
-  if(bc){
-    var pw=bc.parentElement.offsetWidth||700;
-    bc.width=pw; bc.height=200; bc.style.width=pw+'px'; bc.style.height='200px';
-    new Chart(bc,{type:'bar',data:{labels:${barLabels},datasets:[
-      {label:'Processed',data:${barProc},backgroundColor:${barColors},borderRadius:5,borderSkipped:false,barPercentage:0.65},
-      {label:'Target',data:${barTarget},type:'line',borderColor:'rgba(255,184,48,.9)',borderWidth:2,borderDash:[4,3],pointBackgroundColor:'rgba(255,184,48,1)',pointRadius:4,fill:false,tension:0.3}
-    ]},options:{responsive:false,animation:{duration:500},plugins:{legend:{labels:{color:tc,font:{size:10},padding:12}}},
-    scales:{x:{ticks:{color:tc,font:{size:9},maxRotation:40},grid:{color:gc}},y:{ticks:{color:tc,font:{size:9}},grid:{color:gc},beginAtZero:true}}}});
-  }
-  var pc=document.getElementById('pc');
-  if(pc){
-    var pw2=pc.parentElement.offsetWidth||320;
-    pc.width=pw2; pc.height=200; pc.style.width=pw2+'px'; pc.style.height='200px';
-    new Chart(pc,{type:'doughnut',data:{labels:['Normal','High','Urgent'],datasets:[{
-      data:[${pieNormal},${d.totals.high||0},${d.totals.urgent||0}],
-      backgroundColor:['rgba(0,212,255,.75)','rgba(249,115,22,.8)','rgba(239,68,68,.8)'],
-      borderColor:'#0d1526',borderWidth:2,hoverOffset:8}]},
-    options:{responsive:false,animation:{duration:500},cutout:'62%',
-    plugins:{legend:{position:'bottom',labels:{color:tc,font:{size:10},padding:12,boxWidth:12}}}}});
-  }
-});
+const bc=document.getElementById('bc');
+if(bc){new Chart(bc,{type:'bar',data:{labels:${barLabels},datasets:[{label:'Processed',data:${barProc},backgroundColor:${barColors},borderRadius:4},{label:'Target',data:${barTarget},type:'line',borderColor:'rgba(255,184,48,.8)',borderWidth:2,pointBackgroundColor:'rgba(255,184,48,.9)',fill:false,tension:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'rgba(188,205,224,.7)',font:{size:10}}}},scales:{x:{ticks:{color:'rgba(188,205,224,.7)',font:{size:9}},grid:{color:'rgba(30,45,69,.6)'}},y:{ticks:{color:'rgba(188,205,224,.7)',font:{size:9}},grid:{color:'rgba(30,45,69,.6)'},beginAtZero:true}}}})}
+const pc=document.getElementById('pc');
+if(pc){new Chart(pc,{type:'doughnut',data:{labels:['Normal','High','Urgent'],datasets:[{data:[${pieNormal},${d.totals.high||0},${d.totals.urgent||0}],backgroundColor:['rgba(0,212,255,.7)','rgba(249,115,22,.75)','rgba(239,68,68,.75)'],borderColor:'rgba(13,21,38,.6)',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom',labels:{color:'rgba(188,205,224,.7)',font:{size:10},padding:10}}}}})}
 <\/script>
 </body></html>`;
 }
