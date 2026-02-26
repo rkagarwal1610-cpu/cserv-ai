@@ -1593,7 +1593,7 @@ function bSum(r,tid){
     ? `<thead><tr><th>S#</th><th>Emp#</th><th>Name</th><th>Level</th><th>WO Days</th><th>Leave Days</th><th>Working Days</th></tr></thead><tbody>`
     : `<thead><tr><th>S#</th><th>Emp#</th><th>Name</th><th>WO Days</th><th>Leave Days</th><th>Working Days</th></tr></thead><tbody>`;
   r.agents.forEach((a,ri)=>{
-    const wo=r.days.filter(d=>r.sc[a.name]?.[d]==='WO').length;
+    const wo=r.days.filter(d=>{const v=r.sc[a.name]?.[d];return v==='WO'||v==='SW';}).length;
     const lv=r.days.filter(d=>r.sc[a.name]?.[d]==='LV').length;
     const wk=r.days.length-wo-lv;
     if(showLvl){
@@ -1620,7 +1620,7 @@ function bCompare(){
     const row=[x(a.name),9];
     ROSTERS.forEach(rv=>{
       const sc=rv.sc[a.name]||{};
-      const wo=rv.days.filter(d=>sc[d]==='WO').length;
+      const wo=rv.days.filter(d=>{const v=sc[d];return v==='WO'||v==='SW';}).length;
       row.push(wo);
     });
     woCounts.push(row);
@@ -1628,7 +1628,7 @@ function bCompare(){
 
   // ── Staffing heatmap ────────────────────────────────────────────────
   const workdays=days.filter(d=>dow[d]!==0&&dow[d]!==6&&!holDays.has(d));
-  function staffOn(rv,d){return rv.agents.filter(a=>(rv.sc[a.name]||{})[d]!=='WO').length;}
+  function staffOn(rv,d){return rv.agents.filter(a=>{const v=(rv.sc[a.name]||{})[d];return v!=='WO'&&v!=='SW';}).length;}
   function heatColor(n,total){
     const pct=n/total;
     if(pct>=0.94)return{bg:'#0a2d1a',fg:'#00e5a0'};
@@ -1650,7 +1650,7 @@ function bCompare(){
     <th style="background:var(--l3);color:var(--cyan);padding:6px 8px;text-align:center;font-weight:700">V3</th>
   </tr></thead><tbody>`;
   agents.forEach(a=>{
-    const vos=ROSTERS.map(rv=>{const sc=rv.sc[a.name]||{};return rv.days.filter(d=>sc[d]==='WO').length;});
+    const vos=ROSTERS.map(rv=>{const sc=rv.sc[a.name]||{};return rv.days.filter(d=>{const v=sc[d];return v==='WO'||v==='SW';}).length;});
     const allOk=vos.every(v=>v===9);
     html+=`<tr style="border-bottom:1px solid var(--rim)">
       <td style="padding:5px 10px;color:var(--ink1);font-weight:600">${x(a.name)}</td>
@@ -1662,7 +1662,7 @@ function bCompare(){
     </tr>`;
   });
   // Totals row
-  const totalWOs=ROSTERS.map(rv=>rv.agents.reduce((s,a)=>{const sc=rv.sc[a.name]||{};return s+rv.days.filter(d=>sc[d]==='WO').length;},0));
+  const totalWOs=ROSTERS.map(rv=>rv.agents.reduce((s,a)=>{const sc=rv.sc[a.name]||{};return s+rv.days.filter(d=>{const v=sc[d];return v==='WO'||v==='SW';}).length;},0));
   html+=`<tr style="border-top:2px solid var(--rim)">
     <td style="padding:5px 10px;color:var(--ink3);font-style:italic">Total WOs</td>
     <td style="padding:5px 8px;text-align:center;color:var(--ink3)">${agents.length*9}</td>
@@ -1713,14 +1713,14 @@ function bCompare(){
     <th style="background:var(--l3);color:var(--cyan);padding:6px 12px;text-align:center">V3</th>
   </tr></thead><tbody>`;
   weeks.forEach(({label,days:wds})=>{
-    const woCnts=ROSTERS.map(rv=>wds.reduce((s,d)=>s+rv.agents.filter(a=>(rv.sc[a.name]||{})[d]==='WO').length,0));
+    const woCnts=ROSTERS.map(rv=>wds.reduce((s,d)=>s+rv.agents.filter(a=>{const v=(rv.sc[a.name]||{})[d];return v==='WO'||v==='SW';}).length,0));
     const maxC=Math.max(...woCnts);
     html+=`<tr style="border-bottom:1px solid var(--rim)">
       <td style="padding:5px 10px;color:var(--ink2);font-weight:600">${label}</td>
       ${woCnts.map(c=>`<td style="padding:5px 12px;text-align:center;font-weight:700;color:${c===maxC?'var(--amber)':'var(--ink1)'};">${c}</td>`).join('')}
     </tr>`;
   });
-  const totals=ROSTERS.map(rv=>workdays.reduce((s,d)=>s+rv.agents.filter(a=>(rv.sc[a.name]||{})[d]==='WO').length,0));
+  const totals=ROSTERS.map(rv=>workdays.reduce((s,d)=>s+rv.agents.filter(a=>{const v=(rv.sc[a.name]||{})[d];return v==='WO'||v==='SW';}).length,0));
   html+=`<tr style="border-top:2px solid var(--rim)">
     <td style="padding:5px 10px;color:var(--ink3);font-style:italic">Total</td>
     ${totals.map(t=>`<td style="padding:5px 12px;text-align:center;font-weight:700;color:var(--ink1)">${t}</td>`).join('')}
@@ -2301,7 +2301,7 @@ function doCSV(){
   let csv=`S#,Emp#,Name,Level,Total WO,${r.days.map(d=>`${mn.slice(0,3)}-${d}`).join(',')}\n`;
   r.agents.forEach((a,ri)=>{
     const row=r.days.map(d=>r.sc[a.name]?.[d]==='WO'?'WO':r.sc[a.name]?.[d]==='LV'?'LV':'ROI');
-    csv+=`${ri+1},${a.emp},"${a.name}",L${a.level},${row.filter(v=>v==='WO').length},${row.join(',')}\n`;
+    csv+=`${ri+1},${a.emp},"${a.name}",L${a.level},${row.filter(v=>v==='WO'||v==='SW').length},${row.join(',')}\n`;
   });
   dl(new Blob([csv],{type:'text/csv'}),`Roster_${mn}_${r.yr}.csv`);
 }
