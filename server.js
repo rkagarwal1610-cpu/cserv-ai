@@ -719,7 +719,7 @@ app.post('/api/shortleaves', perm('shortleave','apply'), (req,res)=>{
   if(!halfDay||!['1st Half','2nd Half'].includes(halfDay)) return res.status(400).json({error:'Select 1st Half or 2nd Half'});
   const rd=requestDate||new Date().toISOString().slice(0,10);
   const slMonth=shortLeaveDate.slice(0,7);
-  const monthCount=d.shortLeaves.filter(sl=>sl.agentId===u.id&&sl.shortLeaveDate.slice(0,7)===slMonth&&sl.status!=='Cancelled').length;
+  const monthCount=d.shortLeaves.filter(sl=>sl.agentId===u.id&&sl.shortLeaveDate.slice(0,7)===slMonth&&sl.status!=='Cancelled'&&sl.status!=='Rejected').length;
   if(monthCount>=(d.rules.shortLeaveMonthlyLimit||3)) return res.status(400).json({error:`Monthly limit reached for ${slMonth}`});
   const isUnplanned=rd>=shortLeaveDate;
   const sl={
@@ -777,7 +777,7 @@ app.post('/api/users', isAdm, (req,res)=>{
   const d=load(); const {username,password,name,role,permissions}=req.body;
   if(!username||!password||!name) return res.status(400).json({error:'All fields required'});
   if(typeof username!=='string'||!/^[a-z0-9._-]{3,32}$/.test(username.trim().toLowerCase())) return res.status(400).json({error:'Username: 3-32 chars, letters/numbers/._- only'});
-  if(password.length<8) return res.status(400).json({error:'Password must be 8+ characters'});
+  // No minimum password length enforced server-side
   if(role&&!['admin','operator'].includes(role)) return res.status(400).json({error:'Role must be admin or operator'});
   if(d.users.find(u=>u.username===username.trim().toLowerCase())) return res.status(400).json({error:'Username taken'});
   const creator=req.session.user;
@@ -805,7 +805,7 @@ app.put('/api/users/:id/password', auth, (req,res)=>{
   const d=load(); const u=req.session.user; const tid=+req.params.id;
   if(u.role!=='superadmin'&&u.id!==tid) return res.status(403).json({error:'Cannot change others password'});
   const {password}=req.body;
-  if(!password||password.length<6) return res.status(400).json({error:'Min 6 chars'});
+  if(!password) return res.status(400).json({error:'Password required'});
   const i=d.users.findIndex(x=>x.id===tid);
   if(i<0) return res.status(404).json({error:'Not found'});
   d.users[i].password=bcrypt.hashSync(password,10); save(d); res.json({ok:true});

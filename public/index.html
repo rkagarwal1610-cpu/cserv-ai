@@ -486,7 +486,7 @@ input,select,button,textarea{font-family:'Outfit',sans-serif}
   <div class="mh">👤 Add User</div>
   <div class="fg"><label class="fl">Full Name</label><input class="fi" type="text" id="au-name" style="background:var(--l2)"></div>
   <div class="fg"><label class="fl">Username</label><input class="fi" type="text" id="au-user" style="background:var(--l2)"></div>
-  <div class="fg"><label class="fl">Password</label><input class="fi" type="password" id="au-pass" style="background:var(--l2)" placeholder="Min 6 chars"></div>
+  <div class="fg"><label class="fl">Password</label><input class="fi" type="password" id="au-pass" style="background:var(--l2)" placeholder="Enter password"></div>
   <div class="fg"><label class="fl">Role</label><select class="ctrl" id="au-role"><option value="operator">Operator</option><option value="admin">Admin</option></select></div>
   <div id="au-err" class="auth-err"></div>
   <div class="mft"><button class="btn btn-g" onclick="closeM('m-adduser')">Cancel</button><button class="btn btn-p" onclick="createUser()">Create</button></div>
@@ -1275,27 +1275,39 @@ function compute(){
     return false;
   }
 
-  // Returns true if day d is ANY type of WO for agent a given testExtra as the candidate extra-WO list.
-  // Leave days break the chain. Holiday days count as WO (agent is off).
+  // Returns true if day d is ANY type of WO for agent a, given testExtra as candidate extra-WO list.
+  // Leave days break the chain. Holidays count as WO (agent is off).
   function isAgentWODay(a,d,testExtra){
     if(d<1||d>days[days.length-1])return false;
-    if(agLv[a.name].has(d))return false;          // Leave breaks the chain
-    if(dow[d]===0)return true;                     // Sunday always WO
-    if(agSatWO[a.name].has(d))return true;         // Agent's WO Saturday
-    if(holDays.has(d))return true;                 // Holiday counts as WO (agent is off)
-    if(testExtra.includes(d))return true;          // Extra weekday WO
+    if(agLv[a.name].has(d))return false;   // Leave breaks the chain
+    if(dow[d]===0)return true;             // Sunday always WO
+    if(agSatWO[a.name].has(d))return true; // Agent's WO Saturday
+    if(holDays.has(d))return true;         // Holiday = WO
+    if(testExtra.includes(d))return true;  // Extra weekday WO
     return false;
   }
 
-  // Block assignment of extra WO on day d if it would create 3+ consecutive WO days
-  // (checks any combination of Sun/Sat-WO/Holiday/extra-weekday-WO)
+  // Returns true if the pair (d1,d2) is the natural Sat+Sun WO pair — the ONLY allowed 2-consecutive.
+  // A Sat is an agent WO-Saturday AND the next day (Sun) is Sunday. No extra weekday WO involved.
+  function isSatSunPair(a,d1,d2){
+    return agSatWO[a.name].has(d1)&&dow[d1]===6&&dow[d2]===0;
+  }
+
+  // Block assignment of extra WO on day d if it creates ANY 2 consecutive WO days,
+  // EXCEPT the natural Sat(WO)+Sun pair which is always allowed.
   function w3(a,d,extraWOs){
     const testExtra=[...extraWOs,d];
-    // Check all three windows that would create a run of 3 including d
     const w=(x)=>isAgentWODay(a,x,testExtra);
-    return (w(d-2)&&w(d-1))||   // d is the 3rd:  d-2, d-1, d
-           (w(d-1)&&w(d+1))||   // d is the 2nd:  d-1, d, d+1
-           (w(d+1)&&w(d+2));    // d is the 1st:  d, d+1, d+2
+    // Check every adjacent pair that includes d
+    const pairs=[[d-1,d],[d,d+1]];
+    for(const[d1,d2]of pairs){
+      if(w(d1)&&w(d2)){
+        // Allow the natural Sat+Sun pair — that's unavoidable by design
+        if(isSatSunPair(a,d1,d2))continue;
+        return true; // Any other 2-consecutive = block
+      }
+    }
+    return false;
   }
 
   // L0 agents
@@ -2112,7 +2124,7 @@ function renderSLDash(){
   const lim=RULES.shortLeaveMonthlyLimit||3;const now=new Date();const curMon=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
   const agents={};SLS.forEach(sl=>{if(!agents[sl.agentName])agents[sl.agentName]={name:sl.agentName,tot:0,appr:0,reje:0,canc:0,pend:0};agents[sl.agentName].tot++;agents[sl.agentName][{Approved:'appr',Rejected:'reje',Cancelled:'canc',Pending:'pend'}[sl.status]]++});
   const agRows=Object.values(agents).map(a=>{
-    const cu=SLS.filter(sl=>sl.agentName===a.name&&sl.shortLeaveDate.slice(0,7)===curMon&&sl.status!=='Cancelled').length;
+    const cu=SLS.filter(sl=>sl.agentName===a.name&&sl.shortLeaveDate.slice(0,7)===curMon&&sl.status!=='Cancelled'&&sl.status!=='Rejected').length;
     const bal=Math.max(0,lim-cu);
     return '<tr><td style="font-weight:600;color:var(--ink0)">'+x(a.name)+'<\/td><td style="text-align:center">'+a.tot+'<\/td><td style="text-align:center;color:var(--em)">'+a.appr+'<\/td><td style="text-align:center;color:var(--rose)">'+a.reje+'<\/td><td style="text-align:center;color:var(--ink2)">'+a.canc+'<\/td><td style="text-align:center;color:var(--amber)">'+a.pend+'<\/td><td style="text-align:center">'+cu+'<\/td><td style="text-align:center;font-weight:700;color:'+(bal===0?'var(--rose)':'var(--em)')+'">'+bal+'<\/td><\/tr>';
   }).join('')||'<tr><td colspan="8" style="text-align:center;color:var(--ink3);padding:18px">No data<\/td><\/tr>';
@@ -2134,7 +2146,7 @@ function renderSLMy(){
   const el=document.getElementById('sl-my');if(!el)return;
   const my=SLS.filter(s=>s.agentId===ME.id);const lim=RULES.shortLeaveMonthlyLimit||3;
   const now=new Date();const curMon=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
-  const used=my.filter(s=>s.shortLeaveDate.slice(0,7)===curMon&&s.status!=='Cancelled').length;const bal=Math.max(0,lim-used);
+  const used=my.filter(s=>s.shortLeaveDate.slice(0,7)===curMon&&s.status!=='Cancelled'&&s.status!=='Rejected').length;const bal=Math.max(0,lim-used);
   el.innerHTML=''
     +'<div class="kpi-row" style="grid-template-columns:repeat(3,1fr);max-width:380px;margin-bottom:16px">'
     +'<div class="kpi"><div class="kpiv">'+my.length+'<\/div><div class="kpil">My Total<\/div><\/div>'
@@ -2201,7 +2213,7 @@ function openApplySL(){
     document.getElementById('half2-lbl').style.borderColor=document.getElementById('half2').checked?'var(--cyan)':'var(--rim)';
   }});
   const lim=RULES.shortLeaveMonthlyLimit||3;const now=new Date();const curMon=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
-  const used=SLS.filter(s=>s.agentId===ME.id&&s.shortLeaveDate.slice(0,7)===curMon&&s.status!=='Cancelled').length;const bal=Math.max(0,lim-used);
+  const used=SLS.filter(s=>s.agentId===ME.id&&s.shortLeaveDate.slice(0,7)===curMon&&s.status!=='Cancelled'&&s.status!=='Rejected').length;const bal=Math.max(0,lim-used);
   const bi=document.getElementById('sl-bal-info');bi.textContent=`Short leaves this month: ${used}/${lim} used · ${bal} remaining`;bi.style.display='block';
   const btn=document.getElementById('sl-submit-btn');btn.disabled=false;btn.textContent='Submit Request';
   openM('m-applysl');
@@ -2332,7 +2344,7 @@ async function loadUsers(){
 function openAddUser(){['au-name','au-user','au-pass'].forEach(id=>document.getElementById(id).value='');document.getElementById('au-role').value='operator';document.getElementById('au-err').className='auth-err';openM('m-adduser')}
 async function createUser(){
   const n=document.getElementById('au-name').value.trim(),u=document.getElementById('au-user').value.trim(),p=document.getElementById('au-pass').value,r=document.getElementById('au-role').value;
-  if(!n||!u||!p){showErr('au-err','All fields required');return}if(p.length<6){showErr('au-err','Password min 6 chars');return}
+  if(!n||!u||!p){showErr('au-err','All fields required');return}
   const defPerms={operator:{roster:{view:true},shortleave:{view:true,apply:true}},admin:{roster:{view:true,generate:true,save:true,export:true,editAgents:true,editRules:false,approve:true},shortleave:{view:true,approve:true,reject:true,cancel:true,dashboard:true}}};
   try{await api('POST','/api/users',{name:n,username:u,password:p,role:r,permissions:defPerms[r]||{}});closeM('m-adduser');loadUsers();toast('User created','ok')}catch(e){showErr('au-err',e.message)}
 }
