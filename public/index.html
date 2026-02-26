@@ -1243,7 +1243,7 @@ function compute(){
   const allWeekdays=days.filter(d=>dow[d]!==0&&dow[d]!==6&&!holDays.has(d));
   const qt={};
   AG.forEach(a=>{
-    const universalWOCount=suns.length+agSatWO[a.name].size;
+    const sunsOff=suns.filter(d=>!agSHW[a.name].has(d)).length;const universalWOCount=sunsOff+agSatWO[a.name].size;
     const rawQuota=Math.max(0,tgtBase-universalWOCount);
     // Count available non-leave weekdays for this agent
     const availWeekdays=allWeekdays.filter(d=>!agLv[a.name].has(d)).length;
@@ -1322,23 +1322,27 @@ function compute(){
   // L0 agents
   const l0Agents=AG.filter(a=>a.level===0);
 
-  // L0 rules:
-  // - All weekdays (Mon-Fri): at most 1 L0 on WO per day
-  // - Mid-week Tue/Wed/Thu: minimum 2 L0s must remain working → at most (l0Agents.length-2) on WO
-  function l0LeaveBlock(agent,day,currentEW){
+  // L0 rules — two tiers:
+  // HARD (all phases): max 1 L0 WO/day; no L0 WO if another L0 on leave that day
+  // SOFT (Phase 2 only): Tue/Wed/Thu min 2 L0s working
+
+  function l0HardBlock(agent,day,currentEW){
     if(agent.level!==0)return false;
-    if(dow[day]===0||dow[day]===6)return false; // Sundays/Sats not affected
-    // Count how many L0s already have extra WO on this day
+    if(dow[day]===0||dow[day]===6)return false;
     const l0WOCount=l0Agents.filter(a=>a.name!==agent.name&&(currentEW[a.name]||[]).includes(day)).length;
-    // Basic rule: at most 1 L0 on WO per weekday
-    if(l0WOCount>=1)return true;
-    // Mid-week extra rule (Tue/Wed/Thu): ensure at least 2 L0s remain working
-    // l0 on leave that day don't count as "available", so available = total - on_leave - on_WO
-    if(dow[day]>=2&&dow[day]<=4){ // Tue=2,Wed=3,Thu=4
+    if(l0WOCount>=1)return true; // max 1 L0 WO per day
+    const anyL0OnLeave=l0Agents.some(a=>a.name!==agent.name&&agLv[a.name].has(day));
+    if(anyL0OnLeave)return true; // if another L0 on leave, this L0 must cover
+    return false;
+  }
+
+  function l0LeaveBlock(agent,day,currentEW){
+    if(l0HardBlock(agent,day,currentEW))return true;
+    if(dow[day]>=2&&dow[day]<=4){
+      const l0WOCount=l0Agents.filter(a=>a.name!==agent.name&&(currentEW[a.name]||[]).includes(day)).length;
       const l0OnLeave=l0Agents.filter(a=>agLv[a.name].has(day)).length;
-      const l0AlreadyWO=l0WOCount; // others already assigned WO
-      const l0Available=l0Agents.length-l0OnLeave-l0AlreadyWO-1; // -1 for this agent if assigned
-      if(l0Available<2)return true; // would leave fewer than 2 L0s working
+      const l0Available=l0Agents.length-l0OnLeave-l0WOCount-1;
+      if(l0Available<2)return true;
     }
     return false;
   }
@@ -1411,9 +1415,10 @@ function compute(){
     asn[day]=(asn[day]||[]);asn[day].push([a1,a2]);dWO[day]=(dWO[day]||0)+2;
   }
 
-  // ── PHASE 3: Solo pass — all weekdays, l0 rules relaxed ──────────────
+  // ── PHASE 3: Solo pass — soft l0 rules relaxed, hard l0 rules enforced ──
   // For agents still under quota (typically L0 agents who can't form pairs).
-  // Uses ALL weekdays (not just wd[]), respects maxPD cap and w3 consecutive rule.
+  // Uses ALL weekdays. Respects maxPD cap, w3 consecutive rule, AND l0HardBlock.
+  // Relaxes only the soft midweek rule (min 2 L0 working on Tue/Wed/Thu).
   const stillShort=AG.filter(a=>ew[a.name].length<qt[a.name]);
   if(stillShort.length){
     const allWkdays=days.filter(d=>dow[d]!==0&&dow[d]!==6&&!holDays.has(d))
@@ -1426,6 +1431,7 @@ function compute(){
         if(agLv[a.name].has(day))continue;
         if(ew[a.name].includes(day))continue;
         if(w3(a,day,ew[a.name]))continue;
+        if(l0HardBlock(a,day,ew))continue;  // hard L0 rules always enforced
         if((dWO[day]||0)>=maxPD)continue;
         ew[a.name].push(day);dWO[day]=(dWO[day]||0)+1;
         if(!asn[day])asn[day]=[];
@@ -1434,24 +1440,36 @@ function compute(){
   }
 
   // ── PHASE 4: Guarantee pass — quota MUST be met ───────────────────────
-  // Final safety net. Relaxes maxPD AND l0 rules. Still respects w3 (no 3
-  // consecutive WOs). Uses ALL weekdays sorted by load (lightest first).
-  // Only falls back to skipping w3 as absolute last resort per agent.
+  // Final safety net. Relaxes maxPD and soft l0 rules. Enforces hard l0 rules
+  // (max 1 L0/day, no L0 WO if another L0 on leave). Respects w3 first,
+  // falls back to relaxing w3 as absolute last resort only.
   const hardShort=AG.filter(a=>ew[a.name].length<qt[a.name]);
   if(hardShort.length){
     const allWkdays2=days.filter(d=>dow[d]!==0&&dow[d]!==6&&!holDays.has(d))
                          .sort((a,b)=>(dWO[a]||0)-(dWO[b]||0));
     for(const a of hardShort){
-      // First try: respect w3 (no consecutive)
+      // First try: respect w3 AND hard l0 rules
       for(const day of allWkdays2){
         if(ew[a.name].length>=qt[a.name])break;
         if(agLv[a.name].has(day))continue;
         if(ew[a.name].includes(day))continue;
         if(w3(a,day,ew[a.name]))continue;
+        if(l0HardBlock(a,day,ew))continue;
         ew[a.name].push(day);dWO[day]=(dWO[day]||0)+1;
         if(!asn[day])asn[day]=[];
       }
-      // Last resort: if still short, allow any day (only skip leave/duplicate)
+      // Last resort: relax w3 but still enforce hard l0 rules
+      if(ew[a.name].length<qt[a.name]){
+        for(const day of allWkdays2){
+          if(ew[a.name].length>=qt[a.name])break;
+          if(agLv[a.name].has(day))continue;
+          if(ew[a.name].includes(day))continue;
+          if(l0HardBlock(a,day,ew))continue;
+          ew[a.name].push(day);dWO[day]=(dWO[day]||0)+1;
+          if(!asn[day])asn[day]=[];
+        }
+      }
+      // Absolute last resort: relax EVERYTHING (only if leave blocks all options)
       if(ew[a.name].length<qt[a.name]){
         for(const day of allWkdays2){
           if(ew[a.name].length>=qt[a.name])break;
