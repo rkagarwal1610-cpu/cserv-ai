@@ -636,17 +636,27 @@ app.post('/api/rosters/export/xlsx/inline', perm('roster','export'), async (req,
       });
       days.forEach((d,i)=>{
         const c=5+i; const v=agSc[d]||'ROI'; const dw=+dow[d];
+        const isSun=dw===0; const isHol=holDays.has(d);
         const cell=row.getCell(c);
         cell.border=bdr; cell.alignment=center;
-        // WO=purple bold | Holiday=ROI text + Orange Accent 6 | Leave=ROI text + Red | ROI=white
+        // Priority: Sunday WO > explicit WO > Holiday (orange) > Leave (red) > ROI (white)
         const fYel={type:'pattern',pattern:'solid',fgColor:{argb:'FFFFFF00'}}; // Yellow for Sun/Hol working
-        if(v==='SW'||v==='HW'){
-          // Agent working on Sunday/Holiday — yellow background
-          cell.value='ROI'; cell.fill=fYel; cell.font={size:9,bold:false,color:{argb:'FF000000'}};
+        if(isSun){
+          // Sunday — always WO unless agent explicitly working (SW)
+          if(v==='SW'){
+            cell.value='ROI'; cell.fill=fYel; cell.font={size:9,bold:false,color:{argb:'FF000000'}};
+          } else {
+            cell.value='WO'; cell.fill=fWO; cell.font={size:9,bold:true,color:{argb:'FF000000'}};
+          }
+        } else if(isHol){
+          // Holiday — ROI text + Orange Accent 6 background
+          if(v==='HW'){
+            cell.value='ROI'; cell.fill=fYel; cell.font={size:9,bold:false,color:{argb:'FF000000'}};
+          } else {
+            cell.value='ROI'; cell.fill=fHol; cell.font={size:9,bold:false,color:{argb:'FF000000'}};
+          }
         } else if(v==='WO'){
           cell.value='WO';  cell.fill=fWO;  cell.font={size:9,bold:true, color:{argb:'FF000000'}};
-        } else if(v==='HOL'||v==='H'){
-          cell.value='ROI'; cell.fill=fNone; cell.font={size:9,bold:false,color:{argb:'FF000000'}};
         } else if(v==='LV'){
           cell.value='ROI'; cell.fill=fLv;  cell.font={size:9,bold:false,color:{argb:'FF000000'}};
         } else {
