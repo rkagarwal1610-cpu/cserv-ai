@@ -642,15 +642,12 @@ app.post('/api/rosters/export/xlsx/inline', perm('roster','export'), async (req,
         // Priority: Sunday WO > explicit WO > Holiday (orange) > Leave (red) > ROI (white)
         const fYel={type:'pattern',pattern:'solid',fgColor:{argb:'FFFFFF00'}}; // Yellow for Sun/Hol working
         if(isSun){
-          // Sunday — always WO unless agent explicitly working (SW)
-          if(v==='SW'){
-            cell.value='ROI'; cell.fill=fYel; cell.font={size:9,bold:false,color:{argb:'FF000000'}};
-          } else {
-            cell.value='WO'; cell.fill=fWO; cell.font={size:9,bold:true,color:{argb:'FF000000'}};
-          }
+          // Sunday — always WO (SW agents also show WO; agSHW tracked separately for quota)
+          cell.value='WO'; cell.fill=fWO; cell.font={size:9,bold:true,color:{argb:'FF000000'}};
         } else if(isHol){
-          // Holiday — ROI text + Orange Accent 6 background
+          // Holiday — agent working (HW) gets yellow, else orange HOL fill
           if(v==='HW'){
+            const fYel={type:'pattern',pattern:'solid',fgColor:{argb:'FFFFFF00'}};
             cell.value='ROI'; cell.fill=fYel; cell.font={size:9,bold:false,color:{argb:'FF000000'}};
           } else {
             cell.value='ROI'; cell.fill=fHol; cell.font={size:9,bold:false,color:{argb:'FF000000'}};

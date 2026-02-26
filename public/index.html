@@ -1495,7 +1495,7 @@ function compute(){
   // else       → ROI
   const sc={};AG.forEach(a=>{sc[a.name]={};days.forEach(d=>{
     if(dow[d]===0){
-      sc[a.name][d]=agSHW[a.name].has(d)?'SW':'WO';  // Sunday: SW=working, WO=off
+      sc[a.name][d]='WO';  // Sunday: always WO (SW tracked via agSHW separately)
     } else if(holDays.has(d)){
       sc[a.name][d]=agSHW[a.name].has(d)?'HW':'HOL'; // Holiday: HW=working, HOL=off
     } else if(dow[d]===6){
@@ -1537,7 +1537,7 @@ function lb(l){const c=LC[l]||LC[0];return`<span class="lbdg" style="background:
 // LV  = Red     #FFBABA bg, #C0392B text
 // ROI = No color (transparent)
 function cellStyle(s,dayType){
-  if(s==='SW')  return{txt:'ROI',bg:'#FFFF00',fg:'#7A6000',fw:'400'}; // Sunday working — yellow
+  // SW removed — Sunday working now stored as WO directly
   if(s==='HW')  return{txt:'ROI',bg:'#FFFF00',fg:'#7A6000',fw:'400'}; // Holiday working — yellow
   if(dayType==='HOL')  return{txt:'HOL',bg:'#F9CB9C',fg:'#7D4E00',fw:'600'};
   if(s==='WO')  return{txt:'WO', bg:'#C9B8E8',fg:'#4A2587',fw:'700'};
