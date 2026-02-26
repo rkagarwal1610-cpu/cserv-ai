@@ -1304,7 +1304,12 @@ function compute(){
       if(w(d1)&&w(d2)){
         // Allow the natural Sat+Sun pair — that's unavoidable by design
         if(isSatSunPair(a,d1,d2))continue;
-        return true; // Any other 2-consecutive = block
+        // Allow pairs where one side is a Sunday or Holiday — these are system-assigned
+        // off days (not extra WOs) and should not block adjacent fixedWO assignments.
+        // e.g. fixedWO on Mar 3 (Tue) + Holi on Mar 4 (Wed) = acceptable.
+        if(dow[d1]===0||dow[d2]===0)continue; // Sunday-adjacent exempt
+        if(holDays.has(d1)||holDays.has(d2))continue; // Holiday-adjacent exempt
+        return true; // Any other 2-consecutive extra WO = block
       }
     }
     return false;
