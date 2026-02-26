@@ -1275,31 +1275,27 @@ function compute(){
     return false;
   }
 
-  // Consecutive check: block 2 or 3 consecutive extra weekday WOs in Tue-Fri range (dow 2-5)
-  // Monday (dow=1) is excluded — consecutive check only applies Tue through Fri
-  function isMidWeekExtraWO(d,testExtra){
-    // A day counts for consecutive check if: it's in extra WOs AND it's Tue-Fri AND not a sat-WO
-    if(!testExtra.includes(d))return false;
+  // Returns true if day d is ANY type of WO for agent a given testExtra as the candidate extra-WO list.
+  // Leave days break the chain. Holiday days count as WO (agent is off).
+  function isAgentWODay(a,d,testExtra){
     if(d<1||d>days[days.length-1])return false;
-    const dw=dow[d]||new Date(yr,mo,d).getDay();
-    return dw>=2&&dw<=5; // Tue-Fri extra weekday WO
+    if(agLv[a.name].has(d))return false;          // Leave breaks the chain
+    if(dow[d]===0)return true;                     // Sunday always WO
+    if(agSatWO[a.name].has(d))return true;         // Agent's WO Saturday
+    if(holDays.has(d))return true;                 // Holiday counts as WO (agent is off)
+    if(testExtra.includes(d))return true;          // Extra weekday WO
+    return false;
   }
+
+  // Block assignment of extra WO on day d if it would create 3+ consecutive WO days
+  // (checks any combination of Sun/Sat-WO/Holiday/extra-weekday-WO)
   function w3(a,d,extraWOs){
     const testExtra=[...extraWOs,d];
-    const dw=dow[d];
-    // Only apply consecutive check when current day is Tue-Fri
-    if(dw<2||dw>5)return false;
-    // Check 2 consecutive: prev or next day is also a mid-week extra WO
-    const prev1=isMidWeekExtraWO(d-1,testExtra);
-    const next1=isMidWeekExtraWO(d+1,testExtra);
-    if(prev1||next1)return true;
-    // Check 3 consecutive: two days before or after
-    const prev2=isMidWeekExtraWO(d-2,testExtra);
-    const next2=isMidWeekExtraWO(d+2,testExtra);
-    if(prev1&&prev2)return true; // d-2, d-1, d
-    if(next1&&next2)return true; // d, d+1, d+2
-    if(prev1&&next1)return true; // d-1, d, d+1
-    return false;
+    // Check all three windows that would create a run of 3 including d
+    const w=(x)=>isAgentWODay(a,x,testExtra);
+    return (w(d-2)&&w(d-1))||   // d is the 3rd:  d-2, d-1, d
+           (w(d-1)&&w(d+1))||   // d is the 2nd:  d-1, d, d+1
+           (w(d+1)&&w(d+2));    // d is the 1st:  d, d+1, d+2
   }
 
   // L0 agents

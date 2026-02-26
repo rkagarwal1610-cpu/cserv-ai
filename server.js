@@ -646,7 +646,7 @@ app.post('/api/rosters/export/xlsx/inline', perm('roster','export'), async (req,
         } else if(v==='WO'){
           cell.value='WO';  cell.fill=fWO;  cell.font={size:9,bold:true, color:{argb:'FF000000'}};
         } else if(v==='HOL'||v==='H'){
-          cell.value='ROI'; cell.fill=fHol; cell.font={size:9,bold:false,color:{argb:'FF000000'}};
+          cell.value='ROI'; cell.fill=fNone; cell.font={size:9,bold:false,color:{argb:'FF000000'}};
         } else if(v==='LV'){
           cell.value='ROI'; cell.fill=fLv;  cell.font={size:9,bold:false,color:{argb:'FF000000'}};
         } else {
@@ -673,11 +673,28 @@ app.post('/api/rosters/export/xlsx/inline', perm('roster','export'), async (req,
     });
 
     // Legend
-    const legends=[[crIdx+3,'WO',fWO],[crIdx+4,'Leave (shown as ROI)',fLv],[crIdx+5,'Sunday/Holiday (shown as ROI)',fHol],[crIdx+6,'Holiday',fHol]];
-    legends.forEach(([lr,txt,fill])=>{
+    // Legend — two sections: "Not required" and "Required as below"
+    const fYelLeg={type:'pattern',pattern:'solid',fgColor:{argb:'FFFFFF00'}};
+    // Section label rows
+    const lBase=crIdx+2;
+    const notReqRow=ws.getRow(lBase); notReqRow.getCell(1).value='Not required';
+    notReqRow.getCell(1).font={size:9,italic:true,color:{argb:'FF666666'}};
+    const notReqItems=[[lBase+1,'WO',fWO],[lBase+2,'Leave (shown as ROI)',fLv],[lBase+3,'Sunday/Holiday (shown as ROI)',fHol],[lBase+4,'Holiday',fHol]];
+    notReqItems.forEach(([lr,txt,fill])=>{
       const cell=ws.getRow(lr).getCell(2);
-      cell.value=txt; cell.fill=fill;
-      cell.font={size:9}; cell.alignment=left;
+      cell.value=txt; cell.fill=fill; cell.font={size:9}; cell.alignment=left;
+    });
+    const reqRow=ws.getRow(lBase+6); reqRow.getCell(1).value='Required as below';
+    reqRow.getCell(1).font={size:9,italic:true,color:{argb:'FF666666'}};
+    const reqItems=[
+      [lBase+7,fWO,'WO'],
+      [lBase+8,fLv,'Leave'],
+      [lBase+9,fYelLeg,'Sunday and Holiday Working'],
+      [lBase+10,fNone,'Holiday'],
+    ];
+    reqItems.forEach(([lr,fill,txt])=>{
+      const labelCell=ws.getRow(lr).getCell(1); labelCell.fill=fill; labelCell.border=bdr;
+      const txtCell=ws.getRow(lr).getCell(2); txtCell.value=txt; txtCell.font={size:9}; txtCell.alignment=left;
     });
 
     ws.views=[{state:'frozen',xSplit:4,ySplit:2}];
