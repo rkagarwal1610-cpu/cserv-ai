@@ -468,11 +468,11 @@ app.post('/api/rosters/export/xlsx', perm('roster','export'), async (req,res)=>{
         if(col===1||col===3) c.alignment={horizontal:'center',vertical:'middle'};
       });
 
-      // Total WO col (E): count WO cells only (not HOL — holidays are separate)
+      // Total WO col (E): count WO + SW (SW = worked Sunday, still a WO day)
       let woCount=0;
       days.forEach(d=>{
         const s=sc[d]||'ROI';
-        if(s==='WO') woCount++;
+        if(s==='WO'||s==='SW') woCount++;
       });
       const twoCell=row.getCell(5);
       twoCell.value=woCount;
@@ -498,10 +498,15 @@ app.post('/api/rosters/export/xlsx', perm('roster','export'), async (req,res)=>{
         // Leave      → LV, rose FF2D0A0F / FFff3d5a
         // ROI        → ROI, dark bg / dim text
 
-        if(dowVal===0){// Sunday
+        if(dowVal===0){// Sunday — WO off = red/amber, SW (worked) = yellow
           cell.value='WO';
-          cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF2D0A0F'}};
-          cell.font={bold:true,color:{argb:'FFffb830'},size:8};
+          if(s==='SW'){
+            cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF2D2A00'}};
+            cell.font={bold:true,color:{argb:'FFffd700'},size:8};
+          } else {
+            cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF2D0A0F'}};
+            cell.font={bold:true,color:{argb:'FFffb830'},size:8};
+          }
         } else if(t==='HOL'){// Holiday — ROI text, Orange Accent 6 bg
           cell.value='ROI';
           cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFED7D31'}};
