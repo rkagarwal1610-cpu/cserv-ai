@@ -877,10 +877,12 @@ function buildRosterPage(){
           <button class="ttb on" onclick="swTab('cal',this)">📅 Calendar</button>
           <button class="ttb" onclick="swTab('pairs',this)">🔗 Pairs</button>
           <button class="ttb" onclick="swTab('sum',this)">📊 Summary</button>
+          <button class="ttb" id="tabCmpBtn" onclick="swTab('cmp',this)" style="display:none">⚖ Compare</button>
         </div>
         <div id="tab-cal"><div class="tbox" style="max-height:calc(100vh - 310px)"><table class="rtb" id="calT"></table></div></div>
         <div id="tab-pairs" style="display:none"><div class="tbox"><table class="ptb" id="pairT"></table></div></div>
         <div id="tab-sum" style="display:none"><div class="tbox"><table class="ptb" id="sumT"></table></div></div>
+        <div id="tab-cmp" style="display:none"><div class="tbox" id="cmpDiv"></div></div>
       </div>
     </div>
   </div>`;
@@ -1165,7 +1167,9 @@ function generate3(){
       document.getElementById('v3Row').style.display='flex';
       if(can('roster','save'))document.getElementById('btnSv').style.display='inline-flex';
       if(can('roster','approve'))document.getElementById('btnApprove').style.display='inline-flex';
-      rAlert('✓ 3 versions generated — download below','ok');
+      document.getElementById('tabCmpBtn').style.display='';
+      bCompare();
+      rAlert('✓ 3 versions generated — use ⚖ Compare tab to review','ok');
     }catch(e){rAlert('⚠ '+e.message,'err')}
     if(btn3)btn3.disabled=false;if(sp3)sp3.style.display='none';if(tx3)tx3.textContent='🔀 Generate 3 Versions';
   },60);
@@ -1356,9 +1360,31 @@ function compute(){
   }
 
   // ── PHASE 2: Regular WO assignment — weekdays only ──────────────────
-  for(const day of wd){
+  // Sort wd[] so that days with fewer WOs so far get priority (staffing floor).
+  // Re-sort at each iteration to dynamically balance load.
+  // Week 1 interleave: ensure early-month days are not always last in queue.
+  const wdSorted=()=>{
+    // Split into week buckets and interleave so W1 isn't starved
+    const byWeek=[[],[],[],[],[]]; // W1-W5
+    for(const d of wd){
+      const w=d<=6?0:d<=13?1:d<=20?2:d<=27?3:4;
+      byWeek[w].push(d);
+    }
+    // Interleave weeks evenly so early-month days get early queue slots
+    const interleaved=[];
+    const maxLen=Math.max(...byWeek.map(w=>w.length));
+    for(let i=0;i<maxLen;i++) for(const w of byWeek) if(w[i]!==undefined) interleaved.push(w[i]);
+    // Within each slot, prioritise days that currently have fewer WOs (keep headroom)
+    return interleaved.sort((a,b)=>(dWO[a]||0)-(dWO[b]||0));
+  };
+
+  for(const day of wdSorted()){
     if(AG.every(a=>ew[a.name].length>=qt[a.name]))continue;
     if((dWO[day]||0)>=maxPD)continue;
+    // Staffing floor: skip this day if assigning 2 WOs would drop working count below floor
+    const currentWO=Object.values(ew).filter(arr=>arr.includes(day)).length;
+    const staffFloor=Math.max(0,AG.length-maxPD); // floor = team - maxPD
+    if(AG.length-(currentWO+2)<staffFloor)continue;
     // Soft rule: if agent had WO on prior Friday, avoid Monday (unless no other option)
     const isMon=dow[day]===1;
     const el=AG.filter(a=>{
@@ -1380,7 +1406,6 @@ function compute(){
     if(!pr.length)continue;
     if(pr.length)pr.sort((p,q)=>{const sp=(qt[p[0].name]-ew[p[0].name].length)+(qt[p[1].name]-ew[p[1].name].length);const sq=(qt[q[0].name]-ew[q[0].name].length)+(qt[q[1].name]-ew[q[1].name].length);return sq-sp});
     // Weekday hard rule: never allow L0+L0 pair (at most 1 L0 extra WO per weekday)
-    // Filter out L0+L0 pairs on weekdays completely — no fallback
     if(dow[day]!==0&&dow[day]!==6){
       pr=pr.filter(([a,b])=>!(a.level===0&&b.level===0));
     }
@@ -1390,10 +1415,11 @@ function compute(){
     asn[day]=(asn[day]||[]);asn[day].push([a1,a2]);dWO[day]=(dWO[day]||0)+2;
   }
 
-  // Second pass: agents still under quota — try solo assignment (relaxed pairing)
+  // ── PHASE 3 (solo pass): agents still under quota — pair-relaxed ──────
+  // First attempt: respect maxPD cap, solo assignment allowed
   const stillShort=AG.filter(a=>ew[a.name].length<qt[a.name]);
   if(stillShort.length){
-    for(const day of wd){
+    for(const day of [...wd].sort((a,b)=>(dWO[a]||0)-(dWO[b]||0))){
       if(stillShort.every(a=>ew[a.name].length>=qt[a.name]))break;
       if((dWO[day]||0)>=maxPD)continue;
       for(const a of stillShort){
@@ -1409,7 +1435,27 @@ function compute(){
     }
   }
 
-  // Agents who couldn't reach full quota (after both passes)
+  // ── PHASE 4 (guarantee pass): still short — relax maxPD cap to guarantee quota ──
+  // This is the final safety net: every agent MUST reach their target WO count.
+  // We relax the daily cap but keep all other rules (no consecutive, no l0 conflict).
+  const hardShort=AG.filter(a=>ew[a.name].length<qt[a.name]);
+  if(hardShort.length){
+    // Sort available days by current load (lightest first) for best spread
+    const allAvailDays=[...wd].sort((a,b)=>(dWO[a]||0)-(dWO[b]||0));
+    for(const a of hardShort){
+      for(const day of allAvailDays){
+        if(ew[a.name].length>=qt[a.name])break;
+        if(agLv[a.name].has(day))continue;
+        if(ew[a.name].includes(day))continue;
+        if(w3(a,day,ew[a.name]))continue;
+        if(l0LeaveBlock(a,day,ew))continue;
+        ew[a.name].push(day);dWO[day]=(dWO[day]||0)+1;
+        if(!asn[day])asn[day]=[];
+      }
+    }
+  }
+
+  // Agents who still couldn't reach quota — only possible if leave blocks ALL available days
   const sh=AG.filter(a=>ew[a.name].length<qt[a.name]);
   const warnings=sh.length?[`⚠ Fewer WOs assigned for: ${sh.map(a=>`${a.name} (${suns.length+agSatWO[a.name].size+ew[a.name].length} of ${tgtBase})`).join(', ')} — leave days reduced available slots.`]:[];
 
@@ -1532,7 +1578,133 @@ function bSum(r,tid){
   h+='</tbody>';document.getElementById(tid).innerHTML=h;
 }
 
-function swTab(id,el){['cal','pairs','sum'].forEach(t=>document.getElementById('tab-'+t).style.display=t===id?'block':'none');document.querySelectorAll('.tab-row .ttb').forEach(b=>b.classList.remove('on'));el.classList.add('on')}
+
+function bCompare(){
+  if(!ROSTERS[0]||!ROSTERS[1]||!ROSTERS[2])return;
+  const r=ROSTERS[0];
+  const days=r.days, agents=r.agents;
+  const dow=r.dow, holDays=new Set(r.holDays||[]);
+  const MNs=MN[r.mo]+' '+r.yr;
+  const DS2=['Su','Mo','Tu','We','Th','Fr','Sa'];
+
+  // ── WO count table ─────────────────────────────────────────────────
+  let woCounts=[['Agent','Target','V1','V2','V3']];
+  agents.forEach(a=>{
+    const row=[x(a.name),9];
+    ROSTERS.forEach(rv=>{
+      const sc=rv.sc[a.name]||{};
+      const wo=rv.days.filter(d=>sc[d]==='WO').length;
+      row.push(wo);
+    });
+    woCounts.push(row);
+  });
+
+  // ── Staffing heatmap ────────────────────────────────────────────────
+  const workdays=days.filter(d=>dow[d]!==0&&dow[d]!==6&&!holDays.has(d));
+  function staffOn(rv,d){return rv.agents.filter(a=>(rv.sc[a.name]||{})[d]!=='WO').length;}
+  function heatColor(n,total){
+    const pct=n/total;
+    if(pct>=0.94)return{bg:'#0a2d1a',fg:'#00e5a0'};
+    if(pct>=0.88)return{bg:'#1a2d0a',fg:'#7ec850'};
+    if(pct>=0.82)return{bg:'#2d2a00',fg:'#ffb830'};
+    return{bg:'#2d0a0a',fg:'#ff5a5a'};
+  }
+
+  let html=`<div style="padding:10px 0">`;
+
+  // ── Section 1: WO Count ─────────────────────────────────────────────
+  html+=`<div style="font-size:13px;font-weight:800;color:var(--ink0);margin-bottom:10px">WO Count per Agent</div>`;
+  html+=`<div style="overflow-x:auto;margin-bottom:20px"><table style="border-collapse:collapse;width:100%;font-size:12px">`;
+  html+=`<thead><tr>
+    <th style="background:var(--l3);color:var(--ink2);padding:6px 10px;text-align:left;font-weight:700;white-space:nowrap">Agent</th>
+    <th style="background:var(--l3);color:var(--ink2);padding:6px 8px;text-align:center;font-weight:700">Target</th>
+    <th style="background:var(--l3);color:var(--cyan);padding:6px 8px;text-align:center;font-weight:700">V1</th>
+    <th style="background:var(--l3);color:var(--cyan);padding:6px 8px;text-align:center;font-weight:700">V2</th>
+    <th style="background:var(--l3);color:var(--cyan);padding:6px 8px;text-align:center;font-weight:700">V3</th>
+  </tr></thead><tbody>`;
+  agents.forEach(a=>{
+    const vos=ROSTERS.map(rv=>{const sc=rv.sc[a.name]||{};return rv.days.filter(d=>sc[d]==='WO').length;});
+    const allOk=vos.every(v=>v===9);
+    html+=`<tr style="border-bottom:1px solid var(--rim)">
+      <td style="padding:5px 10px;color:var(--ink1);font-weight:600">${x(a.name)}</td>
+      <td style="padding:5px 8px;text-align:center;color:var(--ink3)">9</td>
+      ${vos.map(v=>{
+        const ok=v===9;
+        return `<td style="padding:5px 8px;text-align:center;font-weight:700;color:${ok?'var(--roi)':'var(--rose)'};background:${ok?'transparent':'rgba(255,61,90,.08)'}">${ok?'✓ 9':'✗ '+v}</td>`;
+      }).join('')}
+    </tr>`;
+  });
+  // Totals row
+  const totalWOs=ROSTERS.map(rv=>rv.agents.reduce((s,a)=>{const sc=rv.sc[a.name]||{};return s+rv.days.filter(d=>sc[d]==='WO').length;},0));
+  html+=`<tr style="border-top:2px solid var(--rim)">
+    <td style="padding:5px 10px;color:var(--ink3);font-style:italic">Total WOs</td>
+    <td style="padding:5px 8px;text-align:center;color:var(--ink3)">${agents.length*9}</td>
+    ${totalWOs.map(t=>`<td style="padding:5px 8px;text-align:center;font-weight:700;color:var(--ink1)">${t}</td>`).join('')}
+  </tr>`;
+  html+=`</tbody></table></div>`;
+
+  // ── Section 2: Daily Staffing Heatmap ──────────────────────────────
+  html+=`<div style="font-size:13px;font-weight:800;color:var(--ink0);margin-bottom:6px">Daily Staffing Heatmap <span style="font-size:10px;color:var(--ink3);font-weight:400">(working agents per day — excludes Sundays & holidays)</span></div>`;
+  html+=`<div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap">`;
+  [{bg:'#0a2d1a',fg:'#00e5a0',lbl:'≥94% (16+)'},{bg:'#1a2d0a',fg:'#7ec850',lbl:'88–93% (15)'},{bg:'#2d2a00',fg:'#ffb830',lbl:'82–87% (14)'},{bg:'#2d0a0a',fg:'#ff5a5a',lbl:'<82% (≤13)'}].forEach(({bg,fg,lbl})=>{
+    html+=`<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:var(--ink3)"><span style="width:12px;height:12px;border-radius:2px;background:${bg};border:1px solid ${fg};display:inline-block"></span>${lbl}</span>`;
+  });
+  html+=`</div>`;
+  html+=`<div style="overflow-x:auto;margin-bottom:20px"><table style="border-collapse:collapse;font-size:11px">`;
+  html+=`<thead><tr>
+    <th style="background:var(--l3);color:var(--ink2);padding:5px 8px;text-align:left;white-space:nowrap;position:sticky;left:0;z-index:1">Date</th>
+    <th style="background:var(--l3);color:var(--ink2);padding:5px 6px;text-align:center">Day</th>
+    <th style="background:var(--l3);color:var(--cyan);padding:5px 10px;text-align:center">V1</th>
+    <th style="background:var(--l3);color:var(--cyan);padding:5px 10px;text-align:center">V2</th>
+    <th style="background:var(--l3);color:var(--cyan);padding:5px 10px;text-align:center">V3</th>
+    <th style="background:var(--l3);color:var(--ink3);padding:5px 8px;text-align:center">Note</th>
+  </tr></thead><tbody>`;
+  const total=agents.length;
+  workdays.forEach(d=>{
+    const dn=DS2[dow[d]];
+    const staffVals=ROSTERS.map(rv=>staffOn(rv,d));
+    const note=holDays.has(d)?(r.holNames||[]).find(h=>{try{return new Date(h.date).getDate()===d}catch{return false}})?.name||'Holiday':'';
+    html+=`<tr style="border-bottom:1px solid var(--rim)">
+      <td style="padding:4px 8px;color:var(--ink2);font-family:'IBM Plex Mono',monospace;font-size:10px;white-space:nowrap;position:sticky;left:0;background:var(--bg);z-index:1">${MN[r.mo].slice(0,3)} ${String(d).padStart(2,'0')}</td>
+      <td style="padding:4px 6px;color:var(--ink3);text-align:center">${dn}</td>
+      ${staffVals.map(n=>{const{bg,fg}=heatColor(n,total);return `<td style="padding:4px 10px;text-align:center;background:${bg};color:${fg};font-weight:700;font-family:'IBM Plex Mono',monospace">${n}</td>`;}).join('')}
+      <td style="padding:4px 8px;color:var(--ink3);font-size:10px">${note}</td>
+    </tr>`;
+  });
+  html+=`</tbody></table></div>`;
+
+  // ── Section 3: Weekly WO Spread ────────────────────────────────────
+  html+=`<div style="font-size:13px;font-weight:800;color:var(--ink0);margin-bottom:8px">Weekday WO Spread by Week</div>`;
+  const dim=r.days[r.days.length-1];
+  const weeks=[];
+  for(let w=0;w<5;w++){const s=w===0?2:w*7+1;const e=Math.min(s+4,dim+1);const wd2=r.days.filter(d=>d>=s&&d<e&&dow[d]!==0&&dow[d]!==6&&!holDays.has(d));if(wd2.length)weeks.push({label:`W${w+1} (${s}–${Math.min(s+4,dim)})`,days:wd2});}
+  html+=`<div style="overflow-x:auto;margin-bottom:20px"><table style="border-collapse:collapse;font-size:12px;width:100%">`;
+  html+=`<thead><tr>
+    <th style="background:var(--l3);color:var(--ink2);padding:6px 10px;text-align:left">Week</th>
+    <th style="background:var(--l3);color:var(--cyan);padding:6px 12px;text-align:center">V1</th>
+    <th style="background:var(--l3);color:var(--cyan);padding:6px 12px;text-align:center">V2</th>
+    <th style="background:var(--l3);color:var(--cyan);padding:6px 12px;text-align:center">V3</th>
+  </tr></thead><tbody>`;
+  weeks.forEach(({label,days:wds})=>{
+    const woCnts=ROSTERS.map(rv=>wds.reduce((s,d)=>s+rv.agents.filter(a=>(rv.sc[a.name]||{})[d]==='WO').length,0));
+    const maxC=Math.max(...woCnts);
+    html+=`<tr style="border-bottom:1px solid var(--rim)">
+      <td style="padding:5px 10px;color:var(--ink2);font-weight:600">${label}</td>
+      ${woCnts.map(c=>`<td style="padding:5px 12px;text-align:center;font-weight:700;color:${c===maxC?'var(--amber)':'var(--ink1)'};">${c}</td>`).join('')}
+    </tr>`;
+  });
+  const totals=ROSTERS.map(rv=>workdays.reduce((s,d)=>s+rv.agents.filter(a=>(rv.sc[a.name]||{})[d]==='WO').length,0));
+  html+=`<tr style="border-top:2px solid var(--rim)">
+    <td style="padding:5px 10px;color:var(--ink3);font-style:italic">Total</td>
+    ${totals.map(t=>`<td style="padding:5px 12px;text-align:center;font-weight:700;color:var(--ink1)">${t}</td>`).join('')}
+  </tr>`;
+  html+=`</tbody></table></div>`;
+
+  html+=`</div>`;
+  document.getElementById('cmpDiv').innerHTML=html;
+}
+
+function swTab(id,el){['cal','pairs','sum','cmp'].forEach(t=>document.getElementById('tab-'+t).style.display=t===id?'block':'none');document.querySelectorAll('.tab-row .ttb').forEach(b=>b.classList.remove('on'));el.classList.add('on')}
 
 // ══════════════════════════════════════════════════════════════════════════════
 // MODULE 3 — PERFORMANCE DASHBOARD
