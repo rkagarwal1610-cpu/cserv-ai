@@ -1344,59 +1344,58 @@ function compute(){
   }
 
   // ── PHASE 1: Fixed WO days ───────────────────────────────────────────
+  // fixedWOs are EXPLICIT admin instructions and must ALWAYS be honoured.
+  // No l0LeaveBlock, no quota cap, no pairing requirement — just leave/dup checks.
   for(const day of [...allFWDays].sort((a,b)=>a-b)){
     if(blockDay2&&day===2)continue;
-    let fAgents=AG.filter(a=>agFW[a.name].has(day)&&!agLv[a.name].has(day)&&ew[a.name].length<qt[a.name]&&!ew[a.name].includes(day)&&!w3(a,day,ew[a.name]));
-    // L0 hard rule: on weekdays, at most 1 L0 on WO; on Tue/Wed/Thu min 2 L0 must remain working
-    if(dow[day]!==0&&dow[day]!==6){
-      fAgents=fAgents.filter(a=>{
-        if(a.level!==0)return true;
-        return !l0LeaveBlock(a,day,ew);
-      });
+    // Only hard constraints: not on leave, not already assigned, not a dup
+    const fAgents=AG.filter(a=>
+      agFW[a.name].has(day)&&
+      !agLv[a.name].has(day)&&
+      !ew[a.name].includes(day)
+    );
+    for(const a of fAgents){
+      // Count this fixedWO toward quota if not already over; allow it regardless
+      if(ew[a.name].length<qt[a.name]){
+        ew[a.name].push(day);
+      } else {
+        // Over quota: still honour the fixedWO but don't count toward ew[]
+        // by bumping quota to accommodate it
+        qt[a.name]++;
+        ew[a.name].push(day);
+      }
+      dWO[day]=(dWO[day]||0)+1;
     }
-    for(const a of fAgents){ew[a.name].push(day);dWO[day]=(dWO[day]||0)+1}
     const pairs=[];for(let i=0;i<fAgents.length;i+=2)if(fAgents[i+1])pairs.push([fAgents[i],fAgents[i+1]]);
     if(pairs.length)asn[day]=(asn[day]||[]).concat(pairs);
   }
 
   // ── PHASE 2: Regular WO assignment — weekdays only ──────────────────
-  // Sort wd[] so that days with fewer WOs so far get priority (staffing floor).
-  // Re-sort at each iteration to dynamically balance load.
-  // Week 1 interleave: ensure early-month days are not always last in queue.
+  // Interleave weeks evenly (W1 not starved) and sort by current load.
   const wdSorted=()=>{
-    // Split into week buckets and interleave so W1 isn't starved
-    const byWeek=[[],[],[],[],[]]; // W1-W5
+    const byWeek=[[],[],[],[],[]];
     for(const d of wd){
       const w=d<=6?0:d<=13?1:d<=20?2:d<=27?3:4;
       byWeek[w].push(d);
     }
-    // Interleave weeks evenly so early-month days get early queue slots
     const interleaved=[];
     const maxLen=Math.max(...byWeek.map(w=>w.length));
     for(let i=0;i<maxLen;i++) for(const w of byWeek) if(w[i]!==undefined) interleaved.push(w[i]);
-    // Within each slot, prioritise days that currently have fewer WOs (keep headroom)
     return interleaved.sort((a,b)=>(dWO[a]||0)-(dWO[b]||0));
   };
 
   for(const day of wdSorted()){
     if(AG.every(a=>ew[a.name].length>=qt[a.name]))continue;
     if((dWO[day]||0)>=maxPD)continue;
-    // Staffing floor: skip this day if assigning 2 WOs would drop working count below floor
-    const currentWO=Object.values(ew).filter(arr=>arr.includes(day)).length;
-    const staffFloor=Math.max(0,AG.length-maxPD); // floor = team - maxPD
-    if(AG.length-(currentWO+2)<staffFloor)continue;
-    // Soft rule: if agent had WO on prior Friday, avoid Monday (unless no other option)
     const isMon=dow[day]===1;
     const el=AG.filter(a=>{
       if(agLv[a.name].has(day))return false;
       if(ew[a.name].length>=qt[a.name])return false;
       if(w3(a,day,ew[a.name]))return false;
       if(l0LeaveBlock(a,day,ew))return false;
-      // Soft: skip Mon if prior Fri was WO for this agent (prefer non-Mon agents first; Mon agents added in fallback)
-      if(isMon&&ew[a.name].includes(day-3))return false; // day-3 = prior Friday
+      if(isMon&&ew[a.name].includes(day-3))return false;
       return true;
     });
-    // Fallback: if eligible list empty due to Mon-after-Fri rule, relax it
     const elFull=el.length?el:AG.filter(a=>
       !agLv[a.name].has(day)&&ew[a.name].length<qt[a.name]&&!w3(a,day,ew[a.name])&&!l0LeaveBlock(a,day,ew)
     );
@@ -1404,23 +1403,22 @@ function compute(){
     let pr=[];
     for(let i=0;i<elFinal.length;i++)for(let j=i+1;j<elFinal.length;j++)if(vPair(elFinal[i],elFinal[j]))pr.push([elFinal[i],elFinal[j]]);
     if(!pr.length)continue;
-    if(pr.length)pr.sort((p,q)=>{const sp=(qt[p[0].name]-ew[p[0].name].length)+(qt[p[1].name]-ew[p[1].name].length);const sq=(qt[q[0].name]-ew[q[0].name].length)+(qt[q[1].name]-ew[q[1].name].length);return sq-sp});
-    // Weekday hard rule: never allow L0+L0 pair (at most 1 L0 extra WO per weekday)
-    if(dow[day]!==0&&dow[day]!==6){
-      pr=pr.filter(([a,b])=>!(a.level===0&&b.level===0));
-    }
+    pr.sort((p,q)=>{const sp=(qt[p[0].name]-ew[p[0].name].length)+(qt[p[1].name]-ew[p[1].name].length);const sq=(qt[q[0].name]-ew[q[0].name].length)+(qt[q[1].name]-ew[q[1].name].length);return sq-sp});
+    if(dow[day]!==0&&dow[day]!==6) pr=pr.filter(([a,b])=>!(a.level===0&&b.level===0));
     const ch=pr.find(([a,b])=>ew[a.name].length<qt[a.name]&&ew[b.name].length<qt[b.name]);
     if(!ch)continue;
     const[a1,a2]=ch;ew[a1.name].push(day);ew[a2.name].push(day);
     asn[day]=(asn[day]||[]);asn[day].push([a1,a2]);dWO[day]=(dWO[day]||0)+2;
   }
 
-  // ── PHASE 3 (solo pass): agents still under quota — l0 constraint relaxed ──
-  // Respects maxPD cap and w3 consecutive rule, but relaxes l0LeaveBlock so that
-  // L0 agents (who can never form valid pairs) can still receive solo WO assignments.
+  // ── PHASE 3: Solo pass — all weekdays, l0 rules relaxed ──────────────
+  // For agents still under quota (typically L0 agents who can't form pairs).
+  // Uses ALL weekdays (not just wd[]), respects maxPD cap and w3 consecutive rule.
   const stillShort=AG.filter(a=>ew[a.name].length<qt[a.name]);
   if(stillShort.length){
-    for(const day of [...wd].sort((a,b)=>(dWO[a]||0)-(dWO[b]||0))){
+    const allWkdays=days.filter(d=>dow[d]!==0&&dow[d]!==6&&!holDays.has(d))
+                        .sort((a,b)=>(dWO[a]||0)-(dWO[b]||0));
+    for(const day of allWkdays){
       if(stillShort.every(a=>ew[a.name].length>=qt[a.name]))break;
       if((dWO[day]||0)>=maxPD)continue;
       for(const a of stillShort){
@@ -1435,21 +1433,33 @@ function compute(){
     }
   }
 
-  // ── PHASE 4 (guarantee pass): unconditional quota enforcement ──────────
-  // Every agent MUST reach their target WO count. This pass relaxes ALL soft
-  // constraints (maxPD cap, l0LeaveBlock, w3 consecutive rule) and only respects
-  // hard constraints: no leave days, no already-WO days, no Sun/Sat/Holiday.
-  // Days sorted lightest-load first for best spread.
+  // ── PHASE 4: Guarantee pass — quota MUST be met ───────────────────────
+  // Final safety net. Relaxes maxPD AND l0 rules. Still respects w3 (no 3
+  // consecutive WOs). Uses ALL weekdays sorted by load (lightest first).
+  // Only falls back to skipping w3 as absolute last resort per agent.
   const hardShort=AG.filter(a=>ew[a.name].length<qt[a.name]);
   if(hardShort.length){
-    const allAvailDays=[...wd].sort((a,b)=>(dWO[a]||0)-(dWO[b]||0));
+    const allWkdays2=days.filter(d=>dow[d]!==0&&dow[d]!==6&&!holDays.has(d))
+                         .sort((a,b)=>(dWO[a]||0)-(dWO[b]||0));
     for(const a of hardShort){
-      for(const day of allAvailDays){
+      // First try: respect w3 (no consecutive)
+      for(const day of allWkdays2){
         if(ew[a.name].length>=qt[a.name])break;
-        if(agLv[a.name].has(day))continue;       // hard: can't be on leave
-        if(ew[a.name].includes(day))continue;    // hard: already has WO this day
+        if(agLv[a.name].has(day))continue;
+        if(ew[a.name].includes(day))continue;
+        if(w3(a,day,ew[a.name]))continue;
         ew[a.name].push(day);dWO[day]=(dWO[day]||0)+1;
         if(!asn[day])asn[day]=[];
+      }
+      // Last resort: if still short, allow any day (only skip leave/duplicate)
+      if(ew[a.name].length<qt[a.name]){
+        for(const day of allWkdays2){
+          if(ew[a.name].length>=qt[a.name])break;
+          if(agLv[a.name].has(day))continue;
+          if(ew[a.name].includes(day))continue;
+          ew[a.name].push(day);dWO[day]=(dWO[day]||0)+1;
+          if(!asn[day])asn[day]=[];
+        }
       }
     }
   }
