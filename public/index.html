@@ -1243,7 +1243,7 @@ function compute(){
   const allWeekdays=days.filter(d=>dow[d]!==0&&dow[d]!==6&&!holDays.has(d));
   const qt={};
   AG.forEach(a=>{
-    const sunsOff=suns.filter(d=>!agSHW[a.name].has(d)).length;const universalWOCount=sunsOff+agSatWO[a.name].size;
+    const universalWOCount=suns.length+agSatWO[a.name].size; // All Sundays count as WO — SW only changes cell colour
     const rawQuota=Math.max(0,tgtBase-universalWOCount);
     // Count available non-leave weekdays for this agent
     const availWeekdays=allWeekdays.filter(d=>!agLv[a.name].has(d)).length;
@@ -1495,7 +1495,7 @@ function compute(){
   // else       → ROI
   const sc={};AG.forEach(a=>{sc[a.name]={};days.forEach(d=>{
     if(dow[d]===0){
-      sc[a.name][d]='WO';  // Sunday: always WO (SW tracked via agSHW separately)
+      sc[a.name][d]=agSHW[a.name].has(d)?'SW':'WO';  // Sunday: WO off, SW = worked (shown as WO, yellow bg)
     } else if(holDays.has(d)){
       sc[a.name][d]=agSHW[a.name].has(d)?'HW':'HOL'; // Holiday: HW=working, HOL=off
     } else if(dow[d]===6){
@@ -1537,7 +1537,7 @@ function lb(l){const c=LC[l]||LC[0];return`<span class="lbdg" style="background:
 // LV  = Red     #FFBABA bg, #C0392B text
 // ROI = No color (transparent)
 function cellStyle(s,dayType){
-  // SW removed — Sunday working now stored as WO directly
+  if(s==='SW')  return{txt:'WO', bg:'#FFFF00',fg:'#7A6000',fw:'700'}; // Sunday working — WO text, yellow bg
   if(s==='HW')  return{txt:'ROI',bg:'#FFFF00',fg:'#7A6000',fw:'400'}; // Holiday working — yellow
   if(dayType==='HOL')  return{txt:'HOL',bg:'#F9CB9C',fg:'#7D4E00',fw:'600'};
   if(s==='WO')  return{txt:'WO', bg:'#C9B8E8',fg:'#4A2587',fw:'700'};
