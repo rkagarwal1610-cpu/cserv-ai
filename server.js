@@ -468,7 +468,7 @@ app.post('/api/rosters/export/xlsx', perm('roster','export'), async (req,res)=>{
         if(col===1||col===3) c.alignment={horizontal:'center',vertical:'middle'};
       });
 
-      // Total WO col (E): count only WO days (not HOL)
+      // Total WO col (E): count WO cells only (not HOL — holidays are separate)
       let woCount=0;
       days.forEach(d=>{
         const s=sc[d]||'ROI';

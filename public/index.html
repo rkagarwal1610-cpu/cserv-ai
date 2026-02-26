@@ -1217,7 +1217,7 @@ function compute(){
 
   // Target WO per agent — includes their personal sat WOs + extra weekday WOs
   // Base target is total WOs per month (e.g. 14), we subtract per-agent universal (Sun + their Sat WOs)
-  const tgtBase=(R.targetWOBase||8)+(suns.length>=5&&R.extraWOIfFifthSunday?1:0);
+  const tgtBase=(R.targetWOBase||8)+(suns.length>=5?1:0); // 5th Sunday bonus always applied automatically
 
   const maxPD=Math.min(2,R.maxAgentsOnWOPerDay||2); // max 2 agents WO per day
   const monthKey=`${yr}-${String(mo+1).padStart(2,'0')}`;
@@ -1297,23 +1297,23 @@ function compute(){
     return agSatWO[a.name].has(d1)&&dow[d1]===6&&dow[d2]===0;
   }
 
-  // Block assignment of extra WO on day d if it creates ANY 2 consecutive WO days,
-  // EXCEPT the natural Sat(WO)+Sun pair which is always allowed.
+  // Block assignment of extra WO on day d if it creates ANY 2 consecutive WO days.
+  // Only two pairs are allowed as adjacent WOs:
+  //   1. Sat(WO) + Sun  — unavoidable by design
+  //   2. Sun + Mon(extra) — allowed ONLY IF no Sat(WO) immediately before that Sun
+  //      (prevents Sat+Sun+Mon 3-chain)
   function w3(a,d,extraWOs){
     const testExtra=[...extraWOs,d];
     const w=(x)=>isAgentWODay(a,x,testExtra);
-    // Check every adjacent pair that includes d
     const pairs=[[d-1,d],[d,d+1]];
     for(const[d1,d2]of pairs){
       if(w(d1)&&w(d2)){
-        // Allow the natural Sat+Sun pair — that's unavoidable by design
-        if(isSatSunPair(a,d1,d2))continue;
-        // Allow pairs where one side is a Sunday or Holiday — these are system-assigned
-        // off days (not extra WOs) and should not block adjacent fixedWO assignments.
-        // e.g. fixedWO on Mar 3 (Tue) + Holi on Mar 4 (Wed) = acceptable.
-        if(dow[d1]===0||dow[d2]===0)continue; // Sunday-adjacent exempt
-        if(holDays.has(d1)||holDays.has(d2))continue; // Holiday-adjacent exempt
-        return true; // Any other 2-consecutive extra WO = block
+        // Allow: Sat(WO) + Sun
+        if(agSatWO[a.name].has(d1)&&dow[d1]===6&&dow[d2]===0)continue;
+        // Allow: Sun + Mon — but ONLY if the Sat before that Sun is NOT a WO-Sat
+        // (if it is, we'd have Sat+Sun+Mon = 3 consecutive which is forbidden)
+        if(dow[d1]===0&&dow[d2]===1&&!agSatWO[a.name].has(d1-1))continue;
+        return true; // All other adjacencies: block
       }
     }
     return false;
@@ -2444,7 +2444,7 @@ function buildRulesPage(){
   <div class="agrid">
     <div class="acard"><div class="act">WO Targets</div>
       <div class="fg"><label class="fl">Base WO per agent / month</label><input class="fi ctrl" type="number" id="r-tgt" value="${R.targetWOBase||8}" min="4" max="20" style="background:var(--l2)"></div>
-      <label class="perm-item" style="margin-bottom:8px"><input type="checkbox" id="r-fifth" ${R.extraWOIfFifthSunday?'checked':''}> Extra WO if 5th Sunday</label>
+      <div style="font-size:12px;color:var(--ink3);padding:6px 0">ℹ Extra WO automatically applied when month has 5 Sundays</div>
       <div class="fg"><label class="fl">Max agents on WO per day</label><input class="fi ctrl" type="number" id="r-mpd" value="${R.maxAgentsOnWOPerDay||2}" min="1" max="2" style="background:var(--l2)"></div>
     </div>
     <div class="acard"><div class="act">📅 Saturday Working Config</div>
@@ -2479,7 +2479,7 @@ async function saveRules(){
   const gsc=document.querySelector('input[name="globalSat"]:checked')?.value||'1st3rd';
   const R={
     targetWOBase:+document.getElementById('r-tgt').value,
-    extraWOIfFifthSunday:document.getElementById('r-fifth').checked,
+    // extraWOIfFifthSunday removed — bonus applied automatically when month has 5 Sundays
     maxAgentsOnWOPerDay:+document.getElementById('r-mpd').value,
     pairingRule:document.getElementById('r-pair').value,
     minL0Working:document.getElementById('r-l0').checked,
