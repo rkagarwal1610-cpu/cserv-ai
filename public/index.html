@@ -1469,6 +1469,7 @@ function cellStyle(s,dayType){
 
 function bCal(r,tid){
   const mn=MN[r.mo];const hSet=new Set(r.holDays||[]);
+  const showLvl=ME&&['superadmin','admin'].includes(ME.role);
   let h='<thead><tr><th class="thsno">S#</th><th class="tha">'+mn+' '+r.yr+'</th>';
   r.days.forEach(d=>{
     const dw=r.dow[d];const isSun=dw===0,isSat=dw===6,isHol=hSet.has(d);
@@ -1479,7 +1480,7 @@ function bCal(r,tid){
   r.agents.forEach((a,ri)=>{
     const c=LC[a.level]||LC[0];h+='<tr>';
     h+='<td class="tdsno">'+(ri+1)+'</td>';
-    h+='<td class="tda" style="border-left:3px solid '+c.fg+'"><span style="color:var(--ink0)">'+x(a.name)+'</span><br><span style="font-size:8.5px;color:var(--ink4);font-family:\'IBM Plex Mono\',monospace">'+x(a.emp)+' L'+a.level+'</span></td>';
+    h+='<td class="tda" style="border-left:3px solid '+c.fg+'"><span style="color:var(--ink0)">'+x(a.name)+'</span>'+(showLvl?'<br><span style="font-size:8.5px;color:var(--ink4);font-family:\'IBM Plex Mono\',monospace">'+x(a.emp)+' L'+a.level+'</span>':'')+'</td>';
     let tot=0;
     r.days.forEach(d=>{
       const s=r.sc[a.name]?.[d]||'ROI';const dayType=r.dt[d]||'WORK';
@@ -1509,12 +1510,19 @@ function bPairs(r,tid){
 }
 
 function bSum(r,tid){
-  let h=`<thead><tr><th>S#</th><th>Emp#</th><th>Name</th><th>Level</th><th>WO Days</th><th>Leave Days</th><th>Working Days</th></tr></thead><tbody>`;
+  const showLvl=ME&&['superadmin','admin'].includes(ME.role);
+  let h=showLvl
+    ? `<thead><tr><th>S#</th><th>Emp#</th><th>Name</th><th>Level</th><th>WO Days</th><th>Leave Days</th><th>Working Days</th></tr></thead><tbody>`
+    : `<thead><tr><th>S#</th><th>Emp#</th><th>Name</th><th>WO Days</th><th>Leave Days</th><th>Working Days</th></tr></thead><tbody>`;
   r.agents.forEach((a,ri)=>{
     const wo=r.days.filter(d=>r.sc[a.name]?.[d]==='WO').length;
     const lv=r.days.filter(d=>r.sc[a.name]?.[d]==='LV').length;
     const wk=r.days.length-wo-lv;
-    h+=`<tr><td style="text-align:center;color:var(--ink3)">${ri+1}</td><td style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink3)">${x(a.emp)}</td><td style="font-weight:600;color:var(--ink0)">${x(a.name)}</td><td>${lb(a.level)}</td><td style="text-align:center;font-weight:700;color:var(--cyan);font-size:14px">${wo}</td><td style="text-align:center;color:var(--amber)">${lv||'—'}</td><td style="text-align:center;color:var(--roi)">${wk}</td></tr>`;
+    if(showLvl){
+      h+=`<tr><td style="text-align:center;color:var(--ink3)">${ri+1}</td><td style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink3)">${x(a.emp)}</td><td style="font-weight:600;color:var(--ink0)">${x(a.name)}</td><td>${lb(a.level)}</td><td style="text-align:center;font-weight:700;color:var(--cyan);font-size:14px">${wo}</td><td style="text-align:center;color:var(--amber)">${lv||'—'}</td><td style="text-align:center;color:var(--roi)">${wk}</td></tr>`;
+    } else {
+      h+=`<tr><td style="text-align:center;color:var(--ink3)">${ri+1}</td><td style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink3)">${x(a.emp)}</td><td style="font-weight:600;color:var(--ink0)">${x(a.name)}</td><td style="text-align:center;font-weight:700;color:var(--cyan);font-size:14px">${wo}</td><td style="text-align:center;color:var(--amber)">${lv||'—'}</td><td style="text-align:center;color:var(--roi)">${wk}</td></tr>`;
+    }
   });
   h+='</tbody>';document.getElementById(tid).innerHTML=h;
 }
